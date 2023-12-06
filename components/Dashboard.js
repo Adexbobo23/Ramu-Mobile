@@ -16,6 +16,7 @@ const Dashboard = () => {
   const modalizeRef = React.useRef(null);
   const [isChatModalVisible, setChatModalVisible] = useState(false);
   const [featuredStocks, setFeaturedStocks] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState('naira');
 
 
   useEffect(() => {
@@ -38,21 +39,28 @@ const Dashboard = () => {
 
   const fetchWalletDetails = async () => {
     try {
-      // Get user token from AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
-
-      // Make API request to get wallet details
-      const response = await axios.get('https://api-staging.ramufinance.com/api/v1/get-wallet-details', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-
-      // Update wallet details state
+      const response = await axios.get(
+        `https://api-staging.ramufinance.com/api/v1/get-wallet-details?account_type=${selectedAccount}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
       setWalletDetails(response.data.data);
     } catch (error) {
       console.error('Error fetching wallet details:', error);
     }
+  };
+
+ 
+
+  const switchAccount = () => {
+    const newAccount = selectedAccount === 'naira' ? 'dollar' : 'naira';
+    setSelectedAccount(newAccount);
+    // Fetch wallet details for the selected account
+    fetchWalletDetails();
   };
 
   const toggleChatModal = () => {
@@ -148,19 +156,23 @@ const fetchFeaturedStocks = async () => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.balanceContainer} onPress={toggleBalanceVisibility}>
-          <Text style={styles.balanceText}>{balanceVisible ? `₦${walletDetails?.balance}` : '*******'}</Text>
-          {/* Hidden Icon */}
+          <Text style={styles.balanceText}>
+            {balanceVisible ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance}` : '*******'}
+          </Text>
           {balanceVisible ? (
             <Ionicons name="eye-off" size={24} color="white" />
           ) : (
             <Ionicons name="eye" size={24} color="white" />
           )}
-          {/* Account Balance */}
         </TouchableOpacity>
         <View style={styles.totalBalanceContainer}>
-        {/* <Text style={styles.totalBalanceText}>Total Amount Balance</Text> */}
           <Text style={styles.accountTitle}>Account Number</Text>
           <Text style={styles.accountNumber}>{walletDetails?.virtual_account_number}</Text>
+          <TouchableOpacity style={styles.switchAccountButton} onPress={switchAccount}>
+            <Text style={styles.switchAccountButtonText}>
+              Switch to {selectedAccount === 'naira' ? 'Dollar Account' : 'Naira Account'}
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.buttonContainer} onPress={handleInvestButton}>
@@ -307,6 +319,16 @@ const styles = StyleSheet.create({
     right: 0,
     opacity: 0.5,
   },
+  switchAccountButton: {
+    backgroundColor: '#51CC62',
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 40,
+  },
+  switchAccountButtonText: {
+    color: 'white',
+    textAlign: 'center',
+  },
   balanceText: {
     fontSize: 25,
     fontWeight: 'bold',
@@ -367,6 +389,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 10,
     marginBottom: 20,
+    marginTop: -50,
   },
   buttonContainer: {
     backgroundColor: '#51CC62',

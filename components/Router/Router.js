@@ -47,6 +47,7 @@ import PopularThisWeek from '../PopularThisWeek';
 import SectorStock from '../SectorStocks';
 import UKStock from '../UKStock';
 import USStock from '../USStock';
+import FundWallets from '../FundWallet';
 
 const Stack = createStackNavigator();
 
@@ -292,6 +293,11 @@ const Router = () => {
         <Stack.Screen
         name="USStock"
         component={USStock}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="FundWallet"
+        component={FundWallets}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

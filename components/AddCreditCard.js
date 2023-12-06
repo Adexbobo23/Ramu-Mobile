@@ -21,7 +21,6 @@ const AddCreditCard = () => {
 
       {/* Card Form */}
       <View style={styles.cardForm}>
-        {/* Card Holder Name */}
         <View style={styles.formField}>
           <Text style={styles.label}>Card Holder Name</Text>
           <TextInput
@@ -32,23 +31,33 @@ const AddCreditCard = () => {
           />
         </View>
 
-        {/* Card Number and Expiry Date */}
+        <View style={styles.formField}>
+          <Text style={styles.label}>Card Number</Text>
+          <View style={styles.cardNumberContainer}>
+            <Ionicons name="card" size={24} color="black" style={styles.cardIcon} />
+            <TextInput
+              style={styles.cardNumberInput}
+              placeholder="1234 5678 9012 3456"
+              value={cardNumber}
+              onChangeText={setCardNumber}
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+
         <View style={styles.formRow}>
-          <View style={[styles.formField, { flex: 1 }]}>
-            <Text style={styles.label}>Card Number</Text>
-            <View style={styles.cardNumberContainer}>
-              <Ionicons name="card" size={24} color="black" style={styles.cardIcon} />
-              <TextInput
-                style={styles.cardNumberInput}
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChangeText={setCardNumber}
-                keyboardType="numeric"
-              />
-            </View>
+          <View style={styles.formField}>
+            <Text style={styles.label}>CVC</Text>
+            <TextInput
+              style={styles.input1}
+              placeholder="123"
+              value={cvc}
+              onChangeText={setCvc}
+              keyboardType="numeric"
+            />
           </View>
 
-          <View style={[styles.formField, { marginLeft: 20, flex: 1 }]}>
+          <View style={styles.formField}>
             <Text style={styles.label}>Expiry (MM/YY)</Text>
             <TextInput
               style={styles.input}
@@ -58,18 +67,6 @@ const AddCreditCard = () => {
               keyboardType="numeric"
             />
           </View>
-        </View>
-
-        {/* CVC */}
-        <View style={styles.formField}>
-          <Text style={styles.label}>CVC</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="123"
-            value={cvc}
-            onChangeText={setCvc}
-            keyboardType="numeric"
-          />
         </View>
       </View>
 
@@ -113,11 +110,19 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    height: 40,
+    height: 50,
     borderWidth: 1,
     borderColor: '#51CC62',
     borderRadius: 8,
     paddingHorizontal: 12,
+  },
+  input1: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#51CC62',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    width: 110
   },
   cardNumberContainer: {
     flexDirection: 'row',
@@ -128,7 +133,7 @@ const styles = StyleSheet.create({
   },
   cardNumberInput: {
     flex: 1,
-    height: 40,
+    height: 50,
     borderWidth: 1,
     borderColor: '#51CC62',
     borderRadius: 8,

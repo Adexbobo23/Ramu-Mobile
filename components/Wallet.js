@@ -1,36 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Wallet = () => {
-const navigation = useNavigation();
-const [showBalance, setShowBalance] = useState(true);
-const balance = 1524.0; // Replace with your actual balance
+  const navigation = useNavigation();
+  const [showBalance, setShowBalance] = useState(true);
+  const [selectedAccount, setSelectedAccount] = useState('naira');
+  const [walletDetails, setWalletDetails] = useState(null);
 
   const handleToggleBalance = () => {
     setShowBalance(!showBalance);
   };
 
-const handleSave = () => {
+  const handleSave = () => {
     navigation.navigate('AddCard');
-};
+  };
 
-const navigateToMore = () => {
-  navigation.navigate('More');
-};
+  const handleFundWallet = () => {
+    navigation.navigate('FundWallet');
+  };
 
-const navigateToDashboard = () => {
-  navigation.navigate('Dashboard');
-};
+  const switchAccount = () => {
+    const newAccount = selectedAccount === 'naira' ? 'dollar' : 'naira';
+    setSelectedAccount(newAccount);
+  };
 
-const navigateToPortfolio = () => {
-  navigation.navigate('Portfolio');
-};
+  useEffect(() => {
+    // Fetch wallet details with user token
+    fetchWalletDetails();
+  }, [selectedAccount]); 
 
-const navigateToDiscover = () => {
-  navigation.navigate('Discover');
-};
+  const fetchWalletDetails = async () => {
+    try {
+      // Get user token from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+
+      // Make API request to get wallet details based on the selected account
+      const response = await axios.get(`https://api-staging.ramufinance.com/api/v1/get-wallet-details/${selectedAccount}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      // Update wallet details state
+      setWalletDetails(response.data.data);
+    } catch (error) {
+      console.error('Error fetching wallet details:', error);
+    }
+  };
+
+
+  const navigateToMore = () => {
+    navigation.navigate('More');
+  };
+
+  const navigateToDashboard = () => {
+    navigation.navigate('Dashboard');
+  };
+
+  const navigateToPortfolio = () => {
+    navigation.navigate('Portfolio');
+  };
+
+  const navigateToDiscover = () => {
+    navigation.navigate('Discover');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Wallet</Text>
@@ -43,8 +82,10 @@ const navigateToDiscover = () => {
             <Ionicons name={showBalance ? 'eye-off' : 'eye'} size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.balanceAmount}>{showBalance ? `₦${balance.toFixed(2)}` : '****'}</Text>
-        <TouchableOpacity style={styles.fundButton}>
+        <Text style={styles.balanceAmount}>
+          {showBalance ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance.toFixed(2)}` : '****'}
+        </Text>
+        <TouchableOpacity style={styles.fundButton} onPress={handleFundWallet}>
           <Text style={styles.fundButtonText}>Fund Your Wallet</Text>
         </TouchableOpacity>
       </View>
@@ -69,27 +110,36 @@ const navigateToDiscover = () => {
         <Text style={styles.addCardText}>Add New Card</Text>
       </TouchableOpacity>
 
+      {/* Switch Account Button */}
+      <TouchableOpacity style={styles.switchAccountButton} onPress={switchAccount}>
+        <Ionicons name="swap-horizontal" size={24} color="black" />
+        <Text style={styles.switchAccountText}>
+          Switch to {selectedAccount === 'naira' ? 'Dollar Account' : 'Naira Account'}
+        </Text>
+      </TouchableOpacity>
+
       <View style={styles.navBar}>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
-                    <Ionicons name="home" size={26} color="white" />
-                    <Text style={styles.navBarText}>Home</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToDiscover}>
-                    <Ionicons name="trending-up" size={26} color="white" />
-                    <Text style={styles.navBarText}>Discover</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToPortfolio}>
-                    <Ionicons name="briefcase" size={26} color="white" />
-                    <Text style={styles.navBarText}>Portfolio</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToMore}>
-                    <Ionicons name="ellipsis-horizontal" size={26} color="white" />
-                    <Text style={styles.navBarText}>More</Text>
-                </TouchableOpacity>
-          </View>
+        <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
+          <Ionicons name="home" size={26} color="white" />
+          <Text style={styles.navBarText}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navBarItem} onPress={navigateToDiscover}>
+          <Ionicons name="trending-up" size={26} color="white" />
+          <Text style={styles.navBarText}>Discover</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navBarItem} onPress={navigateToPortfolio}>
+          <Ionicons name="briefcase" size={26} color="white" />
+          <Text style={styles.navBarText}>Portfolio</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navBarItem} onPress={navigateToMore}>
+          <Ionicons name="ellipsis-horizontal" size={26} color="white" />
+          <Text style={styles.navBarText}>More</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -114,6 +164,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  switchAccountButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  switchAccountText: {
+    fontSize: 16,
+    marginLeft: 10,
   },
   balanceHeaderText: {
     fontSize: 18,

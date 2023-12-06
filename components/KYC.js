@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as DocumentPicker from 'expo-document-picker';
 
 const KYC = () => {
   const [bvn, setBVN] = useState('');
   const [nin, setNIN] = useState('');
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   const handleKYCSubmit = async () => {
     try {
@@ -15,6 +17,7 @@ const KYC = () => {
       const requestBody = {
         bvn,
         nin,
+        document: selectedDocument, // Add the selected document to the payload
       };
 
       // Make a POST request to the KYC API
@@ -46,13 +49,25 @@ const KYC = () => {
     }
   };
 
+  const handleDocumentPicker = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({});
+
+      if (result.type === 'success') {
+        // Update the selected document
+        setSelectedDocument(result);
+      }
+    } catch (error) {
+      console.error('DocumentPicker Error:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>KYC Verification</Text>
       <Text style={styles.description}>
-        Complete your KYC (Know Your Customer) verification by providing your BVN (Bank Verification Number) or NIN (National Identity Number).
+        Complete your KYC (Know Your Customer) verification by providing your BVN (Bank Verification Number) or NIN (National Identity Number) and a document.
       </Text>
-
 
       {/* BVN Input */}
       <TextInput
@@ -71,6 +86,18 @@ const KYC = () => {
         value={nin}
         onChangeText={setNIN}
       />
+
+      {/* Document Picker */}
+      <TouchableOpacity style={styles.documentPickerButton} onPress={handleDocumentPicker}>
+        <Text style={styles.documentPickerButtonText}>Upload NIN Or BVN</Text>
+      </TouchableOpacity>
+
+      {/* Display Selected Document */}
+      {selectedDocument && (
+        <View style={styles.selectedDocument}>
+          <Text>Selected Document: {selectedDocument.name}</Text>
+        </View>
+      )}
 
       {/* Submit Button */}
       <TouchableOpacity style={styles.submitButton} onPress={handleKYCSubmit}>
@@ -105,6 +132,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  documentPickerButton: {
+    backgroundColor: '#51CC62',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  documentPickerButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  selectedDocument: {
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 20,
   },
   submitButton: {
     backgroundColor: '#51CC62',
