@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -13,69 +13,122 @@ const FundWallets = () => {
       alert('Please select a payment method.');
       return;
     }
-  
+
     // Implement logic to initiate payment with the selected method
     alert(`Initiating payment with ${selectedPaymentMethod}. Amount: ${amount}`);
+    navigation.navigate('TopUpReceipt');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Fund Wallet</Text>
+    <ScrollView style={styles.container}>
+    <Text style={styles.title}>Fund Wallet</Text>
 
-      {/* Amount Input */}
-      <TextInput
-        style={styles.amountInput}
-        placeholder="Enter Amount"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
-      />
+    {/* Amount Input */}
+    <TextInput
+      style={styles.amountInput}
+      placeholder="Enter Amount"
+      keyboardType="numeric"
+      value={amount}
+      onChangeText={(text) => setAmount(text)}
+    />
 
-      {/* Payment Methods */}
-      <Text style={styles.paymentMethodTitle}>Payment Methods</Text>
-      {/* Bank Card */}
-      <TouchableOpacity
-        style={[styles.paymentMethod, selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod]}
-        onPress={() => setSelectedPaymentMethod('Card')}
-      >
-        <Ionicons name="card" size={32} color="black" />
-        <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
-      </TouchableOpacity>
-      {/* Bank Transfer */}
-      <TouchableOpacity
-        style={[styles.paymentMethod, selectedPaymentMethod === 'Bank Transfer' && styles.selectedPaymentMethod]}
-        onPress={() => setSelectedPaymentMethod('Bank Transfer')}
-      >
-        <Ionicons name="bank" size={32} color="black" />
-        <Text style={styles.paymentMethodText}>Bank Transfer</Text>
-      </TouchableOpacity>
-      {/* PayPal */}
-      <TouchableOpacity
-        style={[styles.paymentMethod, selectedPaymentMethod === 'PayPal' && styles.selectedPaymentMethod]}
-        onPress={() => setSelectedPaymentMethod('PayPal')}
-      >
-        <Ionicons name="logo-paypal" size={32} color="black" />
-        <Text style={styles.paymentMethodText}>PayPal</Text>
-      </TouchableOpacity>
-      {/* Bitcoin */}
-      <TouchableOpacity
-        style={[styles.paymentMethod, selectedPaymentMethod === 'Bitcoin' && styles.selectedPaymentMethod]}
-        onPress={() => setSelectedPaymentMethod('Bitcoin')}
-      >
-        <Ionicons name="logo-bitcoin" size={32} color="black" />
-        <Text style={styles.paymentMethodText}>Bitcoin</Text>
-      </TouchableOpacity>
+    {/* Payment Methods */}
+    <Text style={styles.paymentMethodTitle}>Virtual Payment</Text>
+    {/* Bank Card */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('Card')}
+    >
+      <Ionicons name="card" size={32} color="black" />
+      <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
+    </TouchableOpacity>
 
-      {/* Fund Button */}
-      <TouchableOpacity style={styles.fundButton} onPress={handlePayment}>
-        <Text style={styles.fundButtonText}>Fund Wallet</Text>
-      </TouchableOpacity>
+    {/* PayPal */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'PayPal' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('PayPal')}
+    >
+      {/* Replace PayPal icon with logo */}
+      <Image source={require('./Assests/paypal.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>PayPal</Text>
+    </TouchableOpacity>
 
-      {/* Back to Wallet Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back to Wallet</Text>
-      </TouchableOpacity>
-    </View>
+    {/* Bitcoin */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'Bitcoin' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('Bitcoin')}
+    >
+      <Ionicons name="logo-bitcoin" size={32} color="black" />
+      <Text style={styles.paymentMethodText}>Bitcoin</Text>
+    </TouchableOpacity>
+
+    {/* Payment Methods */}
+    <Text style={styles.paymentMethodTitle}>Bank Payment</Text>
+
+    {/* GTBank */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'GTBank' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('GTBank')}
+    >
+      <Image source={require('./Assests/gtbank.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>GTBank</Text>
+    </TouchableOpacity>
+
+    {/* Polaris */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'Polaris' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('Polaris')}
+    >
+      <Image source={require('./Assests/polaris.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>Polaris</Text>
+    </TouchableOpacity>
+
+    {/* Access Bank */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'Access Bank' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('Access Bank')}
+    >
+      <Image source={require('./Assests/accessbank.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>Access Bank</Text>
+    </TouchableOpacity>
+
+    {/* Zenith */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'Zenith' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('Zenith')}
+    >
+      <Image source={require('./Assests/zenith.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>Zenith</Text>
+    </TouchableOpacity>
+
+    {/* Wema Bank */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'Wema Bank' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('Wema Bank')}
+    >
+      <Image source={require('./Assests/wema.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>Wema Bank</Text>
+    </TouchableOpacity>
+
+    {/* UBA */}
+    <TouchableOpacity
+      style={[styles.paymentMethod, selectedPaymentMethod === 'UBA' && styles.selectedPaymentMethod]}
+      onPress={() => setSelectedPaymentMethod('UBA')}
+    >
+      <Image source={require('./Assests/uba.png')} style={styles.paymentMethodLogo} />
+      <Text style={styles.paymentMethodText}>UBA</Text>
+    </TouchableOpacity>
+
+    {/* Fund Button */}
+    <TouchableOpacity style={styles.fundButton} onPress={handlePayment}>
+      <Text style={styles.fundButtonText}>Fund Wallet</Text>
+    </TouchableOpacity>
+
+    {/* Back to Wallet Button */}
+    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <Text style={styles.backButtonText}>Back to Wallet</Text>
+    </TouchableOpacity>
+    </ScrollView>
   );
 };
 
@@ -94,12 +147,13 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   amountInput: {
-    height: 60,
+    height: 70,
     borderColor: '#BDC3C7',
-    borderWidth: 1,
+    borderWidth: 0,
     marginBottom: 20,
     padding: 10,
     borderRadius: 8,
+    backgroundColor: '#ECEAE9',
   },
   paymentMethodTitle: {
     fontSize: 20,
@@ -114,13 +168,23 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+    backgroundColor: '#FFFFFF', 
   },
   selectedPaymentMethod: {
     borderColor: '#51CC62',
-    backgroundColor: 'rgba(81, 204, 98, 0.2)',
+    backgroundColor: '#51CC62',
+  },
+  paymentMethodLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 10,
   },
   paymentMethodText: {
-    marginLeft: 10,
     fontSize: 16,
   },
   fundButton: {

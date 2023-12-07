@@ -119,7 +119,7 @@ const Portfolio = () => {
           <Text style={styles.navBarText}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDiscover}>
-          <Ionicons name="trending-up" size={26} color="white" />
+          <Ionicons name="search" size={26} color="white" />
           <Text style={styles.navBarText}>Discover</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToPortfolio}>
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#147603',
     padding: 10,
     position: 'absolute',
     bottom: 0,

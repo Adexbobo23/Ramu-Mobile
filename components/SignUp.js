@@ -308,6 +308,21 @@ const styles = StyleSheet.create({
     color: '#51CC62',
     textAlign: 'center',
   },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#51CC62',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    elevation: 2, // Add elevation for Android shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+
   inputContainer: {
     marginBottom: 10,
   },
@@ -323,7 +338,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   input1: {
-    height: 50,
+    height: 0,
     borderWidth: 0,
     borderColor: '#51CC62',
     paddingHorizontal: 10,
@@ -342,7 +357,7 @@ const styles = StyleSheet.create({
   label1: {
     marginBottom: 5,
     color: '#51CC62',
-    fontSize: 16, // Adjust the font size as needed
+    fontSize: 16, 
   },
   
   input2: {
@@ -408,6 +423,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
     height: 52,
+    elevation: 2, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   buttonText: {
     fontSize: 22,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,7 +9,6 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
 
   const handleLogin = async () => {
     // Perform validation here
@@ -33,9 +32,9 @@ const Login = ({ navigation }) => {
       // Save the token to AsyncStorage upon successful login
       await AsyncStorage.setItem('userToken', response.data.data.token);
       await AsyncStorage.setItem('userId', response.data.data.id);
-      alert('Login Successfull');
+      alert('Login Successful');
 
-      // Redirect to the PinComponent
+      // Redirect to the Dashboard
       navigation.navigate('Dashboard');
     } catch (error) {
       alert('Login failed. Please check your credentials.');
@@ -78,22 +77,33 @@ const Login = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* <Text style={styles.heading}>Log in</Text> */}
+      <Image
+        source={require('./Assests/Frame.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+      <Text style={styles.welcomeText}>Welcome Back!</Text>
+      <Text style={styles.description}>Login to your account with ease</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
-        <TextInput
-          placeholder="Enter your email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          required
-        />
+        <View style={styles.inputWrapper}>
+          <Ionicons name="mail-outline" size={24} color="#51CC62" style={styles.icon} />
+          <TextInput
+            placeholder="Enter your email address"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            textAlign="center"
+            required
+          />
+        </View>
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Password</Text>
         <View style={styles.passwordContainer}>
+          <Ionicons name="lock-closed-outline" size={24} color="#51CC62" style={styles.icon} />
           <TextInput
-            placeholder="Enter your password"
+            placeholder="Password"
             secureTextEntry={!showPassword}
             style={styles.input1}
             value={password}
@@ -104,19 +114,6 @@ const Login = ({ navigation }) => {
         </View>
       </View>
       <Text style={styles.text}>At least 8 characters with uppercase letters and numbers</Text>
-      {/* <View style={styles.checkboxContainer}>
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={handleToggleRememberPassword}
-        >
-          {rememberPassword ? (
-            <Ionicons name="checkbox" size={24} color="51CC62" />
-          ) : (
-            <Ionicons name="checkbox-outline" size={24} color="51CC62" />
-          )}
-        </TouchableOpacity>
-        <Text style={styles.checkboxLabel}>Remember Password</Text>
-      </View> */}
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log in</Text>
       </TouchableOpacity>
@@ -124,7 +121,9 @@ const Login = ({ navigation }) => {
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleCreateAccount}>
-        <Text style={styles.createAccount}>New to Ramu? <Text style={styles.createAccount1}>Create an account</Text></Text>
+        <Text style={styles.createAccount}>
+          New to Ramu? <Text style={styles.createAccount1}>Create an account</Text>
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -138,11 +137,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingVertical: 50,
   },
-  heading: {
+  logo: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+  },
+  welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#51CC62',
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 16,
+    color: 'grey',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   inputContainer: {
     width: '80%',
@@ -153,12 +168,14 @@ const styles = StyleSheet.create({
     color: '#51CC62',
     fontSize: 16,
   },
+  
   input: {
     height: 50,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#51CC62',
-    paddingHorizontal: 10,
+    paddingHorizontal: 40,
     borderRadius: 10,
+    flex: 1,
   },
   input1: {
     height: 50,
@@ -166,19 +183,25 @@ const styles = StyleSheet.create({
     borderColor: '#51CC62',
     paddingHorizontal: 10,
     borderRadius: 10,
+    flex: 1,
   },
   loginButton: {
     backgroundColor: '#51CC62',
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
     marginBottom: 20,
     width: '80%',
     height: 52,
-    marginTop: 50,
+    marginTop: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   buttonText: {
-    fontSize: 25,
+    fontSize: 20,
     color: 'white',
     textAlign: 'center',
   },
@@ -197,34 +220,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   createAccount: {
-    marginTop: 170,
     fontSize: 18,
     color: 'grey',
     textDecorationLine: 'none',
   },
   createAccount1: {
-    marginTop: 170,
     fontSize: 18,
     color: '#51CC62',
     textDecorationLine: 'none',
   },
-  checkboxContainer: {
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 0,
+    justifyContent: 'space-between',
+    borderWidth: 1,
     borderColor: '#51CC62',
-    marginRight: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: 10,
   },
-  checkboxLabel: {
-    fontSize: 18,
-    color: '#51CC62',
+  icon: {
+    padding: 10,
   },
   passwordContainer: {
     flexDirection: 'row',

@@ -48,6 +48,7 @@ import SectorStock from '../SectorStocks';
 import UKStock from '../UKStock';
 import USStock from '../USStock';
 import FundWallets from '../FundWallet';
+import TopUpReceipt from '../TopUpReceipt';
 
 const Stack = createStackNavigator();
 
@@ -63,9 +64,7 @@ const Router = () => {
         <Stack.Screen
           name="WelcomeScreen"
           component={WelcomeScreen}
-          options={{ title: 'Welcome', headerTitleStyle: {
-            color: '#51CC62',
-          }, }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Signup"
@@ -77,11 +76,7 @@ const Router = () => {
         <Stack.Screen
           name="Login"
           component={Login}
-          options={{
-            title: 'Log in',
-            headerTitleAlign: 'center', 
-            headerTintColor: '#51CC62',
-          }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ForgetPassword"
@@ -298,6 +293,11 @@ const Router = () => {
         <Stack.Screen
         name="FundWallet"
         component={FundWallets}
+        options={{ headerShown: false }}
+        />
+         <Stack.Screen
+        name="TopUpReceipt"
+        component={TopUpReceipt}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

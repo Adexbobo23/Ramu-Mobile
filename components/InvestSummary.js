@@ -27,6 +27,14 @@ const InvestSummary = () => {
         navigation.navigate('Sell');
     };
 
+    const navigateToPortfolio = () => {
+        navigation.navigate('Portfolio');
+      };
+
+    const navigateToDiscover = () => {
+        navigation.navigate('Discover');
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Investment Summary</Text>
@@ -72,23 +80,23 @@ const InvestSummary = () => {
             </TouchableOpacity>
 
             <View style={styles.navBar}>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
-                    <Ionicons name="home" size={26} color="white" />
-                    <Text style={styles.navBarText}>Home</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToInvest}>
-                    <Ionicons name="analytics" size={26} color="white" />
-                    <Text style={styles.navBarText}>Invest</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToSell}>
-                    <Ionicons name="wallet" size={26} color="white" />
-                    <Text style={styles.navBarText}>Sell</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.navBarItem} onPress={navigateToMore}>
-                    <Ionicons name="person" size={26} color="white" />
-                    <Text style={styles.navBarText}>More</Text>
-                </TouchableOpacity>
-            </View>
+          <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
+            <Ionicons name="home" size={26} color="white" />
+            <Text style={styles.navBarText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navBarItem} onPress={navigateToDiscover}>
+            <Ionicons name="search" size={26} color="white" />
+            <Text style={styles.navBarText}>Discover</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navBarItem} onPress={navigateToPortfolio}>
+            <Ionicons name="briefcase" size={26} color="white" />
+            <Text style={styles.navBarText}>Portfolio</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navBarItem} onPress={navigateToMore}>
+            <Ionicons name="ellipsis-horizontal" size={26} color="white" />
+            <Text style={styles.navBarText}>More</Text>
+          </TouchableOpacity>
+        </View>
         </View>
     );
 };
@@ -178,7 +186,7 @@ const styles = StyleSheet.create({
     },
     navBar: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: '#147603',
         padding: 10,
         position: 'absolute',
         bottom: 0,

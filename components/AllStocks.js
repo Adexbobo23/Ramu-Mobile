@@ -90,16 +90,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     marginTop: 70,
+    color: '#51CC62'
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     borderColor: '#ccc',
-    borderWidth: 1,
+    borderWidth: 0,
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 60,
-    height: 50
+    height: 50,
+    backgroundColor: '#EFEEED',
   },
   searchIcon: {
     marginRight: 8,

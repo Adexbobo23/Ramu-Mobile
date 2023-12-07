@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     marginTop: 70,
+    color: '#51CC62'
   },
   searchBar: {
     flexDirection: 'row',

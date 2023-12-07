@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#147603',
     padding: 10,
     position: 'absolute',
     bottom: 0,

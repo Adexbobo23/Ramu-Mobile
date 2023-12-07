@@ -13,7 +13,8 @@ const Dashboard = () => {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [isKYCCompleted, setKYCCompleted] = useState(false);
   const [walletDetails, setWalletDetails] = useState(null);
-  const modalizeRef = React.useRef(null);
+  const switchAccountModalRef = React.useRef(null); 
+  const chatModalRef = React.useRef(null); 
   const [isChatModalVisible, setChatModalVisible] = useState(false);
   const [featuredStocks, setFeaturedStocks] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState('naira');
@@ -56,17 +57,31 @@ const Dashboard = () => {
 
  
 
-  const switchAccount = () => {
-    const newAccount = selectedAccount === 'naira' ? 'dollar' : 'naira';
-    setSelectedAccount(newAccount);
-    // Fetch wallet details for the selected account
-    fetchWalletDetails();
-  };
+  const renderSwitchAccountButton = () => (
+    <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
+      {selectedAccount === 'naira' ? (
+        <Image source={require('./Assests/nigeria.png')} style={styles.countrylogo} />
+      ) : (
+        <Image source={require('./Assests/usa.png')} style={styles.countrylogo} />
+      )}
+    </TouchableOpacity>
+  );
+
+  const handleAccountSelection = (accountType) => {
+  if (accountType === selectedAccount) {
+    // If the clicked account is already selected, close the modal
+    switchAccountModalRef.current?.close();
+  } else {
+    // If a different account is selected, update the state and perform any other actions
+    setSelectedAccount(accountType);
+    // ... Additional logic if needed
+  }
+};
 
   const toggleChatModal = () => {
     setChatModalVisible(!isChatModalVisible);
-    if (modalizeRef.current) {
-      modalizeRef.current.open();
+    if (chatModalRef.current) {
+      chatModalRef.current.open();
     }
   };
 
@@ -146,35 +161,44 @@ const fetchFeaturedStocks = async () => {
   }
 };
 
+const handleNotification = () => {
+  console.log('Notification icon pressed');
+};
+
+
   return (
     <View style={styles.container}>
       <ScrollView>
-        <View style={styles.topBar}>
-          <Text style={styles.welcomeText}>Welcome, {walletDetails?.virtual_account_name}</Text>
-          <TouchableOpacity style={styles.searchIconContainer} onPress={handleSeeAll}>
-            <Ionicons name="search" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={styles.balanceContainer} onPress={toggleBalanceVisibility}>
-          <Text style={styles.balanceText}>
-            {balanceVisible ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance}` : '*******'}
-          </Text>
-          {balanceVisible ? (
-            <Ionicons name="eye-off" size={24} color="white" />
-          ) : (
-            <Ionicons name="eye" size={24} color="white" />
-          )}
-        </TouchableOpacity>
-        <View style={styles.totalBalanceContainer}>
-          <Text style={styles.accountTitle}>Account Number</Text>
-          <Text style={styles.accountNumber}>{walletDetails?.virtual_account_number}</Text>
-          <TouchableOpacity style={styles.switchAccountButton} onPress={switchAccount}>
-            <Text style={styles.switchAccountButtonText}>
-              Switch to {selectedAccount === 'naira' ? 'Dollar Account' : 'Naira Account'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.buttonsContainer}>
+      <View style={styles.container1}>
+      <View style={styles.mainWelcome}>
+      <Image source={require('./Assests/icon.png')} style={styles.comlogo} />
+      <Text style={styles.welcomeText}>Hi, Oliyide</Text>
+      {/* <Text>{walletDetails?.virtual_account_name}</Text> */}
+      <TouchableOpacity style={styles.notificationIconContainer} onPress={handleSeeAll}>
+        <Ionicons name="search" size={28} color="black" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.notificationIconContainer} onPress={handleNotification}>
+        <Ionicons name="notifications-outline" size={28} color="black" />
+      </TouchableOpacity>
+    </View>
+      <View style={styles.topBar}>
+          <Text style={styles.acoountbalance}>Account Balance</Text>
+          <View style={styles.balanceContainer}>
+            {renderSwitchAccountButton()}
+            <TouchableOpacity onPress={toggleBalanceVisibility}>
+              <Text style={styles.balanceText}>
+                {balanceVisible ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance}` : '*******'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+              {balanceVisible ? (
+                <Ionicons name="eye-off" size={24} color="white" />
+              ) : (
+                <Ionicons name="eye" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.buttonContainer} onPress={handleInvestButton}>
             <Text style={styles.buttonTextInvest}>INVEST</Text>
           </TouchableOpacity>
@@ -182,6 +206,56 @@ const fetchFeaturedStocks = async () => {
             <Text style={styles.buttonTextSell}>SELL</Text>
           </TouchableOpacity>
         </View>
+        </View>
+
+        <View style={styles.stockcontainer}>
+            {/* Stocks Section */}
+          <View style={styles.stocksSection}>
+          <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Top Trending</Text>
+                {/* <TouchableOpacity onPress={handleSeeAll}>
+                <Text style={styles.seeAll} onPress={() => navigateTo('Sectors')}>See All</Text>
+                </TouchableOpacity> */}
+            </View>
+
+            {/* Horizontal Scroll for Stocks List */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
+              {/* Sample Stock Item (repeat this for each stock) */}
+              <View style={styles.stockItem}>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDX0lzryMjrYOwRt4sT80B7U00fcxmQ-vO152amG-4cEHH4E_oLqukR37WFvyr06hchbg&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Facebook</Text>
+                <Text style={styles.stockDescription}>Stock Description</Text>
+              </View>
+              {/* Repeat... */}
+              {/* Sample Stock Item (repeat this for each stock) */}
+              <View style={styles.stockItem}>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmvXQRuCtTuXhJjMBHFyx1heks159k1KqwQJZ_mCCmi9e4BRIQ2vMq6JlUEgs_QYW6EIw&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Netflix</Text>
+                <Text style={styles.stockDescription}>Stock Description</Text>
+              </View>
+              {/* Sample Stock Item (repeat this for each stock) */}
+              <View style={styles.stockItem}>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjC23i8oLAAunknKBsfvaN_QDv5CyUfHx3QYKSvLZvrsvUeBQKZmOPwjZX8b-x3aqD1dk&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Tesla</Text>
+                <Text style={styles.stockDescription}>Stock Description</Text>
+              </View>
+              {/* Sample Stock Item (repeat this for each stock) */}
+              <View style={styles.stockItem}>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTP7vl0YPQ7CPk48qX72enLmfoocaG21M6Hjndj1EeBfwT2-xi_WUz005LgVk8WT_DGcBI&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Amazon</Text>
+                <Text style={styles.stockDescription}>Stock Description</Text>
+              </View>
+              {/* Sample Stock Item (repeat this for each stock) */}
+              <View style={styles.stockItem}>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFqJre8P409R-XExxvW-V9XZRple1PUwIYtYGZzYfAAINjgzdZN1Nb5M7Aq4HZpHmgkBA&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Google</Text>
+                <Text style={styles.stockDescription}>Stock Description</Text>
+              </View>
+            </ScrollView>
+            
+          </View>
+        </View>
+      
         {/* {isKYCCompleted ? (
         <Text style={styles.accountActivatedText}>
           Account activated. Start trading in UK, US, and Nigeria stocks.
@@ -249,7 +323,7 @@ const fetchFeaturedStocks = async () => {
             </View>
           ))}
         </View>
-
+        </View>
       </ScrollView>
       {/* Live chat button */}
       <TouchableOpacity style={styles.liveChatButton} onPress={toggleChatModal}>
@@ -257,15 +331,30 @@ const fetchFeaturedStocks = async () => {
       </TouchableOpacity>
 
       {/* Chat Modal */}
-      <Modalize
-        ref={modalizeRef}
-        adjustToContentHeight
-        modalStyle={styles.modal}
-        handlePosition="inside"
-        HeaderComponent={<Text style={styles.modalHeader}>Live Chat</Text>}
-      >
-        <WebView source={{ uri: 'https://embed.tawk.to/656a4193ff45ca7d4785dc57/default' }} />
-      </Modalize>
+        <Modalize
+          ref={chatModalRef}
+          adjustToContentHeight
+          modalStyle={styles.modal}
+          handlePosition="inside"
+          HeaderComponent={<Text style={styles.modalHeader}>Live Chat</Text>}
+        >
+          <WebView source={{ uri: 'https://embed.tawk.to/656a4193ff45ca7d4785dc57/default' }} />
+        </Modalize>
+
+        {/* Modalize for switching account */}
+        <Modalize ref={switchAccountModalRef} adjustToContentHeight>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
+              <Image source={require('./Assests/nigeria.png')} style={styles.countrylogo} />
+              <Text style={styles.modalOption}>Switch to Naira Account</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleAccountSelection('dollar')} style={styles.modalOptionContainer}>
+              <Image source={require('./Assests/usa.png')} style={styles.countrylogo} />
+              <Text style={styles.modalOption}>Switch to Dollar Account</Text>
+            </TouchableOpacity>
+          </View>
+        </Modalize>
 
       <View style={styles.navBar}>
           <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
@@ -294,22 +383,99 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  container1: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  stockcontainer: {
+    flex: 1,
+    padding: 20,
+  },
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    height: 250,
-    backgroundColor: 'green',
-    borderBottomRightRadius: 50,
-    borderBottomLeftRadius: 50,
+    height: 200,
+    backgroundColor: '#147603',
+    borderRadius: 30,
+    marginTop: 30,
+    width: '93%',
+    marginLeft: 10,
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 100,
   },
+  countrylogo: {
+    width: 30,
+    height: 20, 
+    marginRight: 5, 
+  },
+  modalContainer: {
+    padding: 20,
+  },
+  modalOption: {
+    fontSize: 18,
+    paddingVertical: 15,
+    borderBottomWidth: 0,
+    borderBottomColor: '#ccc',
+  },
+  modalOptionContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: '#ccc',
+},
   balanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -130,
+    marginTop: 10, 
     marginBottom: 20,
+  },
+  eyeIconContainer: {
+    marginLeft: 50,
+  },
+  acoountbalance: {
+    fontSize: 17,
+    fontWeight: 'normal',
+    color: 'white',
+    marginTop: 30,
+    marginLeft: 20,
+  },
+  balanceText: {
+    fontSize: 18,
+    color: 'white',
+  },
+  mainWelcome: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 50,
+  },
+  comlogo: {
+    width: 30,
+    height: 30, 
+    marginRight: 5, 
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: 'normal',
+    color: 'black',
+    flex: 2,
+    fontFamily: 'sans-serif'
+  },
+  notificationIconContainer: {
+    marginRight: 10,
+  },
+  searchIconContainer: {
+    marginLeft: 10,
+    marginTop: 50,
   },
   hiddenIcon: {
     position: 'absolute',
@@ -340,7 +506,7 @@ const styles = StyleSheet.create({
   },
   accountTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     color: 'white',
     marginTop: 15,
   },
@@ -357,13 +523,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 10, 
   },
-  welcomeText: {
-    fontSize: 18,
-    fontWeight: 'normal',
-    color: 'white',
-    marginTop: -50,
-    
-  },
+ 
   searchIconContainer: {
     padding: 10,
     marginTop: -50,
@@ -392,13 +552,20 @@ const styles = StyleSheet.create({
     marginTop: -50,
   },
   buttonContainer: {
-    backgroundColor: '#51CC62',
+    backgroundColor: '#1FAE05',
     borderRadius: 15,
     paddingVertical: 10,
     paddingHorizontal: 20,
     width: '45%',
     height: 50,
     textAlign: 'center',
+    marginTop: 80,
+    marginLeft: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 25,
   },
   buttonContainer1: {
     backgroundColor: 'white',
@@ -410,6 +577,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderWidth: 2,
     borderColor: '#51CC62',
+    marginTop: 80,
+    marginLeft: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 25,
   },
   buttonTextInvest: {
     fontSize: 20,
@@ -418,7 +592,65 @@ const styles = StyleSheet.create({
   },
   buttonTextSell: {
     fontSize: 20,
+    color: '#000',
+    textAlign: 'center',
+  },
+  stocksSection: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+    marginTop: 20,
+  },
+  seeAll: {
+    fontSize: 16,
     color: '#51CC62',
+    marginTop: 20,
+    fontWeight: 'bold',
+  },
+  stocksList: {
+    flexDirection: 'row',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  stockItem: {
+    marginRight: 16,
+  },
+  stockImage: {
+    width: 100,
+    height: 50,
+    borderRadius: 50,
+    marginBottom: 8,
+  },
+  stockImage1: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 8,
+  },
+  stockImage3: {
+    width: 100,
+    height: 80,
+    borderRadius: 10,
+    marginBottom: 8,
+  },
+  stockName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#333',
+    textAlign: 'center',
+  },
+  stockDescription: {
+    fontSize: 14,
+    color: '#666',
     textAlign: 'center',
   },
   progressBarContainer: {
@@ -526,7 +758,7 @@ const styles = StyleSheet.create({
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    backgroundColor: '#147603', 
     paddingHorizontal: 20,
     paddingVertical: 25, 
   },
@@ -543,8 +775,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#51CC62',
-    borderRadius: 30,
+    backgroundColor: 'green',
+    borderRadius: 50,
     padding: 10,
     marginBottom: 100,
 

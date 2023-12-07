@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Modalize } from 'react-native-modalize';
 
 const Wallet = () => {
   const navigation = useNavigation();
   const [showBalance, setShowBalance] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState('naira');
   const [walletDetails, setWalletDetails] = useState(null);
+  const switchAccountModalRef = React.useRef(null);
+  const [balanceVisible, setBalanceVisible] = useState(true);
+
+  useEffect(() => {
+    fetchWalletDetails();
+  }, [selectedAccount]);
 
   const handleToggleBalance = () => {
     setShowBalance(!showBalance);
@@ -24,35 +30,49 @@ const Wallet = () => {
     navigation.navigate('FundWallet');
   };
 
-  const switchAccount = () => {
-    const newAccount = selectedAccount === 'naira' ? 'dollar' : 'naira';
-    setSelectedAccount(newAccount);
-  };
-
-  useEffect(() => {
-    // Fetch wallet details with user token
-    fetchWalletDetails();
-  }, [selectedAccount]); 
-
   const fetchWalletDetails = async () => {
     try {
-      // Get user token from AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
-
-      // Make API request to get wallet details based on the selected account
-      const response = await axios.get(`https://api-staging.ramufinance.com/api/v1/get-wallet-details/${selectedAccount}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-
-      // Update wallet details state
+      const response = await axios.get(
+        `https://api-staging.ramufinance.com/api/v1/get-wallet-details?account_type=${selectedAccount}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
       setWalletDetails(response.data.data);
     } catch (error) {
       console.error('Error fetching wallet details:', error);
     }
   };
 
+  const renderSwitchAccountButton = () => (
+    <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
+      {selectedAccount === 'naira' ? (
+        <Image source={require('./Assests/nigeria.png')} style={styles.countryLogo} />
+      ) : (
+        <Image source={require('./Assests/usa.png')} style={styles.countryLogo} />
+      )}
+    </TouchableOpacity>
+  );
+
+  const handleAccountSelection = (accountType) => {
+    if (accountType === selectedAccount) {
+      // If the clicked account is already selected, close the modal
+      switchAccountModalRef.current?.close();
+    } else {
+      // If a different account is selected, update the state and perform any other actions
+      setSelectedAccount(accountType);
+      // Fetch wallet details for the selected account
+      fetchWalletDetails();
+    }
+  };
+
+  const toggleBalanceVisibility = () => {
+    setBalanceVisible(!balanceVisible);
+  };
+  
 
   const navigateToMore = () => {
     navigation.navigate('More');
@@ -74,21 +94,30 @@ const Wallet = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Wallet</Text>
 
-      {/* Balance Container */}
       <View style={styles.balanceContainer}>
-        <View style={styles.balanceHeader}>
-          <Text style={styles.balanceHeaderText}>Balance</Text>
-          <TouchableOpacity onPress={handleToggleBalance}>
-            <Ionicons name={showBalance ? 'eye-off' : 'eye'} size={24} color="black" />
-          </TouchableOpacity>
+          <View style={styles.balanceHeader}>
+            <Text style={styles.balanceHeaderText}>Account Balance</Text>
+            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+              {balanceVisible ? (
+                <Ionicons name="eye-off" size={24} color="black" />
+              ) : (
+                <Ionicons name="eye" size={24} color="black" />
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.balanceContent}>
+            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.balanceContentWrapper}>
+              {renderSwitchAccountButton()}
+              <Text style={styles.balanceText}>
+                {balanceVisible ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance}` : '*******'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.fundButton} onPress={handleFundWallet}>
+              <Text style={styles.fundButtonText}>Fund Your Wallet</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <Text style={styles.balanceAmount}>
-          {showBalance ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance.toFixed(2)}` : '****'}
-        </Text>
-        <TouchableOpacity style={styles.fundButton} onPress={handleFundWallet}>
-          <Text style={styles.fundButtonText}>Fund Your Wallet</Text>
-        </TouchableOpacity>
-      </View>
+
 
       {/* Bank Card Section */}
       <Text style={styles.bankCardTitle}>Bank Card</Text>
@@ -111,12 +140,27 @@ const Wallet = () => {
       </TouchableOpacity>
 
       {/* Switch Account Button */}
-      <TouchableOpacity style={styles.switchAccountButton} onPress={switchAccount}>
-        <Ionicons name="swap-horizontal" size={24} color="black" />
+      {/* <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()} style={styles.switchAccountButton}>
+        <Image source={selectedAccount === 'naira' ? require('./Assests/nigeria.png') : require('./Assests/usa.png')} style={styles.countryLogo} />
         <Text style={styles.switchAccountText}>
           Switch to {selectedAccount === 'naira' ? 'Dollar Account' : 'Naira Account'}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+
+      {/* Modalize for switching account */}
+      <Modalize ref={switchAccountModalRef} adjustToContentHeight>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
+            <Image source={require('./Assests/nigeria.png')} style={styles.countryLogo} />
+            <Text style={styles.modalOption}>Switch to Naira Account</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => handleAccountSelection('dollar')} style={styles.modalOptionContainer}>
+            <Image source={require('./Assests/usa.png')} style={styles.countryLogo} />
+            <Text style={styles.modalOption}>Switch to Dollar Account</Text>
+          </TouchableOpacity>
+        </View>
+      </Modalize>
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
@@ -124,7 +168,7 @@ const Wallet = () => {
           <Text style={styles.navBarText}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDiscover}>
-          <Ionicons name="trending-up" size={26} color="white" />
+          <Ionicons name="search" size={26} color="white" />
           <Text style={styles.navBarText}>Discover</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToPortfolio}>
@@ -139,7 +183,6 @@ const Wallet = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -159,10 +202,25 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 100,
   },
   balanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  balanceContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  balanceContentWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   switchAccountButton: {
@@ -236,25 +294,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
   },
-navBar: {
+  countryLogo: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  modalContainer: {
+    padding: 20,
+  },
+  modalOptionContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  modalOption: {
+    marginLeft: 10,
+    fontSize: 16,
+  },
+  navBar: {
+    flexDirection: 'row',
+    backgroundColor: '#147603',
     padding: 10,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     paddingVertical: 25,
-},
-navBarItem: {
+  },
+  navBarItem: {
     flex: 1,
     alignItems: 'center',
-},
-navBarText: {
+  },
+  navBarText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: 'white',
-},
+  },
 });
 
 export default Wallet;
