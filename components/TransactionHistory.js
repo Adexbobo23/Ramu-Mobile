@@ -6,13 +6,10 @@ const TransactionHistory = () => {
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Transaction History</Text>
-        <TouchableOpacity>
-          <Text style={styles.seeAllText}>See Less</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.transactionList}>
-        {[...Array(30)].map((_, index) => (
+        {[...Array(20)].map((_, index) => (
           <View key={index} style={styles.transactionItem}>
             <Image source={require('./Assests/apple.png')} style={styles.circleImage} />
             <View style={styles.textContainer}>
@@ -45,33 +42,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  circleImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10, 
-  },
-  seeAllText: {
-    color: '#51CC62',
-    fontSize: 16,
-  },
   transactionList: {
     borderWidth: 0,
     borderColor: '#E0E0E0',
-    borderRadius: 0,
-    padding: 20,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 5,
   },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  circle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#51CC62',
+  
+  circleImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     marginRight: 15,
   },
   textContainer: {

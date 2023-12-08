@@ -194,8 +194,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: 'left',
     marginTop: 70,
+    color: '#51CC62'
   },
   balanceContainer: {
     backgroundColor: 'rgba(0, 255, 0, 0.2)',
@@ -207,6 +208,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 100,
+    height: 150
   },
   balanceHeader: {
     flexDirection: 'row',

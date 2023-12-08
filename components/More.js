@@ -59,9 +59,9 @@ const More = () => {
       </ScrollView>
 
       {/* Live chat button */}
-      <TouchableOpacity style={styles.liveChatButton} onPress={toggleChatModal}>
+      {/* <TouchableOpacity style={styles.liveChatButton} onPress={toggleChatModal}>
         <Ionicons name="chatbubble-ellipses" size={37} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Navigation bar */}
       <View style={styles.navBar}>

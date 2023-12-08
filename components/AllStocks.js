@@ -6,44 +6,103 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AllStocks = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredStocks, setFeaturedStocks] = useState([]);
+  const [stockData, setStockData] = useState([]);
 
+  
   useEffect(() => {
-    // Fetch featured stocks with user token
-    fetchFeaturedStocks();
+    // Assuming you fetch or set featured stocks in useEffect
+    // For now, we'll just set it to an empty array
+    setFeaturedStocks([]);
   }, []);
 
-  const fetchFeaturedStocks = async () => {
-    try {
-      // Retrieve user token from AsyncStorage
-      const userToken = await AsyncStorage.getItem('userToken');
-
-      // Make API request with user token
-      const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Set the featured stocks in state
-        setFeaturedStocks(result.data);
-      } else {
-        console.error('Failed to fetch featured stocks:', result.message);
-      }
-    } catch (error) {
-      console.error('Error fetching featured stocks:', error);
-    }
-  };
-
-  const filteredStocks = featuredStocks.filter(
+  const filteredStocks = stockData.filter(
     (stock) =>
       stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stock.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  useEffect(() => {
+    // Update stockData when the component mounts or when featuredStocks change
+    setStockData(featuredStocks);
+  }, [featuredStocks]);
+
+  const StockData = {
+    status: true,
+    message: 'Success',
+    data: [
+      {
+        key: 'NSDQ~AAPL',
+        ticker_id: 'AAPL',
+        exchange_code: 'NSDQ',
+        company_name: 'Apple Inc',
+        display_name: 'Apple Inc',
+        description: 'Technology company that designs, manufactures, and markets consumer electronics, computer software, and online services.',
+        logo: null,
+        trade_price: 189.91,
+      },
+      {
+        key: 'NSDQ~GOOG',
+        ticker_id: 'GOOG',
+        exchange_code: 'NSDQ',
+        company_name: 'Alphabet Inc Class C',
+        display_name: 'Alphabet Inc Class C',
+        description: 'Multinational conglomerate that is the parent company of Google.',
+        logo: null,
+        trade_price: 133.91,
+      },
+      {
+        key: 'NSDQ~NVDA',
+        ticker_id: 'NVDA',
+        exchange_code: 'NSDQ',
+        company_name: 'NVIDIA Corp',
+        display_name: 'NVIDIA Corp',
+        description: 'Technology company that designs GPUs for gaming and professional markets.',
+        logo: null,
+        trade_price: 467.7,
+      },
+      {
+        key: 'NSDQ~META',
+        ticker_id: 'META',
+        exchange_code: 'NSDQ',
+        company_name: 'Meta Platforms Inc',
+        display_name: 'Meta Platforms Inc',
+        description: 'Technology company that focuses on the development of social media and virtual reality platforms.',
+        logo: null,
+        trade_price: 327.15,
+      },
+      {
+        key: 'NYSE~ORCL',
+        ticker_id: 'ORCL',
+        exchange_code: 'NYSE',
+        company_name: 'Oracle Corp',
+        display_name: 'Oracle Corp',
+        description: 'Multinational computer technology corporation that sells database software and technology.',
+        logo: null,
+        trade_price: 116.12,
+      },
+      {
+        key: 'LSE~HSBA',
+        ticker_id: 'HSBA',
+        exchange_code: 'LSE',
+        company_name: 'HSBC Holdings plc',
+        display_name: 'HSBC Holdings plc',
+        description: 'British multinational investment bank and financial services holding company.',
+        logo: null,
+        trade_price: 602.1602,
+      },
+      {
+        key: 'NSDQ~NFLX',
+        ticker_id: 'NFLX',
+        exchange_code: 'NSDQ',
+        company_name: 'Netflix Inc',
+        display_name: 'Netflix Inc',
+        description: 'Entertainment company specializing in streaming media and video-on-demand online.',
+        logo: null,
+        trade_price: 589.91,
+      },
+      // Add more stock data as needed
+    ],
+  };
 
   return (
     <View style={styles.container}>
@@ -57,24 +116,23 @@ const AllStocks = () => {
           onChangeText={(text) => setSearchQuery(text)}
         />
       </View>
-      <ScrollView style={styles.stockList}>
-        {filteredStocks.map((stock) => (
-          <View key={stock.ticker_id} style={styles.stockItem}>
-            {/* Replace the following image with your logic for displaying the stock logo */}
-            <Image source={require('./Assests/trade.jpg')} style={styles.stockImage} />
-            {/* <Image source={{ uri: stock.logo }} style={styles.stockImage} /> */}
-            <View style={styles.stockDetails}>
-              <Text style={styles.stockTitle}>{stock.company_name}</Text>
-              <Text style={styles.stockDescription}>{stock.description}</Text>
-              <View style={styles.stockRow}>
-                {/* Replace the following image with your logic for displaying the chart image */}
-                <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
-                <Text style={styles.stockPrice}>{`$${stock.trade_price}`}</Text>
+      <ScrollView style={styles.stockListContainer}>
+          {StockData.data.map((stock) => (
+            <View key={stock.ticker_id} style={styles.stockItemContainer}>
+              {/* Replace the following image with your logic for displaying the stock logo */}
+              <Image source={require('./Assests/trade.jpg')} style={styles.stockImage} />
+              <View style={styles.stockDetailsContainer}>
+                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+                <View style={styles.stockRowContainer}>
+                  {/* Replace the following image with your logic for displaying the chart image */}
+                  <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
+                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
     </View>
   );
 };
@@ -99,7 +157,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 60,
+    marginBottom: 20,
     height: 50,
     backgroundColor: '#EFEEED',
   },
@@ -109,43 +167,54 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
   },
-  stockList: {
+  stockListContainer: {
     flex: 1,
+    padding: 16,
   },
-  stockItem: {
+  stockItemContainer: {
     flexDirection: 'row',
     marginBottom: 16,
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: 10,
+    borderColor: '#DDD',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 5,
   },
   stockImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 12,
+    width: 50,
+    height: 50,
+    marginRight: 16,
   },
-  stockDetails: {
+  stockDetailsContainer: {
     flex: 1,
   },
-  stockTitle: {
+  stockTitleText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  stockDescription: {
+  stockDescriptionText: {
+    fontSize: 14,
     color: '#555',
     marginBottom: 8,
   },
-  stockRow: {
+  stockRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   chartImage: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     marginRight: 8,
   },
-  stockPrice: {
-    fontSize: 16,
-    color: '#51CC62',
+  stockPriceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

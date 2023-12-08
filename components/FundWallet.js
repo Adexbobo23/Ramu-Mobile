@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, Linking} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,10 +14,42 @@ const FundWallets = () => {
       return;
     }
 
-    // Implement logic to initiate payment with the selected method
-    alert(`Initiating payment with ${selectedPaymentMethod}. Amount: ${amount}`);
+    let ussdCode = '';
+
+    // Generate USSD code based on the selected payment method
+    switch (selectedPaymentMethod) {
+      case 'GTBank':
+        ussdCode = '*737*amount#'; 
+        break;
+      case 'Polaris':
+        ussdCode = '*833*amount#'; 
+        break;
+      case 'Access Bank':
+        ussdCode = '*901*amount#'; 
+        break;
+      case 'Zenith':
+        ussdCode = '*966*amount#'; 
+        break;
+      case 'Wema Bank':
+        ussdCode = '*945*amount#'; 
+        break;
+      case 'UBA':
+        ussdCode = '*919*amount#'; 
+        break;
+      // Add more cases as needed
+      default:
+        break;
+    }
+
+    if (ussdCode) {
+      // Dial the USSD code
+      Linking.openURL(`tel:${ussdCode}`);
+      alert(`Dialing USSD code: ${ussdCode}`);
+    }
+
     navigation.navigate('TopUpReceipt');
   };
+
 
   return (
     <ScrollView style={styles.container}>
@@ -41,25 +73,6 @@ const FundWallets = () => {
     >
       <Ionicons name="card" size={32} color="black" />
       <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
-    </TouchableOpacity>
-
-    {/* PayPal */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'PayPal' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('PayPal')}
-    >
-      {/* Replace PayPal icon with logo */}
-      <Image source={require('./Assests/paypal.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>PayPal</Text>
-    </TouchableOpacity>
-
-    {/* Bitcoin */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'Bitcoin' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('Bitcoin')}
-    >
-      <Ionicons name="logo-bitcoin" size={32} color="black" />
-      <Text style={styles.paymentMethodText}>Bitcoin</Text>
     </TouchableOpacity>
 
     {/* Payment Methods */}
@@ -159,6 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    marginTop: 20
   },
   paymentMethod: {
     flexDirection: 'row',

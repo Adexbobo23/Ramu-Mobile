@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
-import WebView from 'react-native-webview';
+// import WebView from 'react-native-webview';
 import axios from 'axios';
 
 
@@ -16,8 +16,9 @@ const Dashboard = () => {
   const switchAccountModalRef = React.useRef(null); 
   const chatModalRef = React.useRef(null); 
   const [isChatModalVisible, setChatModalVisible] = useState(false);
-  const [featuredStocks, setFeaturedStocks] = useState([]);
+  // const [featuredStocks, setFeaturedStocks] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState('naira');
+  const [stockData, setStockData] = useState([]);
 
 
   useEffect(() => {
@@ -129,40 +130,118 @@ const handleSeeAll = () => {
   navigation.navigate('AllStock');
 };
 
-useEffect(() => {
-  // Fetch featured stocks with user token
-  fetchFeaturedStocks();
-}, []);
+// useEffect(() => {
+//   // Fetch featured stocks with user token
+//   fetchFeaturedStocks();
+// }, []);
 
-const fetchFeaturedStocks = async () => {
-  try {
-    // Retrieve user token from AsyncStorage
-    const userToken = await AsyncStorage.getItem('userToken');
+// const fetchFeaturedStocks = async () => {
+//   try {
+//     // Retrieve user token from AsyncStorage
+//     const userToken = await AsyncStorage.getItem('userToken');
 
-    // Make API request with user token
-    const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+//     // Make API request with user token
+//     const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+//       method: 'GET',
+//       headers: {
+//         Authorization: `Bearer ${userToken}`,
+//         'Content-Type': 'application/json',
+//       },
+//     });
 
-    const result = await response.json();
+//     const result = await response.json();
 
-    if (response.ok) {
-      // Set the featured stocks in state
-      setFeaturedStocks(result.data);
-    } else {
-      console.error('Failed to fetch featured stocks:', result.message);
-    }
-  } catch (error) {
-    console.error('Error fetching featured stocks:', error);
-  }
-};
+//     if (response.ok) {
+//       // Set the featured stocks in state
+//       setFeaturedStocks(result.data);
+//     } else {
+//       console.error('Failed to fetch featured stocks:', result.message);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching featured stocks:', error);
+//   }
+// };
 
 const handleNotification = () => {
   console.log('Notification icon pressed');
+};
+
+const StockData = {
+  status: true,
+  message: 'Success',
+  data: [
+    {
+      key: 'NSDQ~AAPL',
+      ticker_id: 'AAPL',
+      exchange_code: 'NSDQ',
+      company_name: 'Apple Inc',
+      display_name: 'Apple Inc',
+      description: 'Technology company that designs, manufactures, and markets consumer electronics, computer software, and online services.',
+      logo: null,
+      trade_price: 189.91,
+    },
+    {
+      key: 'NSDQ~GOOG',
+      ticker_id: 'GOOG',
+      exchange_code: 'NSDQ',
+      company_name: 'Alphabet Inc Class C',
+      display_name: 'Alphabet Inc Class C',
+      description: 'Multinational conglomerate that is the parent company of Google.',
+      logo: null,
+      trade_price: 133.91,
+    },
+    {
+      key: 'NSDQ~NVDA',
+      ticker_id: 'NVDA',
+      exchange_code: 'NSDQ',
+      company_name: 'NVIDIA Corp',
+      display_name: 'NVIDIA Corp',
+      description: 'Technology company that designs GPUs for gaming and professional markets.',
+      logo: null,
+      trade_price: 467.7,
+    },
+    {
+      key: 'NSDQ~META',
+      ticker_id: 'META',
+      exchange_code: 'NSDQ',
+      company_name: 'Meta Platforms Inc',
+      display_name: 'Meta Platforms Inc',
+      description: 'Technology company that focuses on the development of social media and virtual reality platforms.',
+      logo: null,
+      trade_price: 327.15,
+    },
+    {
+      key: 'NYSE~ORCL',
+      ticker_id: 'ORCL',
+      exchange_code: 'NYSE',
+      company_name: 'Oracle Corp',
+      display_name: 'Oracle Corp',
+      description: 'Multinational computer technology corporation that sells database software and technology.',
+      logo: null,
+      trade_price: 116.12,
+    },
+    {
+      key: 'LSE~HSBA',
+      ticker_id: 'HSBA',
+      exchange_code: 'LSE',
+      company_name: 'HSBC Holdings plc',
+      display_name: 'HSBC Holdings plc',
+      description: 'British multinational investment bank and financial services holding company.',
+      logo: null,
+      trade_price: 602.1602,
+    },
+    {
+      key: 'NSDQ~NFLX',
+      ticker_id: 'NFLX',
+      exchange_code: 'NSDQ',
+      company_name: 'Netflix Inc',
+      display_name: 'Netflix Inc',
+      description: 'Entertainment company specializing in streaming media and video-on-demand online.',
+      logo: null,
+      trade_price: 589.91,
+    },
+    // Add more stock data as needed
+  ],
 };
 
 
@@ -309,37 +388,26 @@ const handleNotification = () => {
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.featuredStockContainer}>
-          {/* Featured Stocks List */}
-          {featuredStocks.map((stock) => (
-            <View key={stock.ticker_id} style={styles.stockListItem}>
-              {/* Assuming you have the image URL in your featuredStocks data */}
-              <Image source={require('./Assests/trade.jpg')} style={styles.circleImage} />
-              <View style={styles.textContainer}>
-                <Text style={styles.stockListName}>{stock.company_name}</Text>
-                <Text style={styles.stockListDescription}>{stock.description}</Text>
+        {/* Stock Data */}
+        <ScrollView style={styles.stockListContainer}>
+          {StockData.data.map((stock) => (
+            <View key={stock.ticker_id} style={styles.stockItemContainer}>
+              {/* Replace the following image with your logic for displaying the stock logo */}
+              <Image source={require('./Assests/trade.jpg')} style={styles.stockImage} />
+              <View style={styles.stockDetailsContainer}>
+                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+                <View style={styles.stockRowContainer}>
+                  {/* Replace the following image with your logic for displaying the chart image */}
+                  <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
+                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                </View>
               </View>
-              <Text style={styles.stockListPrice}>{`$${stock.trade_price}`}</Text>
             </View>
           ))}
-        </View>
+        </ScrollView>
         </View>
       </ScrollView>
-      {/* Live chat button */}
-      <TouchableOpacity style={styles.liveChatButton} onPress={toggleChatModal}>
-        <Ionicons name="chatbubble-ellipses" size={37} color="white" />
-      </TouchableOpacity>
-
-      {/* Chat Modal */}
-        <Modalize
-          ref={chatModalRef}
-          adjustToContentHeight
-          modalStyle={styles.modal}
-          handlePosition="inside"
-          HeaderComponent={<Text style={styles.modalHeader}>Live Chat</Text>}
-        >
-          <WebView source={{ uri: 'https://embed.tawk.to/656a4193ff45ca7d4785dc57/default' }} />
-        </Modalize>
 
         {/* Modalize for switching account */}
         <Modalize ref={switchAccountModalRef} adjustToContentHeight>
@@ -397,7 +465,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    height: 200,
+    height: 170,
     backgroundColor: '#147603',
     borderRadius: 30,
     marginTop: 30,
@@ -520,7 +588,6 @@ const styles = StyleSheet.create({
   circleImage: {
     width: 50,
     height: 40,
-    borderRadius: 25,
     marginRight: 10, 
   },
  
@@ -549,7 +616,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 10,
     marginBottom: 20,
-    marginTop: -50,
+    marginTop: -30,
   },
   buttonContainer: {
     backgroundColor: '#1FAE05',
@@ -561,6 +628,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 80,
     marginLeft: 3,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -603,7 +671,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
-    marginTop: 20,
+    marginTop: 70,
   },
   seeAll: {
     fontSize: 16,
@@ -723,38 +791,64 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: 10,
   },
-  stockListItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  circle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    marginRight: 10,
-  },
-  textContainer: {
-    flex: 1,
+  featuredStockText: {
+    color: '#000',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   seeAllText: {
-    fontSize: 14,
-    fontWeight: 'normal',
     color: '#51CC62',
+    fontSize: 18,
+    fontWeight: 'normal',
   },
-  stockListName: {
-    fontSize: 16,
-    color: 'black',
+  stockListContainer: {
+    flex: 1,
+    padding: 16,
   },
-  stockListDescription: {
+  stockItemContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: 10,
+    borderColor: '#DDD',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  stockImage: {
+    width: 50,
+    height: 50,
+    marginRight: 16,
+  },
+  stockDetailsContainer: {
+    flex: 1,
+  },
+  stockTitleText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  stockDescriptionText: {
     fontSize: 14,
-    color: 'gray',
+    color: '#555',
+    marginBottom: 8,
   },
-  stockListPrice: {
-    fontSize: 16,
-    color: 'black',
+  stockRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chartImage: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  stockPriceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   navBar: {
     flexDirection: 'row',

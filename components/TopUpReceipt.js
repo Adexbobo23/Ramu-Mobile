@@ -81,12 +81,22 @@ const styles = StyleSheet.create({
   },
   detailedTransactions: {
     marginBottom: 20,
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: 'white',
+    padding: 15,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 25,
   },
   detailedTransactionsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    textAlign: 'left',
+    marginLeft: 25,
   },
   transactionDetailsContainer: {
     borderWidth: 1,

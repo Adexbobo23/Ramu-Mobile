@@ -1,234 +1,323 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const Portfolio = () => {
-  const navigation = useNavigation();
-  const [selectedTab, setSelectedTab] = useState('Stock Portfolio');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [totalBalance, setTotalBalance] = useState(0);
+  const [selectedTab, setSelectedTab] = useState('All');
+  const [stockData, setStockData] = useState([]);
+
+  // Sample stock data
+  const sampleStockData = {
+    status: true,
+    message: 'Success',
+    data: [
+      {
+        key: 'NSDQ~AAPL',
+        ticker_id: 'AAPL',
+        exchange_code: 'NSDQ',
+        company_name: 'Apple Inc',
+        display_name: 'Apple Inc',
+        description: 'Technology company that designs, manufactures, and markets consumer electronics, computer software, and online services.',
+        logo: null,
+        trade_price: 189.91,
+      },
+      {
+        key: 'NSDQ~GOOG',
+        ticker_id: 'GOOG',
+        exchange_code: 'NSDQ',
+        company_name: 'Alphabet Inc Class C',
+        display_name: 'Alphabet Inc Class C',
+        description: 'Multinational conglomerate that is the parent company of Google.',
+        logo: null,
+        trade_price: 133.91,
+      },
+      {
+        key: 'NSDQ~NVDA',
+        ticker_id: 'NVDA',
+        exchange_code: 'NSDQ',
+        company_name: 'NVIDIA Corp',
+        display_name: 'NVIDIA Corp',
+        description: 'Technology company that designs GPUs for gaming and professional markets.',
+        logo: null,
+        trade_price: 467.7,
+      },
+      {
+        key: 'NSDQ~META',
+        ticker_id: 'META',
+        exchange_code: 'NSDQ',
+        company_name: 'Meta Platforms Inc',
+        display_name: 'Meta Platforms Inc',
+        description: 'Technology company that focuses on the development of social media and virtual reality platforms.',
+        logo: null,
+        trade_price: 327.15,
+      },
+      {
+        key: 'NYSE~ORCL',
+        ticker_id: 'ORCL',
+        exchange_code: 'NYSE',
+        company_name: 'Oracle Corp',
+        display_name: 'Oracle Corp',
+        description: 'Multinational computer technology corporation that sells database software and technology.',
+        logo: null,
+        trade_price: 116.12,
+      },
+      {
+        key: 'LSE~HSBA',
+        ticker_id: 'HSBA',
+        exchange_code: 'LSE',
+        company_name: 'HSBC Holdings plc',
+        display_name: 'HSBC Holdings plc',
+        description: 'British multinational investment bank and financial services holding company.',
+        logo: null,
+        trade_price: 602.1602,
+      },
+      {
+        key: 'NSDQ~NFLX',
+        ticker_id: 'NFLX',
+        exchange_code: 'NSDQ',
+        company_name: 'Netflix Inc',
+        display_name: 'Netflix Inc',
+        description: 'Entertainment company specializing in streaming media and video-on-demand online.',
+        logo: null,
+        trade_price: 589.91,
+      },
+      // Add more stock data as needed
+    ],
+  };
+  
+
+  useEffect(() => {
+    // Set the initial stock data
+    setStockData(sampleStockData.data);
+    // Calculate and set total balance
+    const total = sampleStockData.data.reduce((acc, stock) => acc + stock.trade_price, 0);
+    setTotalBalance(total);
+  }, []);
+
+  useEffect(() => {
+    // Filter stock data based on search query
+    const filteredStocks = sampleStockData.data.filter(
+      (stock) =>
+        stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        stock.ticker_id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setStockData(filteredStocks);
+  }, [searchQuery]);
 
   const handleTabPress = (tab) => {
     setSelectedTab(tab);
-    // Add logic to fetch and display data based on the selected tab
-  };
-
-  const navigateToMore = () => {
-    navigation.navigate('More');
-  };
-
-  const navigateToDashboard = () => {
-    navigation.navigate('Dashboard');
-  };
-
-  const navigateToDiscover = () => {
-    navigation.navigate('Discover');
-  };
-
-  const navigateToPortfolio = () => {
-    navigation.navigate('Portfolio');
-};
-
-  const handleStockItemPress = (item) => {
-    // Handle stock item press logic here
-    console.log(`Stock item ${item.title} pressed!`);
-    // You can navigate or perform any other action based on the pressed item
-  };
-
-  // Sample data for individual stocks
-  const stockData = [
-    {
-      id: 1,
-      title: 'Stock A',
-      description: 'This is the description for Stock A.',
-      image: require('./Assests/apple.png'),
-      chartImage: require('./Assests/chart.png'),
-      price: '₦100.00',
-    },
-    {
-      id: 2,
-      title: 'Stock B',
-      description: 'This is the description for Stock B.',
-      image: require('./Assests/stock.png'),
-      chartImage: require('./Assests/chart.png'),
-      price: '₦150.00',
-    },
-    // Add more stock data as needed
-  ];
-
-  const sectorStockData = [
-    // Add data for sector stock portfolio
-    // Example:
-    {
-      id: 3,
-      title: 'Sector Stock C',
-      description: 'This is the description for Sector Stock C.',
-      image: require('./Assests/stock.png'),
-      chartImage: require('./Assests/chart.png'),
-      price: '₦200.00',
-    },
-  ];
-
-  const renderStockItems = (data) => {
-    return data.map((stock) => (
-      <TouchableOpacity
-        key={stock.id}
-        style={styles.listItem}
-        onPress={() => handleStockItemPress(stock)}
-      >
-        {/* Stock Image */}
-        <Image source={stock.image} style={styles.listItemImage} />
-        <View style={styles.listItemDetails}>
-          <Text style={styles.listItemText}>{stock.title}</Text>
-          <Text style={styles.listItemText}>{stock.description}</Text>
-          <View style={styles.stockRow}>
-            <Image source={stock.chartImage} style={styles.chartImage} />
-            <Text style={styles.stockPrice}>{stock.price}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    ));
+    // Implement logic to filter stock data based on the selected tab
+    // For now, let's assume 'All' tab shows all stocks
+    if (tab === 'All') {
+      setStockData(sampleStockData.data);
+    } else {
+      // Implement logic to filter stocks based on the selected tab
+      // For example, filter by currency or exchange
+      // Modify this logic according to your requirements
+      const filteredStocks = sampleStockData.data.filter((stock) => stock.exchange_code === tab);
+      setStockData(filteredStocks);
+    }
   };
 
   return (
-    <>
-      <ScrollView style={styles.container}>
-        <Text style={styles.title}>Portfolio</Text>
+    <View style={styles.container}>
+      {/* Title for Total Balance */}
+      <Text style={styles.PortTitle}>Portfolio</Text>
 
-        {/* Tabs */}
-        <View style={styles.tabContainer}>
-          {['Stock Portfolio', 'Sector Stock Portfolio'].map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tab, selectedTab === tab && styles.selectedTab]}
-              onPress={() => handleTabPress(tab)}
-            >
-              <Text style={styles.tabText}>{tab}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      {/* Search Bar */}
+      <View style={styles.searchBarContainer}>
+        <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search Stock"
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
+      </View>
 
-        {/* Render stock items based on the selected tab */}
-        {selectedTab === 'Stock Portfolio' && renderStockItems(stockData)}
-        {selectedTab === 'Sector Stock Portfolio' && renderStockItems(sectorStockData)}
-      </ScrollView>
+      {/* Account Balance */}
+      <View style={styles.accountBalanceContainer}>
+        <Text style={styles.totalBalanceText}>${totalBalance.toFixed(2)}</Text>
+      </View>
 
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
-          <Ionicons name="home" size={26} color="white" />
-          <Text style={styles.navBarText}>Home</Text>
+      {/* Title for Total Balance */}
+      <Text style={styles.totalBalanceTitle}>Total Balance</Text>
+
+      {/* Tabs */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, selectedTab === 'All' && styles.selectedTab]}
+          onPress={() => handleTabPress('All')}
+        >
+          <Text style={styles.tabText}>All</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navBarItem} onPress={navigateToDiscover}>
-          <Ionicons name="search" size={26} color="white" />
-          <Text style={styles.navBarText}>Discover</Text>
+        <TouchableOpacity
+          style={[styles.tab, selectedTab === 'USD' && styles.selectedTab]}
+          onPress={() => handleTabPress('USD')}
+        >
+          <Text style={styles.tabText}>USD</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navBarItem} onPress={navigateToPortfolio}>
-          <Ionicons name="briefcase" size={26} color="white" />
-          <Text style={styles.navBarText}>Portfolio</Text>
+        <TouchableOpacity
+          style={[styles.tab, selectedTab === 'Naira' && styles.selectedTab]}
+          onPress={() => handleTabPress('Naira')}
+        >
+          <Text style={styles.tabText}>Naira</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navBarItem} onPress={navigateToMore}>
-          <Ionicons name="ellipsis-horizontal" size={26} color="white" />
-          <Text style={styles.navBarText}>More</Text>
+        <TouchableOpacity
+          style={[styles.tab, selectedTab === 'Chart' && styles.selectedTab]}
+          onPress={() => handleTabPress('Chart')}
+        >
+          <Text style={styles.tabText}>Chart</Text>
         </TouchableOpacity>
       </View>
-    </>
+
+      {/* Stock Data */}
+      <ScrollView style={styles.stockList}>
+        {stockData.map((stock) => (
+          <View key={stock.ticker_id} style={styles.stockItem}>
+            {/* Replace the following image with your logic for displaying the stock logo */}
+            <Image source={require('./Assests/trade.jpg')} style={styles.stockImage} />
+            <View style={styles.stockDetails}>
+              <Text style={styles.stockTitle}>{stock.company_name}</Text>
+              <Text style={styles.stockDescription}>{stock.description}</Text>
+              <View style={styles.stockRow}>
+                {/* Replace the following image with your logic for displaying the chart image */}
+                <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
+                <Text style={styles.stockPrice}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: '#F4F4F4',
+    flex: 1,
     padding: 20,
+    backgroundColor: '#FFFFFF',
   },
-  title: {
-    fontSize: 24,
+  PortTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'left',
-    marginTop: 30,
-    color: '#51CC62'
+    color: '#51CC62',
+    marginTop: 40,
   },
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)'
-  },
-  tab: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    borderWidth: 0,
-    borderColor: '#51CC62',
-  },
-  selectedTab: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  tabText: {
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  listItem: {
+  searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    marginBottom: 10,
+    borderColor: 'gray',
+    borderWidth: 0,
     borderRadius: 10,
+    backgroundColor: '#EFEEED',
+    height: 50,
+  },
+  searchIcon: {
+    marginRight: 10,
+    marginLeft: 20,
+  },
+  searchBar: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 0,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+  },
+  accountBalanceContainer: {
+    alignItems: 'center',
     marginBottom: 10,
   },
-  listItemImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
+  totalBalanceText: {
+    fontSize: 68,
+    fontWeight: 'bold',
+    color: '#51CC62',
   },
-  listItemDetails: {
+  totalBalanceTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  tab: {
     flex: 1,
-    marginLeft: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 25,
   },
-  listItemText: {
-    fontSize: 14,
+  selectedTab: {
+    backgroundColor: '#51CC62',
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  stockList: {
+    flex: 1,
+  },
+  stockItem: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: 10,
+    borderColor: '#DDD',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  stockImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  stockDetails: {
+    flex: 1,
+  },
+  stockTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  stockDescription: {
+    color: '#555',
+    marginBottom: 8,
   },
   stockRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
   },
   chartImage: {
-    width: 20,
-    height: 20,
-    marginRight: 5,
+    width: 30,
+    height: 30,
+    marginRight: 8,
   },
   stockPrice: {
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  navBar: {
-    flexDirection: 'row',
-    backgroundColor: '#147603',
-    padding: 10,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingVertical: 25,
-  },
-  navBarItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  navBarText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'white',
+    color: '#51CC62',
   },
 });
 
