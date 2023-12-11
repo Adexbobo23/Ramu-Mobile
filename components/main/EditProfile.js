@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     marginTop: 40,
+    color: '#51CC62',
   },
   profileImage: {
     width: 100,

@@ -1,5 +1,5 @@
-import React, { useState, useEffect  } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import Modal from 'react-native-modal';
@@ -19,6 +19,8 @@ const SignupComponent = ({ navigation }) => {
   const [isNationalityModalVisible, setNationalityModalVisible] = useState(false);
   const [selectedNationality, setSelectedNationality] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   // Check username availability when the username changes
   useEffect(() => {
@@ -95,7 +97,7 @@ const SignupComponent = ({ navigation }) => {
       const response = await axios.post(apiUrl, signupData);
   
       console.log('Signup response:', response.data);
-      alert('Registration Successful, Kindly verify your email address');
+      showAlert('Registration Successful', 'Kindly verify your email address');
       navigation.navigate('OtpVerification');
     } catch (error) {
       // Handle errors more specifically
@@ -126,11 +128,21 @@ const SignupComponent = ({ navigation }) => {
         // Something happened in setting up the request that triggered an Error
         console.error('Error setting up the request:', error.message);
         alert('Error setting up the request. Please check your network connection and try again.');
-      }
+      } 
+    } finally {
+      setLoading(false);
     }
   };
   
-
+  const showAlert = (title, message) => {
+    Alert.alert(
+      title,
+      message,
+      [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+      { cancelable: false }
+    );
+  };
+  
   const handleLogin = () => {
     console.log('Log in link pressed');
     navigation.navigate('Login');
@@ -291,6 +303,13 @@ const SignupComponent = ({ navigation }) => {
       <TouchableOpacity onPress={handleLogin}>
         <Text style={styles.loginLink}>Already have an account? Log in</Text>
       </TouchableOpacity>
+
+      <Modal isVisible={loading}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#51CC62" />
+          <Text style={styles.loadingText}>Signing up...</Text>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -300,6 +319,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     backgroundColor: 'white',
+  },
+  loadingContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#51CC62',
   },
   heading: {
     fontSize: 24,
@@ -338,7 +367,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   input1: {
-    height: 0,
+    height: 50,
     borderWidth: 0,
     borderColor: '#51CC62',
     paddingHorizontal: 10,
@@ -352,6 +381,7 @@ const styles = StyleSheet.create({
     borderColor: '#51CC62',
     borderRadius: 10,
     paddingHorizontal: 10,
+    height: 50,
   },
 
   label1: {

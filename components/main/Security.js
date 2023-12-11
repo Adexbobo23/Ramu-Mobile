@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     textAlign: 'center',
     marginTop: 40,
+    color: '#51CC62',
   },
   securityOption: {
     paddingVertical: 15,
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#000',
+    color: '#51CC62',
   },
   securityOptionDesc: {
     fontSize: 16,

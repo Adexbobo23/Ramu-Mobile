@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#51CC62'
   },
   description: {
     fontSize: 16,

@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
+    color: '#51CC62',
   },
   description: {
     fontSize: 16,

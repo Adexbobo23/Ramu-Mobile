@@ -26,7 +26,7 @@ const AuthenticateTransaction = () => {
       <Text style={styles.title}>Kindly Authenticate with your pin</Text>
       
       <Text style={styles.description}>
-        An Email was sent to you with a verification pin{'\n'}
+        Your pin is required for this transaction{'\n'}
         Kindly provide the pin to proceed
       </Text>
 
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#51CC62'
   },
   description: {
     fontSize: 16,

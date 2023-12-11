@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     marginTop: 40,
+    color: '#51CC62',
   },
   inputContainer: {
     marginBottom: 15,
@@ -169,6 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#51CC62',
   },
   input: {
     borderWidth: 1,

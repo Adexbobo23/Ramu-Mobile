@@ -1,53 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Modal from 'react-native-modal';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    // Perform validation here
     if (!email || !password) {
-      alert('Please fill in all required fields');
+      showAlert('Validation Error', 'Please fill in all required fields');
       return;
     }
 
     try {
+      setLoading(true);
+
       const loginData = {
         email,
         password,
         rememberPassword,
       };
 
-      // Make the API call using Axios
       const apiUrl = 'https://api-staging.ramufinance.com/api/v1/login';
       const response = await axios.post(apiUrl, loginData);
 
-      console.log('Login response:', response.data);
-      // Save the token to AsyncStorage upon successful login
       await AsyncStorage.setItem('userToken', response.data.data.token);
       await AsyncStorage.setItem('userId', response.data.data.id);
-      alert('Login Successful');
 
-      // Redirect to the Dashboard
+      showAlert('Login Successful', 'Welcome back!');
       navigation.navigate('Dashboard');
     } catch (error) {
-      alert('Login failed. Please check your credentials.');
+      showAlert('Login Failed', 'Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
+
+  const showAlert = (title, message) => {
+    Alert.alert(
+      title,
+      message,
+      [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+      { cancelable: false }
+    );
+  };
+
   const handleForgotPassword = () => {
-    console.log('Forgot Password link pressed');
     navigation.navigate('ForgetPassword');
   };
 
   const handleCreateAccount = () => {
-    console.log('Create an Account link pressed');
     navigation.navigate('Signup');
   };
 
@@ -56,19 +65,11 @@ const Login = ({ navigation }) => {
   };
 
   const renderPasswordIcon = () => {
-    if (showPassword) {
-      return (
-        <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconButton}>
-          <Ionicons name="eye-off" size={24} color="grey" />
-        </TouchableOpacity>
-      );
-    } else {
-      return (
-        <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconButton}>
-          <Ionicons name="eye" size={24} color="grey" />
-        </TouchableOpacity>
-      );
-    }
+    return (
+      <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconButton}>
+        <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="grey" />
+      </TouchableOpacity>
+    );
   };
 
   const handleToggleRememberPassword = () => {
@@ -77,11 +78,7 @@ const Login = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={require('../Assests/Frame.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      <Image source={require('../Assests/Frame.png')} style={styles.logo} resizeMode="contain" />
       <Text style={styles.welcomeText}>Welcome Back!</Text>
       <Text style={styles.description}>Login to your account with ease</Text>
       <View style={styles.inputContainer}>
@@ -125,6 +122,13 @@ const Login = ({ navigation }) => {
           New to Ramu? <Text style={styles.createAccount1}>Create an account</Text>
         </Text>
       </TouchableOpacity>
+
+      <Modal isVisible={loading}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#51CC62" />
+          <Text style={styles.loadingText}>Logging in...</Text>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -136,6 +140,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     paddingVertical: 50,
+  },
+  loadingContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#51CC62',
   },
   logo: {
     width: 300,
@@ -168,7 +182,6 @@ const styles = StyleSheet.create({
     color: '#51CC62',
     fontSize: 16,
   },
-  
   input: {
     height: 50,
     borderWidth: 0,

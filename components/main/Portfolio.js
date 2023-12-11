@@ -154,22 +154,22 @@ const Portfolio = () => {
           <Text style={styles.tabText}>All</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, selectedTab === 'USD' && styles.selectedTab]}
-          onPress={() => handleTabPress('USD')}
+          style={[styles.tab, selectedTab === 'New' && styles.selectedTab]}
+          onPress={() => handleTabPress('New')}
         >
-          <Text style={styles.tabText}>USD</Text>
+          <Text style={styles.tabText}>New</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, selectedTab === 'Naira' && styles.selectedTab]}
-          onPress={() => handleTabPress('Naira')}
+          style={[styles.tab, selectedTab === 'Old' && styles.selectedTab]}
+          onPress={() => handleTabPress('Old')}
         >
-          <Text style={styles.tabText}>Naira</Text>
+          <Text style={styles.tabText}>Old</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, selectedTab === 'Chart' && styles.selectedTab]}
-          onPress={() => handleTabPress('Chart')}
+          style={[styles.tab, selectedTab === 'Overview' && styles.selectedTab]}
+          onPress={() => handleTabPress('Overview')}
         >
-          <Text style={styles.tabText}>Chart</Text>
+          <Text style={styles.tabText}>Overview</Text>
         </TouchableOpacity>
       </View>
 

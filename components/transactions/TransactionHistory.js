@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#51CC62',
   },
   transactionList: {
     borderWidth: 0,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   transactionName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#51CC62',
   },
   transactionDescription: {
     color: '#666',

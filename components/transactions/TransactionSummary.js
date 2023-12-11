@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 150,
     textAlign: 'center',
+    color: '#51CC62'
   },
   summaryContainer: {
     borderWidth: 0,

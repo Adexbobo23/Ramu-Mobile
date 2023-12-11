@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     marginTop: 70,
+    color: '#51CC62',
   },
   cardForm: {
     borderWidth: 1,
