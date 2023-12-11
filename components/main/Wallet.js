@@ -50,9 +50,9 @@ const Wallet = () => {
   const renderSwitchAccountButton = () => (
     <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
       {selectedAccount === 'naira' ? (
-        <Image source={require('./Assests/nigeria.png')} style={styles.countryLogo} />
+        <Image source={require('../Assests/nigeria.png')} style={styles.countryLogo} />
       ) : (
-        <Image source={require('./Assests/usa.png')} style={styles.countryLogo} />
+        <Image source={require('../Assests/usa.png')} style={styles.countryLogo} />
       )}
     </TouchableOpacity>
   );
@@ -151,12 +151,12 @@ const Wallet = () => {
       <Modalize ref={switchAccountModalRef} adjustToContentHeight>
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
-            <Image source={require('./Assests/nigeria.png')} style={styles.countryLogo} />
+            <Image source={require('../Assests/nigeria.png')} style={styles.countryLogo} />
             <Text style={styles.modalOption}>Switch to Naira Account</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleAccountSelection('dollar')} style={styles.modalOptionContainer}>
-            <Image source={require('./Assests/usa.png')} style={styles.countryLogo} />
+            <Image source={require('../Assests/usa.png')} style={styles.countryLogo} />
             <Text style={styles.modalOption}>Switch to Dollar Account</Text>
           </TouchableOpacity>
         </View>

@@ -16,7 +16,7 @@ const TopUpReceipt = () => {
       <Text style={styles.title}>Top Up Receipt</Text>
 
       {/* Investment Image */}
-      <Image source={require('./Assests/just.png')} style={styles.investmentImage} />
+      <Image source={require('../Assests/just.png')} style={styles.investmentImage} />
 
       {/* Transaction Complete */}
       <Text style={styles.subtitle}>Transaction Complete</Text>

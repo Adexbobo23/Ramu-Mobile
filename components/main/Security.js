@@ -35,12 +35,12 @@ const Security = () => {
       <View style={styles.hrLine} />
 
       {/* Enable Biometric Authentication */}
-      <View style={styles.securityOption}>
+      {/* <View style={styles.securityOption}>
         <Text style={styles.securityOptionTitle}>Enable Biometric Authentication</Text>
         <Text style={styles.securityOptionDesc}>Use fingerprint or face recognition</Text>
         <Switch onValueChange={handleBiometricSwitch} value={false} />
       </View>
-      <View style={styles.hrLine} />
+      <View style={styles.hrLine} /> */}
 
       {/* Account Recovery */}
       <TouchableOpacity style={styles.securityOption} onPress={navigateToSetPin}>

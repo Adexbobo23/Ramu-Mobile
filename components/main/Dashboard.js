@@ -61,9 +61,9 @@ const Dashboard = () => {
   const renderSwitchAccountButton = () => (
     <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
       {selectedAccount === 'naira' ? (
-        <Image source={require('./Assests/nigeria.png')} style={styles.countrylogo} />
+        <Image source={require('../Assests/nigeria.png')} style={styles.countrylogo} />
       ) : (
-        <Image source={require('./Assests/usa.png')} style={styles.countrylogo} />
+        <Image source={require('../Assests/usa.png')} style={styles.countrylogo} />
       )}
     </TouchableOpacity>
   );
@@ -250,7 +250,7 @@ const StockData = {
       <ScrollView>
       <View style={styles.container1}>
       <View style={styles.mainWelcome}>
-      <Image source={require('./Assests/icon.png')} style={styles.comlogo} />
+      <Image source={require('../Assests/icon.png')} style={styles.comlogo} />
       <Text style={styles.welcomeText}>Hi, Oliyide</Text>
       {/* <Text>{walletDetails?.virtual_account_name}</Text> */}
       <TouchableOpacity style={styles.notificationIconContainer} onPress={handleSeeAll}>
@@ -359,7 +359,7 @@ const StockData = {
             Start trading in UK, US, and Nigeria stocks.
             </Text>
           </View>
-          <Image source={require('./Assests/pana.png')} style={styles.getToKnowYouImage} />
+          <Image source={require('../Assests/pana.png')} style={styles.getToKnowYouImage} />
         </View>
         ) : (
           <TouchableOpacity onPress={handlePressKyc}>
@@ -373,7 +373,7 @@ const StockData = {
                make your transactions secure
              </Text>
            </View>
-           <Image source={require('./Assests/pana.png')} style={styles.getToKnowYouImage} />
+           <Image source={require('../Assests/pana.png')} style={styles.getToKnowYouImage} />
          </View>
          </TouchableOpacity>
         )}
@@ -393,13 +393,13 @@ const StockData = {
           {StockData.data.map((stock) => (
             <View key={stock.ticker_id} style={styles.stockItemContainer}>
               {/* Replace the following image with your logic for displaying the stock logo */}
-              <Image source={require('./Assests/trade.jpg')} style={styles.stockImage} />
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
               <View style={styles.stockDetailsContainer}>
                 <Text style={styles.stockTitleText}>{stock.company_name}</Text>
                 <Text style={styles.stockDescriptionText}>{stock.description}</Text>
                 <View style={styles.stockRowContainer}>
                   {/* Replace the following image with your logic for displaying the chart image */}
-                  <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
+                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
                   <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
                 </View>
               </View>
@@ -413,12 +413,12 @@ const StockData = {
         <Modalize ref={switchAccountModalRef} adjustToContentHeight>
           <View style={styles.modalContainer}>
             <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
-              <Image source={require('./Assests/nigeria.png')} style={styles.countrylogo} />
+              <Image source={require('../Assests/nigeria.png')} style={styles.countrylogo} />
               <Text style={styles.modalOption}>Switch to Naira Account</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => handleAccountSelection('dollar')} style={styles.modalOptionContainer}>
-              <Image source={require('./Assests/usa.png')} style={styles.countrylogo} />
+              <Image source={require('../Assests/usa.png')} style={styles.countrylogo} />
               <Text style={styles.modalOption}>Switch to Dollar Account</Text>
             </TouchableOpacity>
           </View>

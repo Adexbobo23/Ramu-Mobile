@@ -3,7 +3,7 @@ import { View, Text, TextInput, Image, ScrollView, StyleSheet } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const UKStock = () => {
+const PopularThisWeek = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredStocks, setFeaturedStocks] = useState([]);
 
@@ -47,7 +47,7 @@ const UKStock = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>UK Stocks</Text>
+      <Text style={styles.title}>Select Popular Stocks</Text>
       <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
         <TextInput
@@ -61,13 +61,13 @@ const UKStock = () => {
         {filteredStocks.map((stock) => (
           <View key={stock.ticker_id} style={styles.stockItem}>
             {/* Replace the following image with your logic for displaying the stock logo */}
-            <Image source={require('./Assests/stock.png')} style={styles.stockImage} />
+            <Image source={require('../Assests/stock.png')} style={styles.stockImage} />
             <View style={styles.stockDetails}>
               <Text style={styles.stockTitle}>{stock.company_name}</Text>
               <Text style={styles.stockDescription}>{stock.description}</Text>
               <View style={styles.stockRow}>
                 {/* Replace the following image with your logic for displaying the chart image */}
-                <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
+                <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
                 <Text style={styles.stockPrice}>{`₦${stock.trade_price}`}</Text>
               </View>
             </View>
@@ -147,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UKStock;
+export default PopularThisWeek;

@@ -11,7 +11,7 @@ const TransactionHistory = () => {
       <View style={styles.transactionList}>
         {[...Array(20)].map((_, index) => (
           <View key={index} style={styles.transactionItem}>
-            <Image source={require('./Assests/apple.png')} style={styles.circleImage} />
+            <Image source={require('../Assests/apple.png')} style={styles.circleImage} />
             <View style={styles.textContainer}>
               <Text style={styles.transactionName}>Transaction {index + 1}</Text>
               <Text style={styles.transactionDescription}>Description of the transaction</Text>

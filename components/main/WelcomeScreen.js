@@ -23,7 +23,7 @@ const WelcomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={require('./Assests/Frame.png')} style={styles.logo} />
+        <Image source={require('../Assests/Frame.png')} style={styles.logo} />
       </View>
       <Text style={styles.text1}>Let's Get Started</Text>
       <Text style={styles.text2}>Let's dive into your account</Text>

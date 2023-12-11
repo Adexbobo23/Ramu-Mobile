@@ -14,7 +14,7 @@ const EmailVerifySuccessful = ({ navigation }) => {
       <Text style={styles.congratsText}>Congratulations!</Text>
       <Text style={styles.messageText}>Your email has successfully been verified.</Text>
       <Text style={styles.messageText1}>Let's get some business done!</Text>
-      <Image source={require('./Assests/Frame_158.png')} style={styles.image} />
+      <Image source={require('../Assests/Frame_158.png')} style={styles.image} />
       <TouchableOpacity style={styles.dashboardButton} onPress={handleGoToDashboard}>
         <Text style={styles.buttonText}>Dashboard</Text>
       </TouchableOpacity>

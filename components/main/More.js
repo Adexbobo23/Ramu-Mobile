@@ -43,13 +43,13 @@ const More = () => {
           <Text style={styles.optionText}>Tools</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.option} onPress={() => navigateTo('StockMarket')}>
+        {/* <TouchableOpacity style={styles.option} onPress={() => navigateTo('StockMarket')}>
           <Text style={styles.optionText}>Stocks Market</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.option} onPress={() => navigateTo('StockExchange')}>
           <Text style={styles.optionText}>Stocks Exchange</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Logout option */}
         <TouchableOpacity style={styles.logoutOption} onPress={() => navigateTo('Login')}>

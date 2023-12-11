@@ -11,7 +11,7 @@ const FirstOpenPage = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('./Assests/vector.png')} style={styles.logo} />
+      <Image source={require('../Assests/vector.png')} style={styles.logo} />
       <View style={styles.contentContainer}>
         <Text style={styles.welcomeText}>Welcome to Ramu</Text>
         <Text style={styles.subText}>

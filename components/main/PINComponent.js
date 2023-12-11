@@ -20,7 +20,7 @@ const PinComponent = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={require('./Assests/Frame.png')} style={styles.logo} />
+      <Image source={require('../Assests/Frame.png')} style={styles.logo} />
       <Text style={styles.title}>Enter Your PIN</Text>
       <Text style={styles.subtitle}>Please enter your 4-digit RAMU</Text>
       <Text style={styles.subtitle1}>PIN to log in securely</Text>

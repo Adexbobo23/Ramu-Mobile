@@ -48,7 +48,7 @@ const SetPin = ({ navigation }) => {
     const confirmedPin = confirmPin.join('');
   
     if (enteredPin.length !== 4 || confirmedPin.length !== 4) {
-      Alert.alert('Invalid PIN', 'Please enter a 4-digit PIN in both fields.');
+      Alert.alert('Confirm PIN', 'Please enter a 4-digit PIN in the confirm fields.');
       return;
     }
   
@@ -61,7 +61,7 @@ const SetPin = ({ navigation }) => {
         },
         body: JSON.stringify({
           pin: enteredPin,
-          pin_confirmation: confirmedPin, // Add confirmation PIN
+          pin_confirmation: confirmedPin,
         }),
       });
   

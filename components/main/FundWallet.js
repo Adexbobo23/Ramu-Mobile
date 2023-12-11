@@ -83,7 +83,7 @@ const FundWallets = () => {
       style={[styles.paymentMethod, selectedPaymentMethod === 'GTBank' && styles.selectedPaymentMethod]}
       onPress={() => setSelectedPaymentMethod('GTBank')}
     >
-      <Image source={require('./Assests/gtbank.png')} style={styles.paymentMethodLogo} />
+      <Image source={require('../Assests/gtbank.png')} style={styles.paymentMethodLogo} />
       <Text style={styles.paymentMethodText}>GTBank</Text>
     </TouchableOpacity>
 
@@ -92,7 +92,7 @@ const FundWallets = () => {
       style={[styles.paymentMethod, selectedPaymentMethod === 'Polaris' && styles.selectedPaymentMethod]}
       onPress={() => setSelectedPaymentMethod('Polaris')}
     >
-      <Image source={require('./Assests/polaris.png')} style={styles.paymentMethodLogo} />
+      <Image source={require('../Assests/polaris.png')} style={styles.paymentMethodLogo} />
       <Text style={styles.paymentMethodText}>Polaris</Text>
     </TouchableOpacity>
 
@@ -101,7 +101,7 @@ const FundWallets = () => {
       style={[styles.paymentMethod, selectedPaymentMethod === 'Access Bank' && styles.selectedPaymentMethod]}
       onPress={() => setSelectedPaymentMethod('Access Bank')}
     >
-      <Image source={require('./Assests/accessbank.png')} style={styles.paymentMethodLogo} />
+      <Image source={require('../Assests/accessbank.png')} style={styles.paymentMethodLogo} />
       <Text style={styles.paymentMethodText}>Access Bank</Text>
     </TouchableOpacity>
 
@@ -110,7 +110,7 @@ const FundWallets = () => {
       style={[styles.paymentMethod, selectedPaymentMethod === 'Zenith' && styles.selectedPaymentMethod]}
       onPress={() => setSelectedPaymentMethod('Zenith')}
     >
-      <Image source={require('./Assests/zenith.png')} style={styles.paymentMethodLogo} />
+      <Image source={require('../Assests/zenith.png')} style={styles.paymentMethodLogo} />
       <Text style={styles.paymentMethodText}>Zenith</Text>
     </TouchableOpacity>
 
@@ -119,7 +119,7 @@ const FundWallets = () => {
       style={[styles.paymentMethod, selectedPaymentMethod === 'Wema Bank' && styles.selectedPaymentMethod]}
       onPress={() => setSelectedPaymentMethod('Wema Bank')}
     >
-      <Image source={require('./Assests/wema.png')} style={styles.paymentMethodLogo} />
+      <Image source={require('../Assests/wema.png')} style={styles.paymentMethodLogo} />
       <Text style={styles.paymentMethodText}>Wema Bank</Text>
     </TouchableOpacity>
 
@@ -128,7 +128,7 @@ const FundWallets = () => {
       style={[styles.paymentMethod, selectedPaymentMethod === 'UBA' && styles.selectedPaymentMethod]}
       onPress={() => setSelectedPaymentMethod('UBA')}
     >
-      <Image source={require('./Assests/uba.png')} style={styles.paymentMethodLogo} />
+      <Image source={require('../Assests/uba.png')} style={styles.paymentMethodLogo} />
       <Text style={styles.paymentMethodText}>UBA</Text>
     </TouchableOpacity>
 

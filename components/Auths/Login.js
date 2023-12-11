@@ -78,7 +78,7 @@ const Login = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image
-        source={require('./Assests/Frame.png')}
+        source={require('../Assests/Frame.png')}
         style={styles.logo}
         resizeMode="contain"
       />

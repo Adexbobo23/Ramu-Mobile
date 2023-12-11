@@ -14,7 +14,7 @@ const PasswordResetSuccessful = () => {
       <Text style={styles.title}>Congratulations!</Text>
       <Text style={styles.subtitle}>Your password has been successfully reset.</Text>
       <Image
-        source={require('./Assests/Frame_159.png')}
+        source={require('../Assests/Frame_159.png')}
         style={styles.image}
         resizeMode="contain"
       />

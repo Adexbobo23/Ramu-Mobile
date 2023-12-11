@@ -178,13 +178,13 @@ const Portfolio = () => {
         {stockData.map((stock) => (
           <View key={stock.ticker_id} style={styles.stockItem}>
             {/* Replace the following image with your logic for displaying the stock logo */}
-            <Image source={require('./Assests/trade.jpg')} style={styles.stockImage} />
+            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
             <View style={styles.stockDetails}>
               <Text style={styles.stockTitle}>{stock.company_name}</Text>
               <Text style={styles.stockDescription}>{stock.description}</Text>
               <View style={styles.stockRow}>
                 {/* Replace the following image with your logic for displaying the chart image */}
-                <Image source={require('./Assests/chart.png')} style={styles.chartImage} />
+                <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
                 <Text style={styles.stockPrice}>{`$${stock.trade_price.toFixed(2)}`}</Text>
               </View>
             </View>

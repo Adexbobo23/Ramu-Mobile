@@ -63,10 +63,10 @@ const Tools = () => {
                 </TouchableOpacity>
 
                 {/* Switch for dark mode */}
-                <View style={styles.darkModeSwitchContainer}>
+                {/* <View style={styles.darkModeSwitchContainer}>
                     <Text style={styles.darkModeText}>Change Mode</Text>
                     <Switch value={darkMode} onValueChange={handleDarkModeToggle} />
-                </View>
+                </View> */}
 
                 <TouchableOpacity style={styles.option} onPress={navigateToHelp}>
                     <Text style={styles.optionText}>Help</Text>
