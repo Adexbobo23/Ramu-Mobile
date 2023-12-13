@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-const PaymentConfirmation = () => {
+const PaymentFailed = () => {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
 
@@ -17,18 +17,18 @@ const PaymentConfirmation = () => {
     }, []);
 
     const handleBackToHome = () => {
-        navigation.navigate('Dashboard'); 
+        navigation.navigate('Dashboard');
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Confirmation</Text>
-            <Text style={styles.subtitle}>Your Payment was Successful</Text>
+            <Text style={styles.title}>Transaction Failed</Text>
+            <Text style={styles.subtitle}>Your Payment was Unsuccessful</Text>
 
             {loading ? (
-                <ActivityIndicator size="large" color="#51CC62" style={styles.loading} />
+                <ActivityIndicator size="large" color="#FF0000" style={styles.loading} />
             ) : (
-                <Ionicons name="checkmark-circle" size={100} color="#51CC62" style={styles.checkmark} />
+                <Ionicons name="close-circle" size={100} color="#FF0000" style={styles.closeIcon} />
             )}
 
             <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 20,
-        color: '#51CC62'
+        color: '#FF0000',
     },
     subtitle: {
         fontSize: 17,
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     loading: {
         marginBottom: 20,
     },
-    checkmark: {
+    closeIcon: {
         marginBottom: 20,
     },
     backButton: {
@@ -80,4 +80,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PaymentConfirmation;
+export default PaymentFailed;

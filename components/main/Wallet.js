@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
+import { MaterialIcons } from '@expo/vector-icons'; 
+
 
 const Wallet = () => {
   const navigation = useNavigation();
@@ -34,26 +36,38 @@ const Wallet = () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await axios.get(
-        `https://api-staging.ramufinance.com/api/v1/get-wallet-details?account_type=${selectedAccount}`,
+        'https://api-staging.ramufinance.com/api/v1/get-wallet-details',
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
         }
       );
-      setWalletDetails(response.data.data);
+  
+      // Assuming NGN is for Naira and USD is for Dollar
+      const nairaDetails = response.data.data.find((wallet) => wallet.currency_code === 'NGN');
+      const dollarDetails = response.data.data.find((wallet) => wallet.currency_code === 'USD');
+  
+      setWalletDetails({
+        naira: nairaDetails,
+        dollar: dollarDetails,
+      });
     } catch (error) {
       console.error('Error fetching wallet details:', error);
+      Alert.alert('Error', 'Failed to fetch wallet details.');
     }
   };
 
   const renderSwitchAccountButton = () => (
     <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
-      {selectedAccount === 'naira' ? (
-        <Image source={require('../Assests/nigeria.png')} style={styles.countryLogo} />
-      ) : (
-        <Image source={require('../Assests/usa.png')} style={styles.countryLogo} />
-      )}
+      <View style={styles.switchAccountContainer}>
+        {selectedAccount === 'naira' ? (
+          <Image source={require('../Assests/nigeria.png')} style={styles.countryLogo} />
+        ) : (
+          <Image source={require('../Assests/usa.png')} style={styles.countryLogo} />
+        )}
+        <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+      </View>
     </TouchableOpacity>
   );
 
@@ -109,7 +123,15 @@ const Wallet = () => {
             <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.balanceContentWrapper}>
               {renderSwitchAccountButton()}
               <Text style={styles.balanceText}>
-                {balanceVisible ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance}` : '*******'}
+               {balanceVisible ? (
+                  selectedAccount === 'naira' ? (
+                    `₦${walletDetails?.naira?.balance}`
+                  ) : (
+                    `$${walletDetails?.dollar?.balance}`
+                  )
+                ) : (
+                  '*******'
+                )}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.fundButton} onPress={handleFundWallet}>
@@ -201,14 +223,16 @@ const styles = StyleSheet.create({
   balanceContainer: {
     backgroundColor: 'rgba(0, 255, 0, 0.2)',
     padding: 20,
+    borderWidth: 1,
     borderRadius: 10,
+    borderColor: '#51CC62',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.5,
     shadowRadius: 3,
-    elevation: 100,
-    height: 150
+    elevation: 0,
+    height: 150,
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -220,6 +244,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 10,
+  },
+  balanceText: {
+    fontSize: 18,
+    color: 'black',
   },
   balanceContentWrapper: {
     flexDirection: 'row',
@@ -233,6 +261,10 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginTop: 10,
+  },
+  switchAccountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   switchAccountText: {
     fontSize: 16,

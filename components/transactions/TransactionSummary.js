@@ -37,15 +37,28 @@ const navigateToDiscover = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Transaction Summary</Text>
+      <View>
+  <Text style={styles.title}>Transaction Summary</Text>
+  <Text style={styles.description}>A summary of your recent transaction details.</Text>
+</View>
       
       <View style={styles.summaryContainer}>
-        <Text style={styles.summaryItem}>Company Stock:                             ABC Company</Text>
-        <View style={styles.hrLine} />
-        <Text style={styles.summaryItem}>Volume of the Stock Sold:                  100 shares</Text>
-        <View style={styles.hrLine} />
-        <Text style={styles.summaryItem}>Total Amount:                                      N956,866.00</Text>
+          <View style={styles.summaryItemContainer}>
+            <Text style={styles.summaryLabel}>Company Stock:</Text>
+            <Text style={styles.summaryText}>ABC Company</Text>
+          </View>
+          <View style={styles.hrLine} />
+          <View style={styles.summaryItemContainer}>
+            <Text style={styles.summaryLabel}>Volume of the Stock Sold:</Text>
+            <Text style={styles.summaryText}>100 shares</Text>
+          </View>
+          <View style={styles.hrLine} />
+          <View style={styles.summaryItemContainer}>
+            <Text style={styles.summaryLabel}>Total Amount:</Text>
+            <Text style={styles.summaryText}>N956,866.00</Text>
+          </View>
       </View>
+
 
       <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
         <Text style={styles.sellButtonText}>Sell</Text>
@@ -81,25 +94,49 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 34,
     fontWeight: 'bold',
-    marginBottom: 150,
+    marginBottom: 20,
     textAlign: 'center',
-    color: '#51CC62'
+    color: '#51CC62',
+  },
+  description: {
+    fontSize: 15,
+    color: '#888', 
+    textAlign: 'center',
+    marginBottom: 70, 
   },
   summaryContainer: {
-    borderWidth: 0,
-    borderColor: '#FFF',
-    padding: 10,
+    borderWidth: 1,
+    borderColor: '#51CC62',
+    padding: 20,
     borderRadius: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0)',
+    backgroundColor: '#F5F5F5',  
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 10,
+    marginBottom: 30,
   },
-  summaryItem: {
-    fontSize: 16,
+  summaryItemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
+  
+  summaryLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#51CC62',
+  },
+  
+  summaryText: {
+    fontSize: 16,
+  },
+
   hrLine: {
-    borderBottomColor: '#000',
+    borderBottomColor: '#51CC62',
     borderBottomWidth: 1,
     marginBottom: 10,
   },

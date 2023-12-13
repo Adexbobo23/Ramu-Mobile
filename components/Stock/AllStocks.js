@@ -1,35 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Image, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import StockDetails from './StockDetails';
 
 const AllStocks = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
-  const [featuredStocks, setFeaturedStocks] = useState([]);
   const [stockData, setStockData] = useState([]);
 
+  const handleStockSelect = (stockKey) => {
+    navigation.navigate('StockDetails', { stockKey, stockData });
+  };
   
   useEffect(() => {
-    // Assuming you fetch or set featured stocks in useEffect
-    // For now, we'll just set it to an empty array
-    setFeaturedStocks([]);
-  }, []);
-
-  const filteredStocks = stockData.filter(
-    (stock) =>
-      stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      stock.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  useEffect(() => {
-    // Update stockData when the component mounts or when featuredStocks change
-    setStockData(featuredStocks);
-  }, [featuredStocks]);
-
-  const StockData = {
-    status: true,
-    message: 'Success',
-    data: [
+    // Set stock data when the component mounts
+    setStockData([
       {
         key: 'NSDQ~AAPL',
         ticker_id: 'AAPL',
@@ -40,69 +26,15 @@ const AllStocks = () => {
         logo: null,
         trade_price: 189.91,
       },
-      {
-        key: 'NSDQ~GOOG',
-        ticker_id: 'GOOG',
-        exchange_code: 'NSDQ',
-        company_name: 'Alphabet Inc Class C',
-        display_name: 'Alphabet Inc Class C',
-        description: 'Multinational conglomerate that is the parent company of Google.',
-        logo: null,
-        trade_price: 133.91,
-      },
-      {
-        key: 'NSDQ~NVDA',
-        ticker_id: 'NVDA',
-        exchange_code: 'NSDQ',
-        company_name: 'NVIDIA Corp',
-        display_name: 'NVIDIA Corp',
-        description: 'Technology company that designs GPUs for gaming and professional markets.',
-        logo: null,
-        trade_price: 467.7,
-      },
-      {
-        key: 'NSDQ~META',
-        ticker_id: 'META',
-        exchange_code: 'NSDQ',
-        company_name: 'Meta Platforms Inc',
-        display_name: 'Meta Platforms Inc',
-        description: 'Technology company that focuses on the development of social media and virtual reality platforms.',
-        logo: null,
-        trade_price: 327.15,
-      },
-      {
-        key: 'NYSE~ORCL',
-        ticker_id: 'ORCL',
-        exchange_code: 'NYSE',
-        company_name: 'Oracle Corp',
-        display_name: 'Oracle Corp',
-        description: 'Multinational computer technology corporation that sells database software and technology.',
-        logo: null,
-        trade_price: 116.12,
-      },
-      {
-        key: 'LSE~HSBA',
-        ticker_id: 'HSBA',
-        exchange_code: 'LSE',
-        company_name: 'HSBC Holdings plc',
-        display_name: 'HSBC Holdings plc',
-        description: 'British multinational investment bank and financial services holding company.',
-        logo: null,
-        trade_price: 602.1602,
-      },
-      {
-        key: 'NSDQ~NFLX',
-        ticker_id: 'NFLX',
-        exchange_code: 'NSDQ',
-        company_name: 'Netflix Inc',
-        display_name: 'Netflix Inc',
-        description: 'Entertainment company specializing in streaming media and video-on-demand online.',
-        logo: null,
-        trade_price: 589.91,
-      },
       // Add more stock data as needed
-    ],
-  };
+    ]);
+  }, []);
+
+  const filteredStocks = stockData.filter(
+    (stock) =>
+      stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <View style={styles.container}>
@@ -117,25 +49,28 @@ const AllStocks = () => {
         />
       </View>
       <ScrollView style={styles.stockListContainer}>
-          {StockData.data.map((stock) => (
-            <View key={stock.ticker_id} style={styles.stockItemContainer}>
-              {/* Replace the following image with your logic for displaying the stock logo */}
-              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
-              <View style={styles.stockDetailsContainer}>
-                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
-                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
-                <View style={styles.stockRowContainer}>
-                  {/* Replace the following image with your logic for displaying the chart image */}
-                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
-                </View>
+        {filteredStocks.map((stock) => (
+          <TouchableOpacity
+            key={stock.ticker_id}
+            style={styles.stockItemContainer}
+            onPress={() => handleStockSelect(stock.key)}
+          >
+            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+            <View style={styles.stockDetailsContainer}>
+              <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+              <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+              <View style={styles.stockRowContainer}>
+                <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
               </View>
             </View>
-          ))}
-        </ScrollView>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

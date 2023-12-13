@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
 // import WebView from 'react-native-webview';
 import axios from 'axios';
+import { MaterialIcons } from '@expo/vector-icons'; 
 
 
 const Dashboard = () => {
@@ -24,7 +25,9 @@ const Dashboard = () => {
   useEffect(() => {
     // Check KYC status from AsyncStorage or your API
     checkKYCStatus();
-  }, []);
+    // Fetch wallet details initially
+    fetchWalletDetails(selectedAccount);
+  }, [selectedAccount]);
 
   const checkKYCStatus = async () => {
     try {
@@ -43,30 +46,42 @@ const Dashboard = () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await axios.get(
-        `https://api-staging.ramufinance.com/api/v1/get-wallet-details?account_type=${selectedAccount}`,
+        'https://api-staging.ramufinance.com/api/v1/get-wallet-details',
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
         }
       );
-      setWalletDetails(response.data.data);
+  
+      // Assuming NGN is for Naira and USD is for Dollar
+      const nairaDetails = response.data.data.find((wallet) => wallet.currency_code === 'NGN');
+      const dollarDetails = response.data.data.find((wallet) => wallet.currency_code === 'USD');
+  
+      setWalletDetails({
+        naira: nairaDetails,
+        dollar: dollarDetails,
+      });
     } catch (error) {
       console.error('Error fetching wallet details:', error);
+      Alert.alert('Error', 'Failed to fetch wallet details.');
     }
   };
-
+  
  
-
   const renderSwitchAccountButton = () => (
     <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
-      {selectedAccount === 'naira' ? (
-        <Image source={require('../Assests/nigeria.png')} style={styles.countrylogo} />
-      ) : (
-        <Image source={require('../Assests/usa.png')} style={styles.countrylogo} />
-      )}
+      <View style={styles.switchAccountContainer}>
+        {selectedAccount === 'naira' ? (
+          <Image source={require('../Assests/nigeria.png')} style={styles.countrylogo} />
+        ) : (
+          <Image source={require('../Assests/usa.png')} style={styles.countrylogo} />
+        )}
+        <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+      </View>
     </TouchableOpacity>
   );
+  
 
   const handleAccountSelection = (accountType) => {
   if (accountType === selectedAccount) {
@@ -130,37 +145,6 @@ const handleSeeAll = () => {
   navigation.navigate('AllStock');
 };
 
-// useEffect(() => {
-//   // Fetch featured stocks with user token
-//   fetchFeaturedStocks();
-// }, []);
-
-// const fetchFeaturedStocks = async () => {
-//   try {
-//     // Retrieve user token from AsyncStorage
-//     const userToken = await AsyncStorage.getItem('userToken');
-
-//     // Make API request with user token
-//     const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
-//       method: 'GET',
-//       headers: {
-//         Authorization: `Bearer ${userToken}`,
-//         'Content-Type': 'application/json',
-//       },
-//     });
-
-//     const result = await response.json();
-
-//     if (response.ok) {
-//       // Set the featured stocks in state
-//       setFeaturedStocks(result.data);
-//     } else {
-//       console.error('Failed to fetch featured stocks:', result.message);
-//     }
-//   } catch (error) {
-//     console.error('Error fetching featured stocks:', error);
-//   }
-// };
 
 const handleNotification = () => {
   console.log('Notification icon pressed');
@@ -266,7 +250,15 @@ const StockData = {
             {renderSwitchAccountButton()}
             <TouchableOpacity onPress={toggleBalanceVisibility}>
               <Text style={styles.balanceText}>
-                {balanceVisible ? `${selectedAccount === 'naira' ? '₦' : '$'}${walletDetails?.balance}` : '*******'}
+                {balanceVisible ? (
+                  selectedAccount === 'naira' ? (
+                    `₦${walletDetails?.naira?.balance}`
+                  ) : (
+                    `$${walletDetails?.dollar?.balance}`
+                  )
+                ) : (
+                  '*******'
+                )}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
@@ -292,9 +284,9 @@ const StockData = {
           <View style={styles.stocksSection}>
           <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Top Trending</Text>
-                {/* <TouchableOpacity onPress={handleSeeAll}>
+                <TouchableOpacity onPress={handleSeeAll}>
                 <Text style={styles.seeAll} onPress={() => navigateTo('Sectors')}>See All</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
             </View>
 
             {/* Horizontal Scroll for Stocks List */}
@@ -314,20 +306,14 @@ const StockData = {
               </View>
               {/* Sample Stock Item (repeat this for each stock) */}
               <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjC23i8oLAAunknKBsfvaN_QDv5CyUfHx3QYKSvLZvrsvUeBQKZmOPwjZX8b-x3aqD1dk&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Tesla</Text>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDX0lzryMjrYOwRt4sT80B7U00fcxmQ-vO152amG-4cEHH4E_oLqukR37WFvyr06hchbg&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Facebook</Text>
                 <Text style={styles.stockDescription}>Stock Description</Text>
               </View>
               {/* Sample Stock Item (repeat this for each stock) */}
               <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTP7vl0YPQ7CPk48qX72enLmfoocaG21M6Hjndj1EeBfwT2-xi_WUz005LgVk8WT_DGcBI&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Amazon</Text>
-                <Text style={styles.stockDescription}>Stock Description</Text>
-              </View>
-              {/* Sample Stock Item (repeat this for each stock) */}
-              <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFqJre8P409R-XExxvW-V9XZRple1PUwIYtYGZzYfAAINjgzdZN1Nb5M7Aq4HZpHmgkBA&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Google</Text>
+                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmvXQRuCtTuXhJjMBHFyx1heks159k1KqwQJZ_mCCmi9e4BRIQ2vMq6JlUEgs_QYW6EIw&usqp=CAU' }} style={styles.stockImage3} />
+                <Text style={styles.stockName}>Netflix</Text>
                 <Text style={styles.stockDescription}>Stock Description</Text>
               </View>
             </ScrollView>
@@ -481,7 +467,8 @@ const styles = StyleSheet.create({
   countrylogo: {
     width: 30,
     height: 20, 
-    marginRight: 5, 
+    marginRight: 5,
+    marginTop: 10, 
   },
   modalContainer: {
     padding: 20,
@@ -558,6 +545,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginTop: 40,
+  },
+  switchAccountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   switchAccountButtonText: {
     color: 'white',
@@ -667,16 +658,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
-    marginTop: 70,
+    marginTop: 90,
   },
   seeAll: {
     fontSize: 16,
     color: '#51CC62',
-    marginTop: 20,
+    marginTop: 90,
     fontWeight: 'bold',
   },
   stocksList: {

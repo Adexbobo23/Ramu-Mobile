@@ -49,6 +49,8 @@ import UKStock from '../Stock/UKStock';
 import USStock from '../Stock/USStock';
 import FundWallets from '../main/FundWallet';
 import TopUpReceipt from '../transactions/TopUpReceipt';
+import PaymentFailed from '../transactions/PaymentFailed';
+import StockDetails from '../Stock/StockDetails';
 
 const Stack = createStackNavigator();
 
@@ -131,6 +133,11 @@ const Router = () => {
         <Stack.Screen
           name="PaymentConfirm"
           component={PaymentConfirmation}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PaymentFailed"
+          component={PaymentFailed}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -238,6 +245,11 @@ const Router = () => {
         <Stack.Screen
         name="AllStock"
         component={AllStocks}
+        options={{ headerShown: false }}
+        />
+         <Stack.Screen
+        name="StockDetails"
+        component={StockDetails}
         options={{ headerShown: false }}
         />
         <Stack.Screen
