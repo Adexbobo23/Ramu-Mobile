@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddCreditCard = () => {
   const navigation = useNavigation();
@@ -9,10 +10,66 @@ const AddCreditCard = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
+  const [userToken, setUserToken] = useState('');
 
-  const handleSave = () => {
-    navigation.navigate('Wallet');
-    console.log('Card details saved:', { cardHolderName, cardNumber, expiry, cvc });
+  useEffect(() => {
+    const fetchUserToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          setUserToken(token);
+        } else {
+          console.error('User token not found in AsyncStorage');
+        }
+      } catch (error) {
+        console.error('Error fetching user token:', error);
+      }
+    };
+
+    fetchUserToken();
+  }, []);
+
+  const handleSave = async () => {
+    // Validate input fields
+    if (!cardHolderName || !cardNumber || !expiry || !cvc) {
+      Alert.alert('Validation Error', 'Please fill in all fields.');
+      return;
+    }
+
+    try {
+      // API endpoint for adding a card
+      const apiUrl = 'https://api-staging.ramufinance.com/api/v1/add-card';
+
+      // Make a POST request
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({
+          cardHolderName,
+          cardNumber,
+          expiry,
+          cvc,
+        }),
+      });
+
+      // Parse the response
+      const result = await response.json();
+
+      if (response.ok) {
+        // Handle success
+        Alert.alert('Success', 'Card added successfully.');
+        navigation.navigate('Wallet');
+      } else {
+        // Handle API errors
+        Alert.alert('Error', result.message || 'Failed to add card.');
+      }
+    } catch (error) {
+      console.error('Error adding card:', error);
+      Alert.alert('Error', 'An error occurred while adding the card. Please try again.');
+    }
   };
 
   return (
@@ -77,6 +134,7 @@ const AddCreditCard = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

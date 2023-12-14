@@ -19,8 +19,8 @@ const Tools = () => {
         navigation.navigate('Security');
     };
 
-    const navigateToHelp = () => {
-        navigation.navigate('Help');
+    const navigateToFAQ = () => {
+        navigation.navigate('FAQ');
     };
 
     const navigateToReportScam = () => {
@@ -68,7 +68,7 @@ const Tools = () => {
                     <Switch value={darkMode} onValueChange={handleDarkModeToggle} />
                 </View> */}
 
-                <TouchableOpacity style={styles.option} onPress={navigateToHelp}>
+                <TouchableOpacity style={styles.option} onPress={navigateToFAQ}>
                     <Text style={styles.optionText}>Help</Text>
                 </TouchableOpacity>
 

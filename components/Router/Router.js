@@ -51,6 +51,7 @@ import FundWallets from '../main/FundWallet';
 import TopUpReceipt from '../transactions/TopUpReceipt';
 import PaymentFailed from '../transactions/PaymentFailed';
 import StockDetails from '../Stock/StockDetails';
+import FAQ from '../main/FAQ';
 
 const Stack = createStackNavigator();
 
@@ -233,9 +234,7 @@ const Router = () => {
         <Stack.Screen
         name="SetPin"
         component={SetPin}
-        options={{  title: 'Set Transaction Pin',
-        headerTitleAlign: 'center', 
-        headerTintColor: '#51CC62',}}
+        options={{ headerShown: false }}
         />
         <Stack.Screen
         name="Discover"
@@ -307,9 +306,14 @@ const Router = () => {
         component={FundWallets}
         options={{ headerShown: false }}
         />
-         <Stack.Screen
+        <Stack.Screen
         name="TopUpReceipt"
         component={TopUpReceipt}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="FAQ"
+        component={FAQ}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, Linking} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FundWallets = () => {
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [bankList, setBankList] = useState([]);
+
+  useEffect(() => {
+    fetchBankList();
+  }, []);
+
+  const fetchBankList = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await axios.get(
+        'https://api-staging.ramufinance.com/api/v1/fetch-bank-ussd',
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      const bankListData = response.data.data;
+      setBankList(bankListData);
+    } catch (error) {
+      console.error('Error fetching bank list:', error);
+      // Handle error
+    }
+  };
 
   const handlePayment = () => {
     if (!selectedPaymentMethod) {
@@ -14,136 +41,72 @@ const FundWallets = () => {
       return;
     }
 
-    let ussdCode = '';
+    const selectedBank = bankList.find((bank) => bank.name === selectedPaymentMethod);
 
-    // Generate USSD code based on the selected payment method
-    switch (selectedPaymentMethod) {
-      case 'GTBank':
-        ussdCode = '*737*amount#'; 
-        break;
-      case 'Polaris':
-        ussdCode = '*833*amount#'; 
-        break;
-      case 'Access Bank':
-        ussdCode = '*901*amount#'; 
-        break;
-      case 'Zenith':
-        ussdCode = '*966*amount#'; 
-        break;
-      case 'Wema Bank':
-        ussdCode = '*945*amount#'; 
-        break;
-      case 'UBA':
-        ussdCode = '*919*amount#'; 
-        break;
-      // Add more cases as needed
-      default:
-        break;
-    }
-
-    if (ussdCode) {
-      // Dial the USSD code
-      Linking.openURL(`tel:${ussdCode}`);
-      alert(`Dialing USSD code: ${ussdCode}`);
+    if (selectedBank) {
+      const ussdCode = selectedBank.ussdTemplate.replace('Amount', amount).replace('AccountNumber', 'YourAccountNumber');
+      
+      if (ussdCode) {
+        // Dial the USSD code
+        Linking.openURL(`tel:${ussdCode}`);
+        alert(`Dialing USSD code: ${ussdCode}`);
+      }
     }
 
     navigation.navigate('TopUpReceipt');
   };
 
-
   return (
     <ScrollView style={styles.container}>
-    <Text style={styles.title}>Fund Wallet</Text>
+      <Text style={styles.title}>Fund Wallet</Text>
 
-    {/* Amount Input */}
-    <TextInput
-      style={styles.amountInput}
-      placeholder="Enter Amount"
-      keyboardType="numeric"
-      value={amount}
-      onChangeText={(text) => setAmount(text)}
-    />
+      {/* Amount Input */}
+      <TextInput
+        style={styles.amountInput}
+        placeholder="Enter Amount"
+        keyboardType="numeric"
+        value={amount}
+        onChangeText={(text) => setAmount(text)}
+      />
 
-    {/* Payment Methods */}
-    <Text style={styles.paymentMethodTitle}>Virtual Payment</Text>
-    {/* Bank Card */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('Card')}
-    >
-      <Ionicons name="card" size={32} color="black" />
-      <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
-    </TouchableOpacity>
+      {/* Payment Methods */}
+      <Text style={styles.paymentMethodTitle}>Virtual Payment</Text>
+      {/* Bank Card */}
+      <TouchableOpacity
+        style={[styles.paymentMethod, selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod]}
+        onPress={() => setSelectedPaymentMethod('Card')}
+      >
+        <Ionicons name="card" size={32} color="#51CC62" />
+        <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
+      </TouchableOpacity>
 
-    {/* Payment Methods */}
-    <Text style={styles.paymentMethodTitle}>Bank Payment</Text>
+      {/* Payment Methods */}
+      <Text style={styles.paymentMethodTitle}>Bank Payment</Text>
 
-    {/* GTBank */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'GTBank' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('GTBank')}
-    >
-      <Image source={require('../Assests/gtbank.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>GTBank</Text>
-    </TouchableOpacity>
+      {/* Bank List */}
+      {bankList.map((bank) => (
+        <TouchableOpacity
+          key={bank.code}
+          style={[styles.paymentMethod, selectedPaymentMethod === bank.name && styles.selectedPaymentMethod]}
+          onPress={() => setSelectedPaymentMethod(bank.name)}
+        >
+          <Text style={styles.paymentMethodText}>{bank.name}</Text>
+        </TouchableOpacity>
+      ))}
 
-    {/* Polaris */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'Polaris' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('Polaris')}
-    >
-      <Image source={require('../Assests/polaris.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>Polaris</Text>
-    </TouchableOpacity>
+      {/* Fund Button */}
+      <TouchableOpacity style={styles.fundButton} onPress={handlePayment}>
+        <Text style={styles.fundButtonText}>Fund Wallet</Text>
+      </TouchableOpacity>
 
-    {/* Access Bank */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'Access Bank' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('Access Bank')}
-    >
-      <Image source={require('../Assests/accessbank.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>Access Bank</Text>
-    </TouchableOpacity>
-
-    {/* Zenith */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'Zenith' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('Zenith')}
-    >
-      <Image source={require('../Assests/zenith.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>Zenith</Text>
-    </TouchableOpacity>
-
-    {/* Wema Bank */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'Wema Bank' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('Wema Bank')}
-    >
-      <Image source={require('../Assests/wema.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>Wema Bank</Text>
-    </TouchableOpacity>
-
-    {/* UBA */}
-    <TouchableOpacity
-      style={[styles.paymentMethod, selectedPaymentMethod === 'UBA' && styles.selectedPaymentMethod]}
-      onPress={() => setSelectedPaymentMethod('UBA')}
-    >
-      <Image source={require('../Assests/uba.png')} style={styles.paymentMethodLogo} />
-      <Text style={styles.paymentMethodText}>UBA</Text>
-    </TouchableOpacity>
-
-    {/* Fund Button */}
-    <TouchableOpacity style={styles.fundButton} onPress={handlePayment}>
-      <Text style={styles.fundButtonText}>Fund Wallet</Text>
-    </TouchableOpacity>
-
-    {/* Back to Wallet Button */}
-    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-      <Text style={styles.backButtonText}>Back to Wallet</Text>
-    </TouchableOpacity>
+      {/* Back to Wallet Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>Back to Wallet</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

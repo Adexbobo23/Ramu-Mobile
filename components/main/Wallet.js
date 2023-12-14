@@ -15,6 +15,16 @@ const Wallet = () => {
   const [walletDetails, setWalletDetails] = useState(null);
   const switchAccountModalRef = React.useRef(null);
   const [balanceVisible, setBalanceVisible] = useState(true);
+  const [cardDetails, setCardDetails] = useState(null);
+
+  useEffect(() => {
+    const fetchCard = async () => {
+      const cardDetails = await fetchCardDetails();
+      setCardDetails(cardDetails);
+    };
+
+    fetchCard();
+  }, []);
 
   useEffect(() => {
     fetchWalletDetails();
@@ -83,6 +93,32 @@ const Wallet = () => {
     }
   };
 
+
+  const fetchCardDetails = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const apiUrl = 'https://api-staging.ramufinance.com/api/v1/get-cards';
+
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      const cardData = response.data.data;
+
+      // Assuming you have only one card for simplicity
+      const cardDetails = cardData.length > 0 ? cardData[0] : null;
+
+      return cardDetails;
+    } catch (error) {
+      console.error('Error fetching card details:', error);
+      return null;
+    }
+  };
+
+
+  
   const toggleBalanceVisibility = () => {
     setBalanceVisible(!balanceVisible);
   };
@@ -145,10 +181,11 @@ const Wallet = () => {
       <Text style={styles.bankCardTitle}>Bank Card</Text>
       <View style={styles.cardContainer}>
         {/* Replace the logo and card details with your actual data */}
-        <Ionicons name="card" size={48} color="black" />
+        <Ionicons name="card" size={48} color="#51CC62" />
         <View style={styles.cardDetails}>
-          <Text style={styles.cardName}>Your Card Name</Text>
-          <Text style={styles.cardNumber}>**** **** **** 1234</Text>
+          <Text style={styles.cardName}>{cardDetails?.email}</Text>
+          {/* Replace other details accordingly */}
+          <Text style={styles.cardNumber}>{`**** **** **** ${cardDetails?.id}`}</Text>
         </View>
         <TouchableOpacity>
           <Ionicons name="trash" size={24} color="red" />
