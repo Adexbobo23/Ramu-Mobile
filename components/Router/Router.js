@@ -52,6 +52,8 @@ import TopUpReceipt from '../transactions/TopUpReceipt';
 import PaymentFailed from '../transactions/PaymentFailed';
 import StockDetails from '../Stock/StockDetails';
 import FAQ from '../main/FAQ';
+import ContactForm from '../main/Contact';
+import Notification from '../main/Notifications';
 
 const Stack = createStackNavigator();
 
@@ -314,6 +316,16 @@ const Router = () => {
         <Stack.Screen
         name="FAQ"
         component={FAQ}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="Contact"
+        component={ContactForm}
+        options={{ headerShown: false }}
+        />
+         <Stack.Screen
+        name="Notification"
+        component={Notification}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -1,45 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Image, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PopularThisWeek = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
-  const [featuredStocks, setFeaturedStocks] = useState([]);
+  const [stockData, setStockData] = useState([]);
+  const [userToken, setUserToken] = useState('');
 
-  useEffect(() => {
-    // Fetch featured stocks with user token
-    fetchFeaturedStocks();
-  }, []);
-
-  const fetchFeaturedStocks = async () => {
-    try {
-      // Retrieve user token from AsyncStorage
-      const userToken = await AsyncStorage.getItem('userToken');
-
-      // Make API request with user token
-      const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Set the featured stocks in state
-        setFeaturedStocks(result.data);
-      } else {
-        console.error('Failed to fetch featured stocks:', result.message);
-      }
-    } catch (error) {
-      console.error('Error fetching featured stocks:', error);
-    }
+  const handleStockSelect = (stockKey) => {
+    navigation.navigate('StockDetails', { stockKey, stockData });
   };
 
-  const filteredStocks = featuredStocks.filter(
+  useEffect(() => {
+    // Fetch user token from AsyncStorage
+    const fetchUserToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          setUserToken(token);
+        }
+      } catch (error) {
+        console.error('Error fetching user token:', error.message);
+      }
+    };
+
+    fetchUserToken();
+  }, []);
+
+  useEffect(() => {
+    // Fetch stock data when the component mounts and user token is available
+    const fetchStockData = async () => {
+      try {
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status) {
+            setStockData(result.data);
+          } else {
+            console.error('Error fetching stock data:', result.message);
+          }
+        } else {
+          console.error('Error fetching stock data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching stock data:', error.message);
+      }
+    };
+
+    if (userToken) {
+      fetchStockData();
+    }
+  }, [userToken]);
+
+  const filteredStocks = stockData.filter(
     (stock) =>
       stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stock.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -47,7 +68,7 @@ const PopularThisWeek = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Popular Stocks</Text>
+      <Text style={styles.title}>Popular This Week</Text>
       <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
         <TextInput
@@ -57,26 +78,30 @@ const PopularThisWeek = () => {
           onChangeText={(text) => setSearchQuery(text)}
         />
       </View>
-      <ScrollView style={styles.stockList}>
+      <ScrollView style={styles.stockListContainer}>
         {filteredStocks.map((stock) => (
-          <View key={stock.ticker_id} style={styles.stockItem}>
-            {/* Replace the following image with your logic for displaying the stock logo */}
-            <Image source={require('../Assests/stock.png')} style={styles.stockImage} />
-            <View style={styles.stockDetails}>
-              <Text style={styles.stockTitle}>{stock.company_name}</Text>
-              <Text style={styles.stockDescription}>{stock.description}</Text>
-              <View style={styles.stockRow}>
-                {/* Replace the following image with your logic for displaying the chart image */}
-                <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                <Text style={styles.stockPrice}>{`₦${stock.trade_price}`}</Text>
+          <TouchableOpacity
+            key={stock.ticker_id}
+            style={styles.stockItemContainer}
+            onPress={() => handleStockSelect(stock.key)}
+          >
+            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+            <View style={styles.stockDetailsContainer}>
+              <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+              <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+              <View style={styles.stockRowContainer}>
+              <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -95,11 +120,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderColor: '#ccc',
-    borderWidth: 1,
+    borderWidth: 0,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 60,
-    height: 50
+    marginBottom: 20,
+    height: 50,
+    backgroundColor: '#EFEEED',
   },
   searchIcon: {
     marginRight: 8,
@@ -107,43 +133,54 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
   },
-  stockList: {
+  stockListContainer: {
     flex: 1,
+    padding: 16,
   },
-  stockItem: {
+  stockItemContainer: {
     flexDirection: 'row',
     marginBottom: 16,
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: 10,
+    borderColor: '#DDD',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 5,
   },
   stockImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 12,
+    width: 50,
+    height: 50,
+    marginRight: 16,
   },
-  stockDetails: {
+  stockDetailsContainer: {
     flex: 1,
   },
-  stockTitle: {
+  stockTitleText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  stockDescription: {
+  stockDescriptionText: {
+    fontSize: 14,
     color: '#555',
     marginBottom: 8,
   },
-  stockRow: {
+  stockRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   chartImage: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     marginRight: 8,
   },
-  stockPrice: {
-    fontSize: 16,
-    color: '#51CC62',
+  stockPriceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

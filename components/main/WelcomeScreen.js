@@ -26,7 +26,7 @@ const WelcomeScreen = ({ navigation }) => {
         <Image source={require('../Assests/Frame.png')} style={styles.logo} />
       </View>
       <Text style={styles.text1}>Let's Get Started</Text>
-      <Text style={styles.text2}>Let's dive into your account</Text>
+      <Text style={styles.text2}>Log in into your account</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button1} onPress={handleSignup}>
           <Text style={styles.buttonText1}>Sign up</Text>

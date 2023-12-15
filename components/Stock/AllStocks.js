@@ -2,33 +2,63 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import StockDetails from './StockDetails';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AllStocks = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [stockData, setStockData] = useState([]);
+  const [userToken, setUserToken] = useState('');
 
   const handleStockSelect = (stockKey) => {
     navigation.navigate('StockDetails', { stockKey, stockData });
   };
-  
+
   useEffect(() => {
-    // Set stock data when the component mounts
-    setStockData([
-      {
-        key: 'NSDQ~AAPL',
-        ticker_id: 'AAPL',
-        exchange_code: 'NSDQ',
-        company_name: 'Apple Inc',
-        display_name: 'Apple Inc',
-        description: 'Technology company that designs, manufactures, and markets consumer electronics, computer software, and online services.',
-        logo: null,
-        trade_price: 189.91,
-      },
-      // Add more stock data as needed
-    ]);
+    // Fetch user token from AsyncStorage
+    const fetchUserToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          setUserToken(token);
+        }
+      } catch (error) {
+        console.error('Error fetching user token:', error.message);
+      }
+    };
+
+    fetchUserToken();
   }, []);
+
+  useEffect(() => {
+    // Fetch stock data when the component mounts and user token is available
+    const fetchStockData = async () => {
+      try {
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status) {
+            setStockData(result.data);
+          } else {
+            console.error('Error fetching stock data:', result.message);
+          }
+        } else {
+          console.error('Error fetching stock data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching stock data:', error.message);
+      }
+    };
+
+    if (userToken) {
+      fetchStockData();
+    }
+  }, [userToken]);
 
   const filteredStocks = stockData.filter(
     (stock) =>
@@ -60,7 +90,7 @@ const AllStocks = () => {
               <Text style={styles.stockTitleText}>{stock.company_name}</Text>
               <Text style={styles.stockDescriptionText}>{stock.description}</Text>
               <View style={styles.stockRowContainer}>
-                <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+              <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
                 <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
               </View>
             </View>
@@ -70,6 +100,7 @@ const AllStocks = () => {
     </View>
   );
 };
+
 
 
 const styles = StyleSheet.create({

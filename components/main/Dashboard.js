@@ -17,9 +17,97 @@ const Dashboard = () => {
   const switchAccountModalRef = React.useRef(null); 
   const chatModalRef = React.useRef(null); 
   const [isChatModalVisible, setChatModalVisible] = useState(false);
-  // const [featuredStocks, setFeaturedStocks] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState('naira');
   const [stockData, setStockData] = useState([]);
+  const [userToken, setUserToken] = useState('');
+  const [topTrendingStocks, setTopTrendingStocks] = useState([]);
+
+
+
+  useEffect(() => {
+    // Fetch top trending stocks data when the component mounts and user token is available
+    const fetchTopTrendingStocks = async () => {
+      try {
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/top-trending-stocks', {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status) {
+            setTopTrendingStocks(result.data);
+          } else {
+            console.error('Error fetching top trending stocks data:', result.message);
+          }
+        } else {
+          console.error('Error fetching top trending stocks data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching top trending stocks data:', error.message);
+      }
+    };
+
+    if (userToken) {
+      fetchTopTrendingStocks();
+    }
+  }, [userToken]);
+
+
+  useEffect(() => {
+    // Fetch user token from AsyncStorage
+    const fetchUserToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          setUserToken(token);
+        }
+      } catch (error) {
+        console.error('Error fetching user token:', error.message);
+      }
+    };
+
+    fetchUserToken();
+  }, []);
+
+  useEffect(() => {
+    // Fetch stock data when the component mounts and user token is available
+    const fetchStockData = async () => {
+      try {
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status) {
+            // Set only the first 5 stocks
+            setStockData(result.data.slice(0, 5));
+          } else {
+            console.error('Error fetching stock data:', result.message);
+          }
+        } else {
+          console.error('Error fetching stock data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching stock data:', error.message);
+      }
+    };
+
+    if (userToken) {
+      fetchStockData();
+    }
+  }, [userToken]);
+
+
+  const handleStockSelect = (stockKey) => {
+    navigation.navigate('StockDetails', { stockKey, stockData });
+  };
+
+
 
 
   useEffect(() => {
@@ -147,85 +235,8 @@ const handleSeeAll = () => {
 
 
 const handleNotification = () => {
+  navigation.navigate('Notification');
   console.log('Notification icon pressed');
-};
-
-const StockData = {
-  status: true,
-  message: 'Success',
-  data: [
-    {
-      key: 'NSDQ~AAPL',
-      ticker_id: 'AAPL',
-      exchange_code: 'NSDQ',
-      company_name: 'Apple Inc',
-      display_name: 'Apple Inc',
-      description: 'Technology company that designs, manufactures, and markets consumer electronics, computer software, and online services.',
-      logo: null,
-      trade_price: 189.91,
-    },
-    {
-      key: 'NSDQ~GOOG',
-      ticker_id: 'GOOG',
-      exchange_code: 'NSDQ',
-      company_name: 'Alphabet Inc Class C',
-      display_name: 'Alphabet Inc Class C',
-      description: 'Multinational conglomerate that is the parent company of Google.',
-      logo: null,
-      trade_price: 133.91,
-    },
-    {
-      key: 'NSDQ~NVDA',
-      ticker_id: 'NVDA',
-      exchange_code: 'NSDQ',
-      company_name: 'NVIDIA Corp',
-      display_name: 'NVIDIA Corp',
-      description: 'Technology company that designs GPUs for gaming and professional markets.',
-      logo: null,
-      trade_price: 467.7,
-    },
-    {
-      key: 'NSDQ~META',
-      ticker_id: 'META',
-      exchange_code: 'NSDQ',
-      company_name: 'Meta Platforms Inc',
-      display_name: 'Meta Platforms Inc',
-      description: 'Technology company that focuses on the development of social media and virtual reality platforms.',
-      logo: null,
-      trade_price: 327.15,
-    },
-    {
-      key: 'NYSE~ORCL',
-      ticker_id: 'ORCL',
-      exchange_code: 'NYSE',
-      company_name: 'Oracle Corp',
-      display_name: 'Oracle Corp',
-      description: 'Multinational computer technology corporation that sells database software and technology.',
-      logo: null,
-      trade_price: 116.12,
-    },
-    {
-      key: 'LSE~HSBA',
-      ticker_id: 'HSBA',
-      exchange_code: 'LSE',
-      company_name: 'HSBC Holdings plc',
-      display_name: 'HSBC Holdings plc',
-      description: 'British multinational investment bank and financial services holding company.',
-      logo: null,
-      trade_price: 602.1602,
-    },
-    {
-      key: 'NSDQ~NFLX',
-      ticker_id: 'NFLX',
-      exchange_code: 'NSDQ',
-      company_name: 'Netflix Inc',
-      display_name: 'Netflix Inc',
-      description: 'Entertainment company specializing in streaming media and video-on-demand online.',
-      logo: null,
-      trade_price: 589.91,
-    },
-    // Add more stock data as needed
-  ],
 };
 
 
@@ -289,50 +300,23 @@ const StockData = {
                 </TouchableOpacity>
             </View>
 
-            {/* Horizontal Scroll for Stocks List */}
+            {/* Horizontal Scroll for Top Trending Stocks List */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-              {/* Sample Stock Item (repeat this for each stock) */}
-              <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDX0lzryMjrYOwRt4sT80B7U00fcxmQ-vO152amG-4cEHH4E_oLqukR37WFvyr06hchbg&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Facebook</Text>
-                <Text style={styles.stockDescription}>Stock Description</Text>
-              </View>
-              {/* Repeat... */}
-              {/* Sample Stock Item (repeat this for each stock) */}
-              <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmvXQRuCtTuXhJjMBHFyx1heks159k1KqwQJZ_mCCmi9e4BRIQ2vMq6JlUEgs_QYW6EIw&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Netflix</Text>
-                <Text style={styles.stockDescription}>Stock Description</Text>
-              </View>
-              {/* Sample Stock Item (repeat this for each stock) */}
-              <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDX0lzryMjrYOwRt4sT80B7U00fcxmQ-vO152amG-4cEHH4E_oLqukR37WFvyr06hchbg&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Facebook</Text>
-                <Text style={styles.stockDescription}>Stock Description</Text>
-              </View>
-              {/* Sample Stock Item (repeat this for each stock) */}
-              <View style={styles.stockItem}>
-                <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmvXQRuCtTuXhJjMBHFyx1heks159k1KqwQJZ_mCCmi9e4BRIQ2vMq6JlUEgs_QYW6EIw&usqp=CAU' }} style={styles.stockImage3} />
-                <Text style={styles.stockName}>Netflix</Text>
-                <Text style={styles.stockDescription}>Stock Description</Text>
-              </View>
+              {topTrendingStocks.map((stock) => (
+                <TouchableOpacity
+                  key={stock.ticker_id}
+                  style={styles.stockItem}
+                  onPress={() => handleStockSelect(stock.key)}
+                >
+                  <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+                  <Text style={styles.stockName}>{stock.company_name}</Text>
+                  <Text style={styles.stockDescription}>{stock.description}</Text>
+                </TouchableOpacity>
+              ))}
             </ScrollView>
             
           </View>
         </View>
-      
-        {/* {isKYCCompleted ? (
-        <Text style={styles.accountActivatedText}>
-          Account activated. Start trading in UK, US, and Nigeria stocks.
-        </Text>
-      ) : (
-        <View style={styles.progressBarContainer}>
-          <TouchableOpacity onPress={handlePressKyc}>
-            <Text style={styles.progressBarText}>Complete your KYC</Text>
-          </TouchableOpacity>
-          
-        </View>
-      )} */}
         
         {isKYCCompleted ? (
           <View style={styles.getToKnowYouContainer}>
@@ -376,22 +360,24 @@ const StockData = {
         </View>
         {/* Stock Data */}
         <ScrollView style={styles.stockListContainer}>
-          {StockData.data.map((stock) => (
-            <View key={stock.ticker_id} style={styles.stockItemContainer}>
-              {/* Replace the following image with your logic for displaying the stock logo */}
-              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
-              <View style={styles.stockDetailsContainer}>
-                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
-                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
-                <View style={styles.stockRowContainer}>
-                  {/* Replace the following image with your logic for displaying the chart image */}
-                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
-                </View>
+        {stockData.map((stock) => (
+          <TouchableOpacity
+            key={stock.ticker_id}
+            style={styles.stockItemContainer}
+            onPress={() => handleStockSelect(stock.key)}
+          >
+            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+            <View style={styles.stockDetailsContainer}>
+              <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+              <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+              <View style={styles.stockRowContainer}>
+              <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
               </View>
             </View>
-          ))}
-        </ScrollView>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
         </View>
       </ScrollView>
 
@@ -694,12 +680,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 8,
   },
-  stockImage3: {
-    width: 100,
-    height: 80,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
+ 
   stockName: {
     fontSize: 16,
     fontWeight: 'bold',

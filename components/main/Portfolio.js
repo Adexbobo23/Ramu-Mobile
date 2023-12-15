@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const Portfolio = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [totalBalance, setTotalBalance] = useState(0);
-  const [selectedTab, setSelectedTab] = useState('All');
   const [stockData, setStockData] = useState([]);
 
   // Sample stock data
@@ -23,70 +22,9 @@ const Portfolio = () => {
         logo: null,
         trade_price: 189.91,
       },
-      {
-        key: 'NSDQ~GOOG',
-        ticker_id: 'GOOG',
-        exchange_code: 'NSDQ',
-        company_name: 'Alphabet Inc Class C',
-        display_name: 'Alphabet Inc Class C',
-        description: 'Multinational conglomerate that is the parent company of Google.',
-        logo: null,
-        trade_price: 133.91,
-      },
-      {
-        key: 'NSDQ~NVDA',
-        ticker_id: 'NVDA',
-        exchange_code: 'NSDQ',
-        company_name: 'NVIDIA Corp',
-        display_name: 'NVIDIA Corp',
-        description: 'Technology company that designs GPUs for gaming and professional markets.',
-        logo: null,
-        trade_price: 467.7,
-      },
-      {
-        key: 'NSDQ~META',
-        ticker_id: 'META',
-        exchange_code: 'NSDQ',
-        company_name: 'Meta Platforms Inc',
-        display_name: 'Meta Platforms Inc',
-        description: 'Technology company that focuses on the development of social media and virtual reality platforms.',
-        logo: null,
-        trade_price: 327.15,
-      },
-      {
-        key: 'NYSE~ORCL',
-        ticker_id: 'ORCL',
-        exchange_code: 'NYSE',
-        company_name: 'Oracle Corp',
-        display_name: 'Oracle Corp',
-        description: 'Multinational computer technology corporation that sells database software and technology.',
-        logo: null,
-        trade_price: 116.12,
-      },
-      {
-        key: 'LSE~HSBA',
-        ticker_id: 'HSBA',
-        exchange_code: 'LSE',
-        company_name: 'HSBC Holdings plc',
-        display_name: 'HSBC Holdings plc',
-        description: 'British multinational investment bank and financial services holding company.',
-        logo: null,
-        trade_price: 602.1602,
-      },
-      {
-        key: 'NSDQ~NFLX',
-        ticker_id: 'NFLX',
-        exchange_code: 'NSDQ',
-        company_name: 'Netflix Inc',
-        display_name: 'Netflix Inc',
-        description: 'Entertainment company specializing in streaming media and video-on-demand online.',
-        logo: null,
-        trade_price: 589.91,
-      },
       // Add more stock data as needed
     ],
   };
-  
 
   useEffect(() => {
     // Set the initial stock data
@@ -106,21 +44,6 @@ const Portfolio = () => {
     setStockData(filteredStocks);
   }, [searchQuery]);
 
-  const handleTabPress = (tab) => {
-    setSelectedTab(tab);
-    // Implement logic to filter stock data based on the selected tab
-    // For now, let's assume 'All' tab shows all stocks
-    if (tab === 'All') {
-      setStockData(sampleStockData.data);
-    } else {
-      // Implement logic to filter stocks based on the selected tab
-      // For example, filter by currency or exchange
-      // Modify this logic according to your requirements
-      const filteredStocks = sampleStockData.data.filter((stock) => stock.exchange_code === tab);
-      setStockData(filteredStocks);
-    }
-  };
-
   return (
     <View style={styles.container}>
       {/* Title for Total Balance */}
@@ -137,6 +60,9 @@ const Portfolio = () => {
         />
       </View>
 
+      <View>
+          {/* */}
+      </View>
       {/* Account Balance */}
       <View style={styles.accountBalanceContainer}>
         <Text style={styles.totalBalanceText}>${totalBalance.toFixed(2)}</Text>
@@ -144,34 +70,6 @@ const Portfolio = () => {
 
       {/* Title for Total Balance */}
       <Text style={styles.totalBalanceTitle}>Total Balance</Text>
-
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === 'All' && styles.selectedTab]}
-          onPress={() => handleTabPress('All')}
-        >
-          <Text style={styles.tabText}>All</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === 'New' && styles.selectedTab]}
-          onPress={() => handleTabPress('New')}
-        >
-          <Text style={styles.tabText}>New</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === 'Old' && styles.selectedTab]}
-          onPress={() => handleTabPress('Old')}
-        >
-          <Text style={styles.tabText}>Old</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === 'Overview' && styles.selectedTab]}
-          onPress={() => handleTabPress('Overview')}
-        >
-          <Text style={styles.tabText}>Overview</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Stock Data */}
       <ScrollView style={styles.stockList}>
@@ -245,31 +143,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     marginBottom: 30,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    marginRight: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 25,
-  },
-  selectedTab: {
-    backgroundColor: '#51CC62',
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
   },
   stockList: {
     flex: 1,

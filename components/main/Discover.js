@@ -1,11 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
 
 const Discover = () => {
     const navigation = useNavigation();
+    const [topTrendingStocks, setTopTrendingStocks] = useState([]);
+    const [userToken, setUserToken] = useState('');
+    const [stockData, setStockData] = useState([]);
 
+    useEffect(() => {
+      // Fetch user token from AsyncStorage
+      const fetchUserToken = async () => {
+        try {
+          const token = await AsyncStorage.getItem('userToken');
+          if (token) {
+            setUserToken(token);
+          }
+        } catch (error) {
+          console.error('Error fetching user token:', error.message);
+        }
+      };
+  
+      fetchUserToken();
+    }, []);
+
+  
+    useEffect(() => {
+      // Fetch top trending stocks data when the component mounts and user token is available
+      const fetchTopTrendingStocks = async () => {
+        try {
+          const response = await fetch('https://api-staging.ramufinance.com/api/v1/top-trending-stocks', {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          });
+  
+          if (response.ok) {
+            const result = await response.json();
+            if (result.status) {
+              setTopTrendingStocks(result.data);
+            } else {
+              console.error('Error fetching top trending stocks data:', result.message);
+            }
+          } else {
+            console.error('Error fetching top trending stocks data:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error fetching top trending stocks data:', error.message);
+        }
+      };
+  
+      if (userToken) {
+        fetchTopTrendingStocks();
+      }
+    }, [userToken]);
+
+    const handleStockSelect = (stockKey) => {
+      navigation.navigate('StockDetails', { stockKey, stockData });
+    };
+
+    
     const navigateToMore = () => {
       navigation.navigate('More');
     };
@@ -54,37 +112,17 @@ const Discover = () => {
 
         {/* Horizontal Scroll for Stocks List */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ItaRkS3bwr28uIwDhx7ZjrO0rMThIECiiggTqr5iRu-Xkk1mjFyifiL2lSEjyFybTvA&usqp=CAU' }} style={styles.stockImage1} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Repeat... */}
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ItaRkS3bwr28uIwDhx7ZjrO0rMThIECiiggTqr5iRu-Xkk1mjFyifiL2lSEjyFybTvA&usqp=CAU' }} style={styles.stockImage1} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ItaRkS3bwr28uIwDhx7ZjrO0rMThIECiiggTqr5iRu-Xkk1mjFyifiL2lSEjyFybTvA&usqp=CAU' }} style={styles.stockImage1} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ItaRkS3bwr28uIwDhx7ZjrO0rMThIECiiggTqr5iRu-Xkk1mjFyifiL2lSEjyFybTvA&usqp=CAU' }} style={styles.stockImage1} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ItaRkS3bwr28uIwDhx7ZjrO0rMThIECiiggTqr5iRu-Xkk1mjFyifiL2lSEjyFybTvA&usqp=CAU' }} style={styles.stockImage1} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
+              {topTrendingStocks.map((stock) => (
+                <TouchableOpacity
+                  key={stock.ticker_id}
+                  style={styles.stockItem}
+                  onPress={() => handleStockSelect(stock.key)}
+                >
+                  <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+                  <Text style={styles.stockName}>{stock.company_name}</Text>
+                  <Text style={styles.stockDescription}>{stock.description}</Text>
+                </TouchableOpacity>
+              ))}
         </ScrollView>
         
       </View>

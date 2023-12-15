@@ -15,7 +15,7 @@ const FirstOpenPage = () => {
       <View style={styles.contentContainer}>
         <Text style={styles.welcomeText}>Welcome to Ramu</Text>
         <Text style={styles.subText}>
-          Start your journey with Ramu and unlock the potential for financial growth. Enjoy maximum trading with 0% commission on all stocks.{'\n'}
+          Start your journey with Ramu and unlock the potential for financial growth.{'\n'}
         </Text>
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 20,
     width: '100%',
-    marginTop: 65,
+    marginTop: 85,
     elevation: 25,
     height: 60,
   },

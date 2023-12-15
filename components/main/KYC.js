@@ -6,6 +6,9 @@ import * as DocumentPicker from 'expo-document-picker';
 const KYC = () => {
   const [bvn, setBVN] = useState('');
   const [nin, setNIN] = useState('');
+  const [accountName, setAccountName] = useState(''); // Added Account Name
+  const [accountNumber, setAccountNumber] = useState(''); // Added Account Number
+  const [bankName, setBankName] = useState(''); // Added Bank Name
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   const handleKYCSubmit = async () => {
@@ -17,7 +20,12 @@ const KYC = () => {
       const requestBody = {
         bvn,
         nin,
-        document: selectedDocument, // Add the selected document to the payload
+        bankAccount: { // Updated to include separate fields
+          accountName,
+          accountNumber,
+          bankName,
+        },
+        document: selectedDocument,
       };
 
       // Make a POST request to the KYC API
@@ -64,9 +72,9 @@ const KYC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>KYC Verification</Text>
+      <Text style={styles.title}>KYC VERIFICATION</Text>
       <Text style={styles.description}>
-        Complete your KYC (Know Your Customer) verification by providing your BVN (Bank Verification Number) or NIN (National Identity Number) and a document.
+        Complete your KYC (Know Your Customer) verification by providing your BVN (Bank Verification Number) or NIN (National Identity Number), Bank Account Details, and a document.
       </Text>
 
       {/* BVN Input */}
@@ -87,9 +95,34 @@ const KYC = () => {
         onChangeText={setNIN}
       />
 
+      {/* Account Name Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Account Name"
+        value={accountName}
+        onChangeText={setAccountName}
+      />
+
+      {/* Account Number Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Account Number"
+        keyboardType="numeric"
+        value={accountNumber}
+        onChangeText={setAccountNumber}
+      />
+
+      {/* Bank Name Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Bank Name"
+        value={bankName}
+        onChangeText={setBankName}
+      />
+
       {/* Document Picker */}
       <TouchableOpacity style={styles.documentPickerButton} onPress={handleDocumentPicker}>
-        <Text style={styles.documentPickerButtonText}>Upload NIN Or BVN</Text>
+        <Text style={styles.documentPickerButtonText}>Upload NIN Or BVN Picture</Text>
       </TouchableOpacity>
 
       {/* Display Selected Document */}
@@ -118,7 +151,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#51CC62'
+    color: '#51CC62',
   },
   description: {
     fontSize: 16,
@@ -128,7 +161,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderColor: 'gray',
+    borderColor: '#51CC62',
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 20,
