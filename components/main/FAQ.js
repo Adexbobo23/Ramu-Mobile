@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, LayoutAnimation, UIManager } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const FAQ = () => {
     const navigation = useNavigation();
+    const [expandedIndex, setExpandedIndex] = useState(null);
 
 
     const faqData = [
@@ -59,18 +60,24 @@ const FAQ = () => {
       ];
       
 
-  useEffect(() => {
-    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    // Trigger the layout animation on component mount
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  }, []);
+      useEffect(() => {
+        UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        // Trigger the layout animation on component mount
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }, []);
 
-  const renderItem = ({ item, index }) => (
-    <View style={styles.faqItem} key={index}>
-      <Text style={styles.faqQuestion}>{item.question}</Text>
-      <Text style={styles.faqAnswer}>{item.answer}</Text>
-    </View>
-  );
+      const renderItem = ({ item, index }) => {
+        const isExpanded = index === expandedIndex;
+        return (
+          <TouchableOpacity
+            style={[styles.faqItem, isExpanded && styles.expandedItem]}
+            onPress={() => setExpandedIndex(isExpanded ? null : index)}
+          >
+            <Text style={styles.faqQuestion}>{item.question}</Text>
+            {isExpanded && <Text style={styles.faqAnswer}>{item.answer}</Text>}
+          </TouchableOpacity>
+        );
+      };
 
   const handleContact = () => {
     navigation.navigate('Contact');
@@ -115,6 +122,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
+  },
+  expandedItem: {
+    height: 'auto', // Adjust as needed
   },
   faqQuestion: {
     fontSize: 18,

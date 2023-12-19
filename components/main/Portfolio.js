@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const Portfolio = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [totalBalance, setTotalBalance] = useState(0);
   const [stockData, setStockData] = useState([]);
+  const navigation = useNavigation();
 
   // Sample stock data
   const sampleStockData = {
@@ -43,6 +45,10 @@ const Portfolio = () => {
     );
     setStockData(filteredStocks);
   }, [searchQuery]);
+
+  const navigateTo = (screen) => {
+    navigation.navigate(screen);
+  };
 
   return (
     <View style={styles.container}>
@@ -89,6 +95,29 @@ const Portfolio = () => {
           </View>
         ))}
       </ScrollView>
+
+      {/* Navigation bar */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('Dashboard')}>
+          <Ionicons name="home" size={26} color="white" />
+          <Text style={styles.navBarText}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('Discover')}>
+          <Ionicons name="search" size={26} color="white" />
+          <Text style={styles.navBarText}>Discover</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('Portfolio')}>
+          <Ionicons name="briefcase" size={26} color="white" />
+          <Text style={styles.navBarText}>Portfolio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('More')}>
+          <Ionicons name="ellipsis-horizontal" size={26} color="white" />
+          <Text style={styles.navBarText}>More</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -191,6 +220,25 @@ const styles = StyleSheet.create({
   stockPrice: {
     fontSize: 16,
     color: '#51CC62',
+  },
+  navBar: {
+    flexDirection: 'row',
+    backgroundColor: '#147603',
+    padding: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 25,
+  },
+  navBarItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  navBarText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 

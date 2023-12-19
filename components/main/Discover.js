@@ -1,16 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, ScrollView, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-
+import { Modalize } from 'react-native-modalize';
 
 const Discover = () => {
     const navigation = useNavigation();
     const [topTrendingStocks, setTopTrendingStocks] = useState([]);
     const [userToken, setUserToken] = useState('');
     const [stockData, setStockData] = useState([]);
+    const [selectedPopularStock, setSelectedPopularStock] = useState(null);
+    const modalRef = useRef(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+
+    const handleStockSelect = (stock) => {
+      // Store the selected stock in the state
+      setSelectedPopularStock(stock);
+      // Open the modal when a stock is selected
+      modalRef.current?.open();
+    };
+    
+
 
     useEffect(() => {
       // Fetch user token from AsyncStorage
@@ -59,11 +72,7 @@ const Discover = () => {
       }
     }, [userToken]);
 
-    const handleStockSelect = (stockKey) => {
-      navigation.navigate('StockDetails', { stockKey, stockData });
-    };
 
-    
     const navigateToMore = () => {
       navigation.navigate('More');
     };
@@ -90,6 +99,23 @@ const Discover = () => {
       navigation.navigate(screen);
     };
 
+    const handleInvest = () => {
+      // Logic for handling investment
+      console.log('Invest button pressed');
+      // Add your logic here
+    };
+    
+    const handleSell = () => {
+      // Logic for handling selling
+      console.log('Sell button pressed');
+      // Add your logic here
+    };
+
+    const filteredStocks = topTrendingStocks.filter((stock) =>
+      stock.company_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+
   return (
     <>
     <ScrollView style={styles.container}>
@@ -98,34 +124,43 @@ const Discover = () => {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={24} color="#333" style={styles.searchIcon} />
-        <TextInput placeholder="Search stock" style={styles.searchInput} />
+        <TextInput
+          placeholder="Search stock"
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
       </View>
+
 
       {/* Stocks Section */}
       <View style={styles.stocksSection}>
-      <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular this week</Text>
-            <TouchableOpacity onPress={handleSeeAll}>
-            <Text style={styles.seeAll}  onPress={() => navigateTo('Popular')}>See All</Text>
-            </TouchableOpacity>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Popular this week</Text>
+          <TouchableOpacity onPress={handleSeeAll}>
+            <Text style={styles.seeAll} onPress={() => navigateTo('Popular')}>
+              See All
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Horizontal Scroll for Stocks List */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-              {topTrendingStocks.map((stock) => (
-                <TouchableOpacity
-                  key={stock.ticker_id}
-                  style={styles.stockItem}
-                  onPress={() => handleStockSelect(stock.key)}
-                >
-                  <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
-                  <Text style={styles.stockName}>{stock.company_name}</Text>
-                  <Text style={styles.stockDescription}>{stock.description}</Text>
-                </TouchableOpacity>
-              ))}
+          {filteredStocks.map((stock) => (
+            <TouchableOpacity
+              key={stock.ticker_id}
+              style={styles.stockItem}
+              onPress={() => handleStockSelect(stock)}
+            >
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+              <Text style={styles.stockName}>{stock.company_name}</Text>
+              <Text style={styles.stockDescription}>{stock.description}</Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
-        
+
       </View>
+
 
       {/* Stocks Section */}
       <View style={styles.stocksSection}>
@@ -145,30 +180,6 @@ const Discover = () => {
             <Text style={styles.stockDescription}>Stock Description</Text>
           </View>
           {/* Repeat... */}
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://cdn.sanity.io/images/kts928pd/production/acf71dc493554cc492578b8b5b8beb4ee20e8873-731x731.png' }} style={styles.stockImage3} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://cdn.sanity.io/images/kts928pd/production/acf71dc493554cc492578b8b5b8beb4ee20e8873-731x731.png' }} style={styles.stockImage3} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://cdn.sanity.io/images/kts928pd/production/acf71dc493554cc492578b8b5b8beb4ee20e8873-731x731.png' }} style={styles.stockImage3} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://cdn.sanity.io/images/kts928pd/production/acf71dc493554cc492578b8b5b8beb4ee20e8873-731x731.png' }} style={styles.stockImage3} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
         </ScrollView>
         
       </View>
@@ -184,42 +195,20 @@ const Discover = () => {
 
         {/* Horizontal Scroll for Stocks List */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQHgmT7TNrUJ1pbmrYPPEKMzQWfc1W2nNOWzSHEHs_Ciok5U1-ApcelkwlFgVwbTVNTmM&usqp=CAU' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Repeat... */}
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQHgmT7TNrUJ1pbmrYPPEKMzQWfc1W2nNOWzSHEHs_Ciok5U1-ApcelkwlFgVwbTVNTmM&usqp=CAU' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQHgmT7TNrUJ1pbmrYPPEKMzQWfc1W2nNOWzSHEHs_Ciok5U1-ApcelkwlFgVwbTVNTmM&usqp=CAU' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQHgmT7TNrUJ1pbmrYPPEKMzQWfc1W2nNOWzSHEHs_Ciok5U1-ApcelkwlFgVwbTVNTmM&usqp=CAU' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQHgmT7TNrUJ1pbmrYPPEKMzQWfc1W2nNOWzSHEHs_Ciok5U1-ApcelkwlFgVwbTVNTmM&usqp=CAU' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
+          {filteredStocks.map((stock) => (
+            <TouchableOpacity
+              key={stock.ticker_id}
+              style={styles.stockItem}
+              onPress={() => handleStockSelect(stock)}
+            >
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+              <Text style={styles.stockName}>{stock.company_name}</Text>
+              <Text style={styles.stockDescription}>{stock.description}</Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
-        
-      </View>
 
-      
+      </View>
 
       {/* Stocks Section */}
       <View style={styles.stocksSection}>
@@ -232,39 +221,18 @@ const Discover = () => {
 
         {/* Horizontal Scroll for Stocks List */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://www.shutterstock.com/image-vector/abstract-simple-united-states-america-600nw-1956065347.jpg' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Repeat... */}
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://www.shutterstock.com/image-vector/abstract-simple-united-states-america-600nw-1956065347.jpg' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://www.shutterstock.com/image-vector/abstract-simple-united-states-america-600nw-1956065347.jpg' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://www.shutterstock.com/image-vector/abstract-simple-united-states-america-600nw-1956065347.jpg' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://www.shutterstock.com/image-vector/abstract-simple-united-states-america-600nw-1956065347.jpg' }} style={styles.stockImage} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-        </ScrollView>
-        
+          {filteredStocks.map((stock) => (
+            <TouchableOpacity
+              key={stock.ticker_id}
+              style={styles.stockItem}
+              onPress={() => handleStockSelect(stock)}
+            >
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+              <Text style={styles.stockName}>{stock.company_name}</Text>
+              <Text style={styles.stockDescription}>{stock.description}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView> 
       </View>
 
       {/* News Section */}
@@ -295,6 +263,34 @@ const Discover = () => {
         </ScrollView>
       </View>
     </ScrollView>
+
+
+    <Modalize ref={modalRef}>
+  {/* Content for the modal */}
+  <View style={styles.modalContent}>
+    {/* Display full details of the selected popular stock */}
+    {selectedPopularStock && (
+      <React.Fragment>
+        <Text style={styles.modalTitle}>Stock Details</Text>
+        <Text style={styles.stockDetailText}>{`Company Name: ${selectedPopularStock.company_name}`}</Text>
+        <Text style={styles.stockDetailText}>{`Description: ${selectedPopularStock.description}`}</Text>
+        <Text style={styles.stockDetailText}>{`Trade Price: $${selectedPopularStock.trade_price.toFixed(2)}`}</Text>
+        {/* Add more details as needed */}
+
+        {/* Buttons */}
+        <View style={styles.buttonsContainer}>
+                  <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
+                    <Text style={styles.buttonText}>Invest</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                    <Text style={styles.buttonText}>Sell</Text>
+                  </TouchableOpacity>
+        </View>
+      </React.Fragment>
+    )}
+  </View>
+</Modalize>
+
     <View style={styles.navBar}>
           <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
             <Ionicons name="home" size={26} color="white" />
@@ -438,6 +434,42 @@ navBarText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: 'white',
+},
+modalContent: {
+  padding: 16,
+},
+modalTitle: {
+  fontSize: 38,
+  fontWeight: 'bold',
+  marginBottom: 16,
+  color: '#51CC62'
+},
+stockDetailText: {
+  fontSize: 19,
+  marginBottom: 8,
+},
+buttonsContainer: {
+  flexDirection: 'row',
+  marginTop: 20,
+},
+investButton: {
+  flex: 1,
+  backgroundColor: '#51CC62',
+  padding: 10,
+  borderRadius: 5,
+  marginRight: 10,
+  alignItems: 'center',
+},
+sellButton: {
+  flex: 1,
+  backgroundColor: '#FF6347',
+  padding: 10,
+  borderRadius: 5,
+  alignItems: 'center',
+},
+buttonText: {
+  color: 'white',
+  fontSize: 16,
 },
 });
 

@@ -1,18 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Modalize } from 'react-native-modalize';
 
 const PopularThisWeek = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [stockData, setStockData] = useState([]);
   const [userToken, setUserToken] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedStock, setSelectedStock] = useState(null); // Track the selected stock
+  const modalRef = useRef(null);
 
-  const handleStockSelect = (stockKey) => {
-    navigation.navigate('StockDetails', { stockKey, stockData });
+  const handleStockSelect = (stock) => {
+    // Store the selected stock in the state
+    setSelectedStock(stock);
+    // Open the modal when a stock is selected
+    modalRef.current?.open();
   };
+  
 
   useEffect(() => {
     // Fetch user token from AsyncStorage
@@ -52,6 +60,8 @@ const PopularThisWeek = () => {
         }
       } catch (error) {
         console.error('Error fetching stock data:', error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -66,6 +76,18 @@ const PopularThisWeek = () => {
       stock.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleInvest = () => {
+    // Logic for handling investment
+    console.log('Invest button pressed');
+    // Add your logic here
+  };
+
+  const handleSell = () => {
+    // Logic for handling selling
+    console.log('Sell button pressed');
+    // Add your logic here
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Popular This Week</Text>
@@ -78,29 +100,58 @@ const PopularThisWeek = () => {
           onChangeText={(text) => setSearchQuery(text)}
         />
       </View>
-      <ScrollView style={styles.stockListContainer}>
-        {filteredStocks.map((stock) => (
-          <TouchableOpacity
-            key={stock.ticker_id}
-            style={styles.stockItemContainer}
-            onPress={() => handleStockSelect(stock.key)}
-          >
-            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
-            <View style={styles.stockDetailsContainer}>
-              <Text style={styles.stockTitleText}>{stock.company_name}</Text>
-              <Text style={styles.stockDescriptionText}>{stock.description}</Text>
-              <View style={styles.stockRowContainer}>
-              <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#51CC62" />
+      ) : (
+        <ScrollView style={styles.stockListContainer}>
+          {filteredStocks.map((stock) => (
+            <TouchableOpacity
+              key={stock.ticker_id}
+              style={styles.stockItemContainer}
+              onPress={() => handleStockSelect(stock)}
+            >
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+              <View style={styles.stockDetailsContainer}>
+                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+                <View style={styles.stockRowContainer}>
+                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+      <Modalize ref={modalRef}>
+        {/* Content for the modal */}
+        <View style={styles.modalContent}>
+          {/* Display full details of the selected stock */}
+          {selectedStock && (
+            <React.Fragment>
+              <Text style={styles.modalTitle}>Stock Details</Text>
+              <Text style={styles.stockDetailText}>{`Company Name: ${selectedStock.company_name}`}</Text>
+              <Text style={styles.stockDetailText}>{`Description: ${selectedStock.description}`}</Text>
+              <Text style={styles.stockDetailText}>{`Trade Price: $${selectedStock.trade_price.toFixed(2)}`}</Text>
+              {/* Add more details as needed */}
+
+              {/* Buttons */}
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
+                  <Text style={styles.buttonText}>Invest</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                  <Text style={styles.buttonText}>Sell</Text>
+                </TouchableOpacity>
+              </View>
+            </React.Fragment>
+          )}
+        </View>
+      </Modalize>
+
     </View>
   );
 };
-
 
 
 const styles = StyleSheet.create({
@@ -181,6 +232,42 @@ const styles = StyleSheet.create({
   stockPriceText: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  modalContent: {
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 38,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#51CC62'
+  },
+  stockDetailText: {
+    fontSize: 19,
+    marginBottom: 8,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  investButton: {
+    flex: 1,
+    backgroundColor: '#51CC62',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  sellButton: {
+    flex: 1,
+    backgroundColor: '#FF6347',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

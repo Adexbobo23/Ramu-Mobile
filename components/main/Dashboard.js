@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -21,8 +21,27 @@ const Dashboard = () => {
   const [stockData, setStockData] = useState([]);
   const [userToken, setUserToken] = useState('');
   const [topTrendingStocks, setTopTrendingStocks] = useState([]);
+  const [selectedFeaturedStock, setSelectedFeaturedStock] = useState(null);
+  const modalRef = useRef(null);
+  const [selectedTopTrendingStock, setSelectedTopTrendingStock] = useState(null);
 
 
+
+  const handleStockSelect = (stock) => {
+    // Store the selected stock in the state
+    setSelectedFeaturedStock(stock);
+    // Open the modal when a stock is selected
+    modalRef.current?.open();
+  };
+
+  const handleTrendingStockSelect = (stock) => {
+    // Store the selected stock in the state
+    setSelectedTopTrendingStock(stock);
+    // Open the modal when a stock is selected
+    modalRef.current?.open();
+  };
+  
+  
 
   useEffect(() => {
     // Fetch top trending stocks data when the component mounts and user token is available
@@ -101,13 +120,6 @@ const Dashboard = () => {
       fetchStockData();
     }
   }, [userToken]);
-
-
-  const handleStockSelect = (stockKey) => {
-    navigation.navigate('StockDetails', { stockKey, stockData });
-  };
-
-
 
 
   useEffect(() => {
@@ -239,6 +251,18 @@ const handleNotification = () => {
   console.log('Notification icon pressed');
 };
 
+const handleInvest = () => {
+  // Logic for handling investment
+  console.log('Invest button pressed');
+  // Add your logic here
+};
+
+const handleSell = () => {
+  // Logic for handling selling
+  console.log('Sell button pressed');
+  // Add your logic here
+};
+
 
   return (
     <View style={styles.container}>
@@ -291,13 +315,15 @@ const handleNotification = () => {
         </View>
 
         <View style={styles.stockcontainer}>
-            {/* Stocks Section */}
+          {/* Stocks Section */}
           <View style={styles.stocksSection}>
-          <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Top Trending</Text>
-                <TouchableOpacity onPress={handleSeeAll}>
-                <Text style={styles.seeAll} onPress={() => navigateTo('Sectors')}>See All</Text>
-                </TouchableOpacity>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Top Trending</Text>
+              <TouchableOpacity onPress={handleSeeAll}>
+                <Text style={styles.seeAll} onPress={() => navigateTo('Sectors')}>
+                  See All
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* Horizontal Scroll for Top Trending Stocks List */}
@@ -306,7 +332,7 @@ const handleNotification = () => {
                 <TouchableOpacity
                   key={stock.ticker_id}
                   style={styles.stockItem}
-                  onPress={() => handleStockSelect(stock.key)}
+                  onPress={() => handleTrendingStockSelect(stock)}
                 >
                   <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
                   <Text style={styles.stockName}>{stock.company_name}</Text>
@@ -314,7 +340,6 @@ const handleNotification = () => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            
           </View>
         </View>
         
@@ -360,24 +385,24 @@ const handleNotification = () => {
         </View>
         {/* Stock Data */}
         <ScrollView style={styles.stockListContainer}>
-        {stockData.map((stock) => (
-          <TouchableOpacity
-            key={stock.ticker_id}
-            style={styles.stockItemContainer}
-            onPress={() => handleStockSelect(stock.key)}
-          >
-            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
-            <View style={styles.stockDetailsContainer}>
-              <Text style={styles.stockTitleText}>{stock.company_name}</Text>
-              <Text style={styles.stockDescriptionText}>{stock.description}</Text>
-              <View style={styles.stockRowContainer}>
-              <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+          {stockData.map((stock) => (
+            <TouchableOpacity
+              key={stock.ticker_id}
+              style={styles.stockItemContainer}
+              onPress={() => handleStockSelect(stock)}
+            >
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+              <View style={styles.stockDetailsContainer}>
+                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+                <View style={styles.stockRowContainer}>
+                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
         </View>
       </ScrollView>
 
@@ -395,6 +420,60 @@ const handleNotification = () => {
             </TouchableOpacity>
           </View>
         </Modalize>
+
+        <Modalize ref={modalRef}>
+          {/* Content for the modal */}
+          <View style={styles.modalContent}>
+            {/* Display full details of the selected featured stock */}
+            {selectedFeaturedStock && (
+              <React.Fragment>
+                <Text style={styles.modalTitle}>Stock Details</Text>
+                <Text style={styles.stockDetailText}>{`Company Name: ${selectedFeaturedStock.company_name}`}</Text>
+                <Text style={styles.stockDetailText}>{`Description: ${selectedFeaturedStock.description}`}</Text>
+                <Text style={styles.stockDetailText}>{`Trade Price: $${selectedFeaturedStock.trade_price.toFixed(2)}`}</Text>
+                {/* Add more details as needed */}
+                
+                {/* Buttons */}
+                <View style={styles.buttonsContainer}>
+                  <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
+                    <Text style={styles.buttonText}>Invest</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                    <Text style={styles.buttonText}>Sell</Text>
+                  </TouchableOpacity>
+                </View>
+              </React.Fragment>
+            )}
+          </View>
+        </Modalize>
+
+        <Modalize ref={modalRef}>
+          {/* Content for the modal */}
+          <View style={styles.modalContent}>
+            {/* Display full details of the selected top trending stock */}
+            {selectedTopTrendingStock && (
+              <React.Fragment>
+                <Text style={styles.modalTitle}>Stock Details</Text>
+                <Text style={styles.stockDetailText}>{`Company Name: ${selectedTopTrendingStock.company_name}`}</Text>
+                <Text style={styles.stockDetailText}>{`Description: ${selectedTopTrendingStock.description}`}</Text>
+                <Text style={styles.stockDetailText}>{`Trade Price: $${selectedTopTrendingStock.trade_price.toFixed(2)}`}</Text>
+                {/* Add more details as needed */}
+
+                {/* Buttons */}
+                <View style={styles.buttonsContainer}>
+                  <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
+                    <Text style={styles.buttonText}>Invest</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                    <Text style={styles.buttonText}>Sell</Text>
+                  </TouchableOpacity>
+                </View>
+              </React.Fragment>
+            )}
+          </View>
+        </Modalize>
+
+
 
       <View style={styles.navBar}>
           <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
@@ -648,7 +727,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
-    marginTop: 90,
+    marginTop: 120,
   },
   seeAll: {
     fontSize: 16,
@@ -860,6 +939,42 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#51CC62',
     color: 'white',
+  },
+  modalContent: {
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 38,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#51CC62'
+  },
+  stockDetailText: {
+    fontSize: 19,
+    marginBottom: 8,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  investButton: {
+    flex: 1,
+    backgroundColor: '#51CC62',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  sellButton: {
+    flex: 1,
+    backgroundColor: '#FF6347',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

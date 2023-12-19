@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     textAlign: 'center',
     marginTop: 40,
+    color: '#51CC62'
   },
   input: {
     borderWidth: 1,

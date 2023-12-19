@@ -23,44 +23,69 @@ const PersonalProfile = () => {
       try {
         const user_id = await AsyncStorage.getItem('userId');
         const userToken = await AsyncStorage.getItem('userToken');
-  
+
         if (!user_id || !userToken) {
           console.error('User ID or token not found in AsyncStorage');
           return;
         }
-  
+
         const apiUrl = `https://api-staging.ramufinance.com/api/v1/get-profile/${user_id}`;
         const response = await axios.get(apiUrl, {
           headers: {
             'Authorization': `Bearer ${userToken}`,
           },
         });
-  
+
+        console.log('API Response:', response.data);
+
+        // Destructure the response data
+        const {
+          profile_image,
+          first_name,
+          last_name,
+          id,
+          user_name,
+          email,
+          phone_number,
+          address,
+          nationality,
+          is_email_verified,
+        } = response.data.data;
+
         setUserData({
-          profileImage: response.data.profile_image,
-          fullName: `${response.data.first_name} ${response.data.last_name}`,
-          userId: response.data.id,
-          firstName: response.data.first_name,
-          lastName: response.data.last_name,
-          username: response.data.user_name,
-          emailAddress: response.data.email,
-          phoneNumber: response.data.phone_number,
-          address: response.data.address,
-          nationality: response.data.nationality,
-          isEmailVerified: response.data.is_email_verified,
+          profileImage: profile_image,
+          fullName: `${first_name} ${last_name}`,
+          userId: id,
+          firstName: first_name,
+          lastName: last_name,
+          username: user_name,
+          emailAddress: email,
+          phoneNumber: phone_number,
+          address: address,
+          nationality: nationality,
+          isEmailVerified: is_email_verified,
         });
       } catch (error) {
         console.error('Error fetching user profile:', error);
+
+        // Print the response status and data if available
+        if (error.response) {
+          console.log('Error Response Data:', error.response.data);
+          console.log('Error Response Status:', error.response.status);
+        }
+
         Alert.alert(
           'Error',
           'An error occurred while fetching the user profile. Please try again.'
         );
       }
     };
-  
+
     fetchUserProfile();
   }, []);
-  
+
+  // Logging the state to check if it's getting updated
+  console.log('User Data State:', userData);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -176,12 +201,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: 'normal',
+    fontWeight: 'bold',
     marginBottom: 5,
+    color : '#51CC62'
   },
   underline: {
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: '#51CC62',
     marginBottom: 5,
   },
   infoText: {
