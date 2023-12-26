@@ -1,34 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
+import { Picker } from '@react-native-picker/picker';
 
 const KYC = () => {
-  const [bvn, setBVN] = useState('');
-  const [nin, setNIN] = useState('');
-  const [accountName, setAccountName] = useState(''); // Added Account Name
-  const [accountNumber, setAccountNumber] = useState(''); // Added Account Number
-  const [bankName, setBankName] = useState(''); // Added Bank Name
+  const [accountName, setAccountName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [bankName, setBankName] = useState('');
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedDocumentType, setSelectedDocumentType] = useState('NIN'); // Default to NIN
 
   const handleKYCSubmit = async () => {
     try {
-      // Retrieve the user's token from AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
 
-      // Prepare the request payload
       const requestBody = {
-        bvn,
-        nin,
-        bankAccount: { // Updated to include separate fields
+        bankAccount: {
           accountName,
           accountNumber,
           bankName,
         },
         document: selectedDocument,
+        documentType: selectedDocumentType, // Include document type in the request
       };
 
-      // Make a POST request to the KYC API
       const response = await fetch('https://api-staging.ramufinance.com/api/v1/add-id-number', {
         method: 'POST',
         headers: {
@@ -38,18 +34,13 @@ const KYC = () => {
         body: JSON.stringify(requestBody),
       });
 
-      // Handle the response
       const responseData = await response.json();
 
-      // Display the response message in an alert popup
       Alert.alert('KYC Verification', responseData.message);
 
-      // You can handle success or error cases based on the API response
       if (response.ok) {
-        // KYC success
         console.log('KYC Success:', responseData);
       } else {
-        // KYC error
         console.error('KYC Error:', responseData);
       }
     } catch (error) {
@@ -62,7 +53,6 @@ const KYC = () => {
       const result = await DocumentPicker.getDocumentAsync({});
 
       if (result.type === 'success') {
-        // Update the selected document
         setSelectedDocument(result);
       }
     } catch (error) {
@@ -74,28 +64,23 @@ const KYC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>KYC VERIFICATION</Text>
       <Text style={styles.description}>
-        Complete your KYC (Know Your Customer) verification by providing your BVN (Bank Verification Number) or NIN (National Identity Number), Bank Account Details, and a document.
+        Complete your KYC (Know Your Customer) verification by providing your Identity Card and Bank Account Details.
       </Text>
+      {/* Label for the form */}
+      <Text style={styles.formLabel}>Select Your Legal Document</Text>
 
-      {/* BVN Input */}
-      <TextInput
+      {/* Document Type Dropdown */}
+      <Picker
+        selectedValue={selectedDocumentType}
+        onValueChange={(itemValue) => setSelectedDocumentType(itemValue)}
         style={styles.input}
-        placeholder="Enter BVN"
-        keyboardType="numeric"
-        value={bvn}
-        onChangeText={setBVN}
-      />
+        itemStyle={styles.pickerItem} 
+      >
+        <Picker.Item label="Driver License" value="Driver License" />
+        <Picker.Item label="NIN" value="NIN" />
+        <Picker.Item label="BVN" value="BVN" />
+      </Picker>
 
-      {/* NIN Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter NIN"
-        keyboardType="numeric"
-        value={nin}
-        onChangeText={setNIN}
-      />
-
-      {/* Account Name Input */}
       <TextInput
         style={styles.input}
         placeholder="Enter Account Name"
@@ -103,7 +88,6 @@ const KYC = () => {
         onChangeText={setAccountName}
       />
 
-      {/* Account Number Input */}
       <TextInput
         style={styles.input}
         placeholder="Enter Account Number"
@@ -112,7 +96,6 @@ const KYC = () => {
         onChangeText={setAccountNumber}
       />
 
-      {/* Bank Name Input */}
       <TextInput
         style={styles.input}
         placeholder="Enter Bank Name"
@@ -120,21 +103,19 @@ const KYC = () => {
         onChangeText={setBankName}
       />
 
-      {/* Document Picker */}
+
       <TouchableOpacity style={styles.documentPickerButton} onPress={handleDocumentPicker}>
-        <Text style={styles.documentPickerButtonText}>Upload NIN Or BVN Picture</Text>
+        <Text style={styles.documentPickerButtonText}>Upload Document</Text>
       </TouchableOpacity>
 
-      {/* Display Selected Document */}
       {selectedDocument && (
         <View style={styles.selectedDocument}>
           <Text>Selected Document: {selectedDocument.name}</Text>
         </View>
       )}
 
-      {/* Submit Button */}
       <TouchableOpacity style={styles.submitButton} onPress={handleKYCSubmit}>
-        <Text style={styles.submitButtonText}>Submit KYC</Text>
+        <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
     </View>
   );
@@ -167,6 +148,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
   },
+  formLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'left',
+    color: '#51CC62',
+  },
   documentPickerButton: {
     backgroundColor: '#51CC62',
     padding: 15,
@@ -193,6 +181,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 20,
   },
 });
 

@@ -23,7 +23,6 @@ const Withdraw = () => {
         <Text style={styles.title}>Withdraw</Text>
         <Text>{"\n\n"}</Text>
         <Text style={styles.balanceText}>Balance: N56799.00</Text>
-        <Text style={styles.ablewithdraw}>Withdrawable Balance: N33400.00</Text>
 
         <TextInput
           style={styles.input}

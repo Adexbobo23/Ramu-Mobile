@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -6,16 +6,18 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
 import { MaterialIcons } from '@expo/vector-icons'; 
-
+import { WebView } from 'react-native-webview';
 
 const Wallet = () => {
   const navigation = useNavigation();
   const [showBalance, setShowBalance] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState('naira');
   const [walletDetails, setWalletDetails] = useState(null);
-  const switchAccountModalRef = React.useRef(null);
+  const switchAccountModalRef = useRef(null);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [cardDetails, setCardDetails] = useState(null);
+  const [webViewUrl, setWebViewUrl] = useState(null);
+  const [isWebViewModalOpen, setWebViewModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -34,8 +36,32 @@ const Wallet = () => {
     setShowBalance(!showBalance);
   };
 
-  const handleSave = () => {
-    navigation.navigate('AddCard');
+  const handleAddCard = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await axios.post(
+        'https://api-staging.ramufinance.com/api/v1/add-card',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      const { checkoutUrl } = response.data.data;
+
+      // Open the WebView modal with the checkout URL
+      setWebViewUrl(checkoutUrl);
+      setWebViewModalOpen(true);
+    } catch (error) {
+      console.error('Error adding card:', error);
+      Alert.alert('Error', 'Failed to add a new card.');
+    }
+  };
+
+  const handleCloseWebViewModal = () => {
+    setWebViewModalOpen(false);
   };
 
   const handleFundWallet = () => {
@@ -183,7 +209,7 @@ const Wallet = () => {
         {/* Replace the logo and card details with your actual data */}
         <Ionicons name="card" size={48} color="#51CC62" />
         <View style={styles.cardDetails}>
-          <Text style={styles.cardName}>{cardDetails?.email}</Text>
+          <Text style={styles.cardName}>{cardDetails?.masked_pan}</Text>
           {/* Replace other details accordingly */}
           <Text style={styles.cardNumber}>{`**** **** **** ${cardDetails?.id}`}</Text>
         </View>
@@ -192,8 +218,8 @@ const Wallet = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Add New Card Button */}
-      <TouchableOpacity style={styles.addCardButton} onPress={handleSave}>
+       {/* Add New Card Button */}
+       <TouchableOpacity style={styles.addCardButton} onPress={handleAddCard}>
         <Ionicons name="card-outline" size={24} color="black" />
         <Text style={styles.addCardText}>Add New Card</Text>
       </TouchableOpacity>
@@ -220,6 +246,19 @@ const Wallet = () => {
           </TouchableOpacity>
         </View>
       </Modalize>
+
+      {/* WebView Modal */}
+      {/* <Modalize
+        ref={switchAccountModalRef}
+        modalStyle={styles.modalContainer}
+        alwaysOpen={500}
+        handlePosition="inside"
+        onClosed={handleCloseWebViewModal}
+      >
+        <View style={styles.webViewContainer}>
+          {webViewUrl && <WebView source={{ uri: webViewUrl }} />}
+        </View>
+      </Modalize> */}
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>

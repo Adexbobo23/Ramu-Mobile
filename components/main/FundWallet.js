@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Linking, Clipboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -10,10 +10,34 @@ const FundWallets = () => {
   const [amount, setAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [bankList, setBankList] = useState([]);
+  const [nairaWallet, setNairaWallet] = useState(null);
 
   useEffect(() => {
+    fetchWalletDetails();
     fetchBankList();
   }, []);
+
+
+  const fetchWalletDetails = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await axios.get(
+        'https://api-staging.ramufinance.com/api/v1/get-wallet-details',
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      const nairaWalletData = response.data.data.find(wallet => wallet.currency_code === 'NGN');
+
+      setNairaWallet(nairaWalletData);
+    } catch (error) {
+      console.error('Error fetching wallet details:', error);
+    }
+  };
+
 
   const fetchBankList = async () => {
     try {
@@ -26,25 +50,56 @@ const FundWallets = () => {
           },
         }
       );
-
+  
       const bankListData = response.data.data;
       setBankList(bankListData);
     } catch (error) {
-      console.error('Error fetching bank list:', error);
-      // Handle error
+      if (error.message === 'Network Error') {
+        console.error('Network error. Please check your internet connection.');
+        // Handle network error
+      } else if (error.response) {
+        // The request was made, but the server responded with an error status
+        if (error.response.status === 401) {
+          console.error('Unauthorized. Please check your authentication token.');
+          // Handle unauthorized error
+        } else {
+          console.error('API error:', error.response.status, error.response.data);
+          // Handle other API errors
+        }
+      } else if (error.request) {
+        // The request was made, but no response was received
+        console.error('No response received from the server.');
+        // Handle no response
+      } else {
+        console.error('Error fetching bank list:', error);
+        // Handle other errors
+      }
     }
   };
 
+  const copyAccountNumber = () => {
+    if (nairaWallet) {
+      Clipboard.setString(nairaWallet.virtual_account_number);
+      alert('Account number copied to clipboard!');
+    }
+  };
+  
+
   const handlePayment = () => {
+    if (!amount) {
+      alert('Please enter the amount.');
+      return;
+    }
+  
     if (!selectedPaymentMethod) {
       alert('Please select a payment method.');
       return;
     }
-
+  
     const selectedBank = bankList.find((bank) => bank.name === selectedPaymentMethod);
-
+  
     if (selectedBank) {
-      const ussdCode = selectedBank.ussdTemplate.replace('Amount', amount).replace('AccountNumber', 'YourAccountNumber');
+      const ussdCode = selectedBank.ussdTemplate.replace('Amount', amount).replace('AccountNumber', nairaWallet.virtual_account_number);
       
       if (ussdCode) {
         // Dial the USSD code
@@ -52,9 +107,10 @@ const FundWallets = () => {
         alert(`Dialing USSD code: ${ussdCode}`);
       }
     }
-
+  
     navigation.navigate('TopUpReceipt');
   };
+  
 
   return (
     <ScrollView style={styles.container}>
@@ -69,8 +125,32 @@ const FundWallets = () => {
         onChangeText={(text) => setAmount(text)}
       />
 
+       {/* Virtual Account Details */}
+       <View style={styles.BalanceContainer}>
+        <Text style={styles.balanceHeaderText}>Virtual Account Details</Text>
+        {nairaWallet && (
+          <>
+            <View style={styles.virtualAccountDetails}>
+              <Text style={styles.virtualAccountLabel}>Account Name:</Text>
+              <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_name}</Text>
+            </View>
+            <View style={styles.virtualAccountDetails}>
+              <Text style={styles.virtualAccountLabel}>Account Number:</Text>
+              <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_number}</Text>
+              <TouchableOpacity onPress={copyAccountNumber}>
+                <Ionicons name="copy" size={20} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.virtualAccountDetails}>
+              <Text style={styles.virtualAccountLabel}>Bank Name:</Text>
+              <Text style={styles.virtualAccountValue}>{nairaWallet.bank_name}</Text>
+            </View>
+          </>
+        )}
+      </View>
+
       {/* Payment Methods */}
-      <Text style={styles.paymentMethodTitle}>Virtual Payment</Text>
+      <Text style={styles.paymentMethodTitle}>Card Payment</Text>
       {/* Bank Card */}
       <TouchableOpacity
         style={[styles.paymentMethod, selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod]}
@@ -130,6 +210,37 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     backgroundColor: '#ECEAE9',
+  },
+  BalanceContainer: {
+    backgroundColor: '#51CC62',
+    padding: 20,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: '#51CC62',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 5,
+    height: 200,
+  },
+  balanceHeaderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 40,
+  },
+  virtualAccountDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  virtualAccountLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  virtualAccountValue: {
+    fontSize: 17,
   },
   paymentMethodTitle: {
     fontSize: 20,
