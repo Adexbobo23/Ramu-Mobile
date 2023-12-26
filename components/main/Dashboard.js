@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [selectedFeaturedStock, setSelectedFeaturedStock] = useState(null);
   const modalRef = useRef(null);
   const [selectedTopTrendingStock, setSelectedTopTrendingStock] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
 
 
@@ -144,6 +145,8 @@ const Dashboard = () => {
 
   const fetchWalletDetails = async () => {
     try {
+      setIsLoading(true); 
+
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await axios.get(
         'https://api-staging.ramufinance.com/api/v1/get-wallet-details',
@@ -153,20 +156,24 @@ const Dashboard = () => {
           },
         }
       );
-  
+
       // Assuming NGN is for Naira and USD is for Dollar
       const nairaDetails = response.data.data.find((wallet) => wallet.currency_code === 'NGN');
       const dollarDetails = response.data.data.find((wallet) => wallet.currency_code === 'USD');
-  
+
       setWalletDetails({
         naira: nairaDetails,
         dollar: dollarDetails,
       });
+
+      setIsLoading(false); 
     } catch (error) {
+      setIsLoading(false); 
       console.error('Error fetching wallet details:', error);
       Alert.alert('Error', 'Failed to fetch wallet details.');
     }
   };
+
   
  
   const renderSwitchAccountButton = () => (
@@ -284,17 +291,21 @@ const handleSell = () => {
           <View style={styles.balanceContainer}>
             {renderSwitchAccountButton()}
             <TouchableOpacity onPress={toggleBalanceVisibility}>
-              <Text style={styles.balanceText}>
-                {balanceVisible ? (
-                  selectedAccount === 'naira' ? (
-                    `₦${walletDetails?.naira?.balance}`
+              {isLoading ? ( 
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Text style={styles.balanceText}>
+                  {balanceVisible ? (
+                    selectedAccount === 'naira' ? (
+                      `₦${walletDetails?.naira?.balance}`
+                    ) : (
+                      `$${walletDetails?.dollar?.balance}`
+                    )
                   ) : (
-                    `$${walletDetails?.dollar?.balance}`
-                  )
-                ) : (
-                  '*******'
-                )}
-              </Text>
+                    '*******'
+                  )}
+                </Text>
+              )}
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
               {balanceVisible ? (

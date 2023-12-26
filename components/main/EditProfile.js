@@ -29,16 +29,22 @@ const EditProfile = ({ navigation }) => {
     }
   }, [profileImage]);
 
-  const convertImageToBase64 = async (uri) => {
+  const convertImageToBase64 = async (contentUri) => {
     try {
-      const base64 = await FileSystem.readAsStringAsync(uri, {
+      // Get the file URI from the content URI
+      const fileUri = contentUri.replace('file://', '');
+  
+      // Read the image file as base64
+      const base64 = await FileSystem.readAsStringAsync(fileUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+  
       setBase64Image(base64);
     } catch (error) {
       console.error('Error converting image to base64:', error);
     }
   };
+  
 
   const handleChooseImage = async () => {
     try {
@@ -112,7 +118,10 @@ const EditProfile = ({ navigation }) => {
           console.log('Validation Errors:', validationErrors);
   
           // Display error messages to the user
-          Alert.alert('Validation Error', validationErrors[0].message);
+          Alert.alert('Validation Error', 'An error occurred while editing the profile. Please try again.');
+  
+          // Log additional information for debugging
+          console.log('Validation Response:', response);
         } else {
           // Show a generic error message
           Alert.alert('Error', 'An error occurred while editing the profile. Please try again.');
@@ -125,7 +134,6 @@ const EditProfile = ({ navigation }) => {
       Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
     }
   };
-  
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
