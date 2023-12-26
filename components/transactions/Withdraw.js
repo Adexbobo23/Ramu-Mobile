@@ -23,7 +23,7 @@ const Withdraw = () => {
     }
 
     // Proceed to withdrawal confirmation (WithdrawOtp screen)
-    navigation.navigate('WithdrawOtp', { withdrawAmount });
+    navigation.navigate('AuthTrans', { withdrawAmount });
     console.log(`Withdraw amount: ${withdrawAmount}`);
   };
 
