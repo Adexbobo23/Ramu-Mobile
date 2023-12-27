@@ -54,6 +54,8 @@ import StockDetails from '../Stock/StockDetails';
 import FAQ from '../main/FAQ';
 import ContactForm from '../main/Contact';
 import Notification from '../main/Notifications';
+import InvestmentConfirm from '../Stock/InvestmentSuccessfull';
+import SellConfirm from '../Stock/SellSuccesfull';
 
 const Stack = createStackNavigator();
 
@@ -323,9 +325,19 @@ const Router = () => {
         component={ContactForm}
         options={{ headerShown: false }}
         />
-         <Stack.Screen
+        <Stack.Screen
         name="Notification"
         component={Notification}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="InvConfirm"
+        component={InvestmentConfirm}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="SellConfirm"
+        component={SellConfirm}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Linking, Clipboard } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Linking,
+  Clipboard,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Modalize } from 'react-native-modalize';
 
 const FundWallets = () => {
   const navigation = useNavigation();
@@ -11,12 +21,14 @@ const FundWallets = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [bankList, setBankList] = useState([]);
   const [nairaWallet, setNairaWallet] = useState(null);
+  const [cards, setCards] = useState([]);
+  const [cardModalVisible, setCardModalVisible] = useState(false);
 
   useEffect(() => {
     fetchWalletDetails();
     fetchBankList();
+    fetchCards();
   }, []);
-
 
   const fetchWalletDetails = async () => {
     try {
@@ -30,14 +42,15 @@ const FundWallets = () => {
         }
       );
 
-      const nairaWalletData = response.data.data.find(wallet => wallet.currency_code === 'NGN');
+      const nairaWalletData = response.data.data.find(
+        (wallet) => wallet.currency_code === 'NGN'
+      );
 
       setNairaWallet(nairaWalletData);
     } catch (error) {
       console.error('Error fetching wallet details:', error);
     }
   };
-
 
   const fetchBankList = async () => {
     try {
@@ -50,30 +63,30 @@ const FundWallets = () => {
           },
         }
       );
-  
+
       const bankListData = response.data.data;
       setBankList(bankListData);
     } catch (error) {
-      if (error.message === 'Network Error') {
-        console.error('Network error. Please check your internet connection.');
-        // Handle network error
-      } else if (error.response) {
-        // The request was made, but the server responded with an error status
-        if (error.response.status === 401) {
-          console.error('Unauthorized. Please check your authentication token.');
-          // Handle unauthorized error
-        } else {
-          console.error('API error:', error.response.status, error.response.data);
-          // Handle other API errors
+      // Handle error
+    }
+  };
+
+  const fetchCards = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await axios.get(
+        'https://api-staging.ramufinance.com/api/v1/get-cards',
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         }
-      } else if (error.request) {
-        // The request was made, but no response was received
-        console.error('No response received from the server.');
-        // Handle no response
-      } else {
-        console.error('Error fetching bank list:', error);
-        // Handle other errors
-      }
+      );
+
+      const cardsData = response.data.data;
+      setCards(cardsData);
+    } catch (error) {
+      // Handle error
     }
   };
 
@@ -83,107 +96,171 @@ const FundWallets = () => {
       alert('Account number copied to clipboard!');
     }
   };
-  
 
   const handlePayment = () => {
     if (!amount) {
       alert('Please enter the amount.');
       return;
     }
-  
+
     if (!selectedPaymentMethod) {
       alert('Please select a payment method.');
       return;
     }
-  
-    const selectedBank = bankList.find((bank) => bank.name === selectedPaymentMethod);
-  
-    if (selectedBank) {
-      const ussdCode = selectedBank.ussdTemplate.replace('Amount', amount).replace('AccountNumber', nairaWallet.virtual_account_number);
-      
-      if (ussdCode) {
-        // Dial the USSD code
-        Linking.openURL(`tel:${ussdCode}`);
-        alert(`Dialing USSD code: ${ussdCode}`);
+
+    if (selectedPaymentMethod === 'Card') {
+      // Perform card payment logic
+      const selectedCard = cards.find((card) => card.id === selectedPaymentMethod);
+      if (selectedCard) {
+        // Implement your card payment logic here
+        // If successful, navigate to PaymentConfirm
+        navigation.navigate('PaymentConfirm');
+      } else {
+        // If card is not found, navigate to PaymentFailed
+        navigation.navigate('PaymentFailed');
       }
+    } else {
+      const selectedBank = bankList.find((bank) => bank.name === selectedPaymentMethod);
+
+      if (selectedBank) {
+        const ussdCode = selectedBank.ussdTemplate
+          .replace('Amount', amount)
+          .replace('AccountNumber', nairaWallet.virtual_account_number);
+
+        if (ussdCode) {
+          // Dial the USSD code
+          Linking.openURL(`tel:${ussdCode}`);
+          alert(`Dialing USSD code: ${ussdCode}`);
+        }
+      }
+
+      // Navigate to PaymentConfirm or PaymentFailed based on your logic
     }
-  
-    navigation.navigate('TopUpReceipt');
   };
-  
+
+  const handleCardPayment = async (card) => {
+    try {
+      // Implement card payment logic here using the selected card
+      // You may need to use a payment gateway or external library
+      // If successful, navigate to PaymentConfirm
+      navigation.navigate('PaymentConfirm');
+    } catch (error) {
+      console.error('Card payment failed:', error);
+      // If card payment fails, navigate to PaymentFailed
+      navigation.navigate('PaymentFailed');
+    }
+  };
+
+  const renderCardModal = () => {
+    return (
+      <Modalize
+        ref={(ref) => (this.cardModal = ref)}
+        adjustToContentHeight
+        onClosed={() => setCardModalVisible(false)}
+      >
+        <ScrollView>
+          {cards.map((card) => (
+            <TouchableOpacity
+              key={card.id}
+              style={[
+                styles.paymentMethod,
+                selectedPaymentMethod === card.id && styles.selectedPaymentMethod,
+              ]}
+              onPress={() => {
+                setSelectedPaymentMethod(card.id);
+                handleCardPayment(card); 
+                this.cardModal?.close();
+              }}
+            >
+              <Ionicons name="card" size={32} color="#51CC62" />
+              <Text style={styles.paymentMethodText}>{`Card ****${card.masked_pan}`}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Modalize>
+    );
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>Fund Wallet</Text>
+      <ScrollView>
 
-      {/* Amount Input */}
-      <TextInput
-        style={styles.amountInput}
-        placeholder="Enter Amount"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
-      />
+        {/* Amount Input */}
+        <TextInput
+          style={styles.amountInput}
+          placeholder="Enter Amount"
+          keyboardType="numeric"
+          value={amount}
+          onChangeText={(text) => setAmount(text)}
+        />
 
-       {/* Virtual Account Details */}
-       <View style={styles.BalanceContainer}>
-        <Text style={styles.balanceHeaderText}>Virtual Account Details</Text>
-        {nairaWallet && (
-          <>
-            <View style={styles.virtualAccountDetails}>
-              <Text style={styles.virtualAccountLabel}>Account Name:</Text>
-              <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_name}</Text>
-            </View>
-            <View style={styles.virtualAccountDetails}>
-              <Text style={styles.virtualAccountLabel}>Account Number:</Text>
-              <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_number}</Text>
-              <TouchableOpacity onPress={copyAccountNumber}>
-                <Ionicons name="copy" size={20} color="#FFF" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.virtualAccountDetails}>
-              <Text style={styles.virtualAccountLabel}>Bank Name:</Text>
-              <Text style={styles.virtualAccountValue}>{nairaWallet.bank_name}</Text>
-            </View>
-          </>
-        )}
-      </View>
+        {/* Virtual Account Details */}
+        <View style={styles.BalanceContainer}>
+          <Text style={styles.balanceHeaderText}>Virtual Account Details</Text>
+          {nairaWallet && (
+            <>
+              <View style={styles.virtualAccountDetails}>
+                <Text style={styles.virtualAccountLabel}>Account Name:</Text>
+                <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_name}</Text>
+              </View>
+              <View style={styles.virtualAccountDetails}>
+                <Text style={styles.virtualAccountLabel}>Account Number:</Text>
+                <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_number}</Text>
+                <TouchableOpacity onPress={copyAccountNumber}>
+                  <Ionicons name="copy" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.virtualAccountDetails}>
+                <Text style={styles.virtualAccountLabel}>Bank Name:</Text>
+                <Text style={styles.virtualAccountValue}>{nairaWallet.bank_name}</Text>
+              </View>
+            </>
+          )}
+        </View>
 
-      {/* Payment Methods */}
-      <Text style={styles.paymentMethodTitle}>Card Payment</Text>
-      {/* Bank Card */}
-      <TouchableOpacity
-        style={[styles.paymentMethod, selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod]}
-        onPress={() => setSelectedPaymentMethod('Card')}
-      >
-        <Ionicons name="card" size={32} color="#51CC62" />
-        <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
-      </TouchableOpacity>
-
-      {/* Payment Methods */}
-      <Text style={styles.paymentMethodTitle}>Bank Payment</Text>
-
-      {/* Bank List */}
-      {bankList.map((bank) => (
+        {/* Payment Methods */}
+        <Text style={styles.paymentMethodTitle}>Card Payment</Text>
+        {/* Bank Card */}
         <TouchableOpacity
-          key={bank.code}
-          style={[styles.paymentMethod, selectedPaymentMethod === bank.name && styles.selectedPaymentMethod]}
-          onPress={() => setSelectedPaymentMethod(bank.name)}
+          style={[
+            styles.paymentMethod,
+            selectedPaymentMethod === 'Card' && styles.selectedPaymentMethod,
+          ]}
+          onPress={() => {
+            setCardModalVisible(true);
+            this.cardModal?.open();
+          }}
         >
-          <Text style={styles.paymentMethodText}>{bank.name}</Text>
+          <Ionicons name="card" size={32} color="#51CC62" />
+          <Text style={styles.paymentMethodText}>Credit/Debit Card</Text>
         </TouchableOpacity>
-      ))}
+
+        {/* Payment Methods */}
+        <Text style={styles.paymentMethodTitle}>Bank Payment</Text>
+
+        {/* Bank List */}
+        {bankList.map((bank) => (
+          <TouchableOpacity
+            key={bank.code}
+            style={[
+              styles.paymentMethod,
+              selectedPaymentMethod === bank.name && styles.selectedPaymentMethod,
+            ]}
+            onPress={() => setSelectedPaymentMethod(bank.name)}
+          >
+            <Text style={styles.paymentMethodText}>{bank.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       {/* Fund Button */}
       <TouchableOpacity style={styles.fundButton} onPress={handlePayment}>
         <Text style={styles.fundButtonText}>Fund Wallet</Text>
       </TouchableOpacity>
 
-      {/* Back to Wallet Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back to Wallet</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      {renderCardModal()}
+    </View>
   );
 };
 
@@ -246,7 +323,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-    marginTop: 20
+    marginTop: 20,
   },
   paymentMethod: {
     flexDirection: 'row',
@@ -261,7 +338,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 5,
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
   },
   selectedPaymentMethod: {
     borderColor: '#51CC62',
@@ -293,6 +370,12 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#51CC62',
     fontSize: 16,
+  },
+  cardModal: {
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
 });
 

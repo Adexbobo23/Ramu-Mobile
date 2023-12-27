@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const Security = () => {
   const navigation = useNavigation();
@@ -21,6 +22,10 @@ const Security = () => {
   const handlePermissionsSwitch = (value) => {
     // Implement logic to manage app permissions
     console.log('Permissions Switch:', value);
+  };
+
+  const navigateTo = (screen) => {
+    navigation.navigate(screen);
   };
 
   return (
@@ -48,6 +53,29 @@ const Security = () => {
         <Text style={styles.securityOptionDesc}>Set your transaction pin to transact</Text>
       </TouchableOpacity>
       <View style={styles.hrLine} />
+
+      {/* Navigation bar */}
+      <View style={styles.navBar}>
+                <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('Dashboard')}>
+                <Ionicons name="home" size={26} color="white" />
+                <Text style={styles.navBarText}>Home</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('Discover')}>
+                <Ionicons name="search" size={26} color="white" />
+                <Text style={styles.navBarText}>Discover</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('Portfolio')}>
+                <Ionicons name="briefcase" size={26} color="white" />
+                <Text style={styles.navBarText}>Portfolio</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.navBarItem} onPress={() => navigateTo('More')}>
+                <Ionicons name="ellipsis-horizontal" size={26} color="white" />
+                <Text style={styles.navBarText}>More</Text>
+                </TouchableOpacity>
+            </View>
     </View>
   );
 };
@@ -83,6 +111,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#DDD',
     marginVertical: 10,
+  },
+  navBar: {
+    flexDirection: 'row',
+    backgroundColor: '#147603',
+    padding: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 25,
+  },
+  navBarItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  navBarText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 

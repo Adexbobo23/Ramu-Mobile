@@ -37,7 +37,7 @@ const StockInvest = () => {
     }
 
     try {
-      const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+      const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-stocks-market', {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -59,139 +59,160 @@ const StockInvest = () => {
   };
 
   const fetchDollarBalance = async () => {
-    setIsLoadingDollarBalance(true);
-    const userToken = await fetchUserToken();
-    if (!userToken) {
-      // Handle the case where userToken is not available
-      setIsLoadingDollarBalance(false);
-      return;
-    }
-
     try {
+      setIsLoadingDollarBalance(true);
+      const userToken = await fetchUserToken();
+      if (!userToken) {
+        setIsLoadingDollarBalance(false);
+        return null;
+      }
+  
       const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-wallet-details', {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message);
       }
-
+  
       const walletData = await response.json();
       const dollarWallet = walletData.data.find(wallet => wallet.currency_code === 'USD');
-
+  
       if (dollarWallet) {
         setDollarBalance(parseFloat(dollarWallet.balance));
+        return parseFloat(dollarWallet.balance); // Return the balance
       }
     } catch (error) {
       console.error('Error fetching dollar wallet balance:', error.message);
-      // Handle error if needed
+      return null;
     } finally {
       setIsLoadingDollarBalance(false);
     }
   };
-
-  const fetchDollarBalanceForAmount = async () => {
-    setIsLoadingDollarBalance(true);
-    const userToken = await fetchUserToken();
-    if (!userToken) {
-      // Handle the case where userToken is not available
-      setIsLoadingDollarBalance(false);
-      return;
-    }
-
-    try {
-      const enteredAmount = parseFloat(amount);
-
-      if (!isNaN(enteredAmount)) {
-        const response = await fetch(`https://api-staging.ramufinance.com/api/v1/get-wallet-details?amount=${enteredAmount}`, {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message);
-        }
-
-        const walletData = await response.json();
-        const dollarWallet = walletData.data.find(wallet => wallet.currency_code === 'USD');
-
-        if (dollarWallet) {
-          setDollarBalance(parseFloat(dollarWallet.balance));
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching dollar wallet balance for amount:', error.message);
-      // Handle error if needed
-    } finally {
-      setIsLoadingDollarBalance(false);
-    }
-  };
-
+  
+  
   useEffect(() => {
     // Fetch featured stocks on component mount
     fetchFeaturedStocks();
   }, []);
 
   const handleContinue = async () => {
-    // Verify if the amount is less than or equal to the dollar wallet balance
-    if (parseFloat(amount) <= dollarBalance) {
-      try {
-        // Calculate stock price based on selected stock and quantity
-        const selectedStockObject = featuredStocks.find(stock => stock.ticker_id === selectedStock);
-        const calculatedStockPrice = selectedStockObject ? parseFloat(selectedStockObject.last_price) * parseFloat(quantity) : 0;
-
+    try {
+      // Fetch the latest dollar balance and calculate stock price concurrently
+      const [balance, calculatedStockPrice] = await Promise.all([
+        fetchDollarBalance(),
+        calculateStockPrice(),
+      ]);
+  
+      console.log('Dollar Balance:', balance);
+      console.log('Calculated Stock Price:', calculatedStockPrice);
+  
+      if (!isNaN(calculatedStockPrice)) {
         // Verify if the calculated stock price is greater than the dollar wallet balance
-        if (calculatedStockPrice <= dollarBalance) {
-          // Make API call to create order
-          const userToken = await fetchUserToken();
-          if (!userToken) {
-            // Handle the case where userToken is not available
-            return;
+        if (calculatedStockPrice <= parseFloat(balance)) {
+          console.log('Sufficient Funds. Proceeding with the order...');
+  
+          // Create order
+          const success = await createOrder(calculatedStockPrice);
+          if (success) {
+            console.log('Order created successfully.');
+  
+            // Continue with any additional steps or navigation here
+            navigation.navigate('InvConfirm');
+          } else {
+            // Handle order creation failure
+            console.log('Failed to create order.');
+            Alert.alert('Order Creation Failed', 'Failed to create the investment order.');
           }
-
-          const orderPayload = {
-            trade_price: calculatedStockPrice.toString(),
-            quantity: quantity,
-            symbol: selectedStockObject.ticker_id,
-            exchange: selectedStockObject.exchange,
-            order_side: "1", // Assuming "1" is for buying, update if needed
-          };
-
-          const response = await fetch('https://api-staging.ramufinance.com/api/v1/create-order', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${userToken}`,
-            },
-            body: JSON.stringify(orderPayload),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message);
-          }
-
-          // Order created successfully
-          // ... (You can handle success response as needed)
         } else {
-          // User does not have sufficient funds for the calculated stock price
+          // Insufficient funds
+          console.log('Insufficient Funds. Calculated:', calculatedStockPrice, 'Balance:', balance);
           Alert.alert('Insufficient Funds', 'You do not have sufficient funds for this investment.');
         }
-      } catch (error) {
-        console.error('Error:', error.message);
+      } else {
+        // Handle the case where the calculated stock price is NaN
+        console.log('Error calculating stock price. Calculated:', calculatedStockPrice);
       }
-    } else {
-      // User entered an amount greater than the dollar wallet balance
-      Alert.alert('Insufficient Funds', 'You do not have sufficient funds in your Dollar Wallet.');
+    } catch (error) {
+      console.error('Error:', error.message);
     }
   };
+  
+  
+// Helper function to calculate stock price
+const calculateStockPrice = async () => {
+  try {
+    const selectedStockObject = featuredStocks.find(stock => stock.ticker_id === selectedStock);
 
-  const handleQuantityChange = (quantityValue) => {
+    if (!selectedStockObject) {
+      console.log('Selected stock not found.');
+      return 0;
+    }
+
+    const lastPrice = parseFloat(selectedStockObject.last_price);
+    const parsedQuantity = parseFloat(quantity);
+
+    if (isNaN(lastPrice) || isNaN(parsedQuantity)) {
+      console.log('Error: Invalid last price or quantity');
+      return 0;
+    }
+
+    const calculatedStockPrice = lastPrice * parsedQuantity;
+    console.log('Calculated Stock Price:', calculatedStockPrice);
+    return calculatedStockPrice;
+  } catch (error) {
+    console.error('Error calculating stock price:', error.message);
+    return 0;
+  }
+};
+
+// Function to create an order
+const createOrder = async (calculatedStockPrice) => {
+  try {
+    const userToken = await fetchUserToken();
+    if (!userToken) {
+      return false;
+    }
+
+    const orderPayload = {
+      trade_price: calculatedStockPrice.toFixed(4), 
+      quantity: quantity,
+      symbol: selectedStock,
+      exchange: 'NSDQ',
+      order_side: '1',
+      stock_market_id: 1
+    };
+
+    const response = await fetch('https://api-staging.ramufinance.com/api/v1/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: JSON.stringify(orderPayload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error creating order:', errorData.message);
+      return false;
+    }
+
+    const orderData = await response.json();
+    console.log('Order creation response:', orderData);
+
+    return orderData.status === true;
+  } catch (error) {
+    console.error('Error creating order:', error.message);
+    return false;
+  }
+};
+
+
+const handleQuantityChange = (quantityValue) => {
     setQuantity(quantityValue);
     const selectedStockObject = featuredStocks.find(stock => stock.ticker_id === selectedStock);
     
@@ -200,7 +221,7 @@ const StockInvest = () => {
   
       if (!isNaN(calculatedStockPrice)) {
         setStockPrice(calculatedStockPrice.toFixed(2));
-        setTotalAmount(calculatedStockPrice.toFixed(2));  // Update total amount
+        setTotalAmount(calculatedStockPrice.toFixed(2));
       } else {
         setStockPrice('');
         setTotalAmount('');

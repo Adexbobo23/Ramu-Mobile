@@ -2,6 +2,7 @@
   "expo": {
     "name": "ramu-mobile-app",
     "slug": "ramu-mobile-app",
+    "description": "Ramu finance stock trading app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +22,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.adexbobo23.ramumobileapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b4582ad4-0295-491d-b32b-46770ca5a699"
+      }
     }
   }
 }

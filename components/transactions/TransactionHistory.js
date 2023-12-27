@@ -1,15 +1,95 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const TransactionItem = ({ transaction, onPress }) => (
+  <TouchableOpacity
+    style={styles.transactionItem}
+    onPress={() => onPress(transaction.wallet_address)}
+  >
+    <View style={styles.textContainer}>
+      <Text style={styles.transactionName}>{transaction.currency_code}</Text>
+      <Text style={styles.transactionDescription}>
+        Balance: {transaction.balance}
+      </Text>
+    </View>
+    <Text style={styles.transactionAmount}>{`$${transaction.balance}`}</Text>
+  </TouchableOpacity>
+);
+
+const TransactionDetails = ({ transactionDetails, onCloseDetails }) => (
+  <View style={styles.detailsContainer}>
+    <Text style={styles.detailsTitle}>Transaction Details</Text>
+    {transactionDetails &&
+      transactionDetails.map((detail) => (
+        <View key={detail.id} style={styles.transactionDetailContainer}>
+          <Text style={styles.transactionDetailText}>
+            Transaction Type: {detail.txn_type}
+          </Text>
+          <Text style={styles.transactionDetailText}>
+            Amount: ${detail.amount}
+          </Text>
+          <Text style={styles.transactionDetailText}>
+            Transaction Reference: {detail.transaction_reference}
+          </Text>
+          {/* Add more details as needed */}
+        </View>
+      ))}
+    <TouchableOpacity style={styles.closeButton} onPress={onCloseDetails}>
+      <Text style={styles.buttonText}>Close Details</Text>
+    </TouchableOpacity>
+  </View>
+);
 
 const TransactionHistory = () => {
+  const [transactions, setTransactions] = useState([]);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [transactionDetails, setTransactionDetails] = useState(null);
 
-  const handleTransactionSelect = (index) => {
-    setSelectedTransaction(index);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        const walletApiUrl =
+          'https://api-staging.ramufinance.com/api/v1/get-wallet-details';
+        const response = await axios.get(walletApiUrl, {
+          headers: { Authorization: `Bearer ${userToken}` },
+        });
+
+        setTransactions(response.data.data);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  const handleTransactionSelect = async (walletAddress) => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const walletTransactionsApiUrl = `https://api-staging.ramufinance.com/api/v1/get-wallet-transactions/${walletAddress}`;
+      const response = await axios.get(walletTransactionsApiUrl, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+
+      setTransactionDetails(response.data.data);
+      setSelectedTransaction(walletAddress);
+    } catch (error) {
+      console.error('Error fetching wallet transactions:', error);
+    }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseDetails = () => {
     setSelectedTransaction(null);
+    setTransactionDetails(null);
   };
 
   return (
@@ -19,44 +99,21 @@ const TransactionHistory = () => {
       </View>
 
       <View style={styles.transactionList}>
-        {[...Array(10)].map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.transactionItem}
-            onPress={() => handleTransactionSelect(index)}
-          >
-            <Image source={require('../Assests/apple.png')} style={styles.circleImage} />
-            <View style={styles.textContainer}>
-              <Text style={styles.transactionName}>Transaction {index + 1}</Text>
-              <Text style={styles.transactionDescription}>Description of the transaction</Text>
-            </View>
-            <Text style={styles.transactionAmount}>$150.09</Text>
-          </TouchableOpacity>
+        {transactions.map((transaction) => (
+          <TransactionItem
+            key={transaction.id}
+            transaction={transaction}
+            onPress={handleTransactionSelect}
+          />
         ))}
       </View>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={selectedTransaction !== null}
-        onRequestClose={handleCloseModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {/* Display detailed information for the selected transaction */}
-            <Text style={styles.modalTitle}>Transaction Details</Text>
-            <Text style={styles.transactionDetailText}>{`Transaction Name: Transaction ${selectedTransaction + 1}`}</Text>
-            <Text style={styles.transactionDetailText}>Description of the transaction</Text>
-            <Text style={styles.transactionDetailText}>{`Amount: $150.09`}</Text>
-            {/* Add more details as needed */}
-
-            {/* Close button */}
-            <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      {selectedTransaction && (
+        <TransactionDetails
+          transactionDetails={transactionDetails}
+          onCloseDetails={handleCloseDetails}
+        />
+      )}
     </ScrollView>
   );
 };
@@ -98,13 +155,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  
-  circleImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-  },
   textContainer: {
     flex: 1,
   },
@@ -121,27 +171,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
+  detailsContainer: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
+    padding: 16,
+    margin: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
   },
-  modalTitle: {
+  detailsTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
     color: '#51CC62',
   },
+  transactionDetailContainer: {
+    marginBottom: 8,
+  },
   transactionDetailText: {
     fontSize: 16,
-    marginBottom: 8,
   },
   closeButton: {
     backgroundColor: '#51CC62',

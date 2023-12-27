@@ -214,7 +214,7 @@ const Dashboard = () => {
   };
 
   const handleSellButton = () => {
-    navigation.navigate('Sell');
+    navigation.navigate('Portfolio');
     console.log('Sell button clicked');
   };
 
@@ -267,7 +267,6 @@ const handleInvest = () => {
 const handleSell = () => {
   // Logic for handling selling
   console.log('Sell button pressed');
-  // Add your logic here
 };
 
 

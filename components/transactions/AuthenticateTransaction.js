@@ -17,7 +17,7 @@ const AuthenticateTransaction = () => {
   };
 
   const handleCancel = () => {
-    navigation.navigate('Sell');
+    navigation.navigate('Dashboard');
     console.log('Transaction authentication cancelled');
   };
 

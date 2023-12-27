@@ -1,33 +1,55 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ContactForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSendMessage = () => {
-    // You can implement your logic for sending the message here
-    if (!name || !email || !message) {
-      Alert.alert('Error', 'Please fill in all fields.');
-      return;
+  const handleSendMessage = async () => {
+    try {
+      // Fetch user token from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+
+      if (!name || !email || !message) {
+        Alert.alert('Error', 'Please fill in all fields.');
+        return;
+      }
+
+      // Make the API call with authentication headers
+      const response = await axios.post(
+        'https://api-staging.ramufinance.com/api/v1/contact-us',
+        {
+          name,
+          email,
+          message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      // Clear form fields after successful submission
+      setName('');
+      setEmail('');
+      setMessage('');
+
+      // Display a success message to the user
+      Alert.alert('Success', 'Message sent successfully!');
+
+      // Redirect to the dashboard (you should replace 'Dashboard' with your actual dashboard route)
+      // navigation.navigate('Dashboard');
+    } catch (error) {
+      console.error('Error sending message:', error);
+
+      // Handle errors and display an appropriate message to the user
+      Alert.alert('Error', 'Failed to send message. Please try again.');
     }
-
-    // Example: Log the message details
-    console.log('Name:', name);
-    console.log('Email:', email);
-    console.log('Message:', message);
-
-    // Clear form fields after submitting
-    setName('');
-    setEmail('');
-    setMessage('');
-
-    // Display a success message to the user
-    Alert.alert('Success', 'Message sent successfully!');
   };
-
 
   return (
     <View style={styles.container}>

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Alert, ScrollView, ActivityIndicator  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
-import { MaterialIcons } from '@expo/vector-icons'; 
-import { WebView } from 'react-native-webview';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const Wallet = () => {
   const navigation = useNavigation();
@@ -15,14 +14,14 @@ const Wallet = () => {
   const [walletDetails, setWalletDetails] = useState(null);
   const switchAccountModalRef = useRef(null);
   const [balanceVisible, setBalanceVisible] = useState(true);
-  const [cardDetails, setCardDetails] = useState(null);
-  const [webViewUrl, setWebViewUrl] = useState(null);
-  const [isWebViewModalOpen, setWebViewModalOpen] = useState(false);
+  const [cardDetails, setCardDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchCard = async () => {
-      const cardDetails = await fetchCardDetails();
-      setCardDetails(cardDetails);
+      const cards = await fetchCardDetails();
+      setCardDetails(cards);
     };
 
     fetchCard();
@@ -51,21 +50,46 @@ const Wallet = () => {
 
       const { checkoutUrl } = response.data.data;
 
-      // Open the WebView modal with the checkout URL
-      setWebViewUrl(checkoutUrl);
-      setWebViewModalOpen(true);
+      // Open the checkout URL in the user's browser
+      Linking.openURL(checkoutUrl);
     } catch (error) {
       console.error('Error adding card:', error);
       Alert.alert('Error', 'Failed to add a new card.');
     }
   };
 
-  const handleCloseWebViewModal = () => {
-    setWebViewModalOpen(false);
-  };
+  const handleFundWallet = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
 
-  const handleFundWallet = () => {
-    navigation.navigate('FundWallet');
+      // Check if virtual account number exists
+      if (walletDetails?.[selectedAccount]?.virtual_account_number) {
+        // Virtual account number exists, navigate to 'FundWallet'
+        navigation.navigate('FundWallet');
+      } else {
+        // Virtual account number does not exist, call the API to create a virtual account
+        const response = await axios.post(
+          'https://api-staging.ramufinance.com/api/v1/set-up-virtual-account',
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+
+        if (response.data.status) {
+          // Virtual account created successfully, navigate to 'FundWallet'
+          navigation.navigate('FundWallet');
+        } else {
+          // Virtual account creation failed, show an alert or handle accordingly
+          Alert.alert('Error', response.data.message);
+        }
+      }
+    } catch (error) {
+      console.error('Error funding wallet:', error);
+      Alert.alert('Error', 'Failed to fund your wallet.');
+    }
   };
 
   const fetchWalletDetails = async () => {
@@ -88,37 +112,17 @@ const Wallet = () => {
         naira: nairaDetails,
         dollar: dollarDetails,
       });
+  
+      // Set isLoading to false once details are fetched
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching wallet details:', error);
       Alert.alert('Error', 'Failed to fetch wallet details.');
+      // Set isLoading to false in case of an error
+      setIsLoading(false);
     }
   };
-
-  const renderSwitchAccountButton = () => (
-    <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
-      <View style={styles.switchAccountContainer}>
-        {selectedAccount === 'naira' ? (
-          <Image source={require('../Assests/nigeria.png')} style={styles.countryLogo} />
-        ) : (
-          <Image source={require('../Assests/usa.png')} style={styles.countryLogo} />
-        )}
-        <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
-      </View>
-    </TouchableOpacity>
-  );
-
-  const handleAccountSelection = (accountType) => {
-    if (accountType === selectedAccount) {
-      // If the clicked account is already selected, close the modal
-      switchAccountModalRef.current?.close();
-    } else {
-      // If a different account is selected, update the state and perform any other actions
-      setSelectedAccount(accountType);
-      // Fetch wallet details for the selected account
-      fetchWalletDetails();
-    }
-  };
-
+  
 
   const fetchCardDetails = async () => {
     try {
@@ -133,22 +137,16 @@ const Wallet = () => {
 
       const cardData = response.data.data;
 
-      // Assuming you have only one card for simplicity
-      const cardDetails = cardData.length > 0 ? cardData[0] : null;
-
-      return cardDetails;
+      return cardData;
     } catch (error) {
       console.error('Error fetching card details:', error);
-      return null;
+      return [];
     }
   };
 
-
-  
   const toggleBalanceVisibility = () => {
     setBalanceVisible(!balanceVisible);
   };
-  
 
   const navigateToMore = () => {
     navigation.navigate('More');
@@ -166,26 +164,55 @@ const Wallet = () => {
     navigation.navigate('Discover');
   };
 
+  const renderSwitchAccountButton = () => {
+    return (
+      <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()}>
+      <View style={styles.switchAccountContainer}>
+        {selectedAccount === 'naira' ? (
+          <Image source={require('../Assests/nigeria.png')} style={styles.countrylogo} />
+        ) : (
+          <Image source={require('../Assests/usa.png')} style={styles.countrylogo} />
+        )}
+        <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+      </View>
+    </TouchableOpacity>
+    );
+  };
+
+  const handleAccountSelection = (accountType) => {
+    if (accountType === selectedAccount) {
+      // If the clicked account is already selected, close the modal
+      switchAccountModalRef.current?.close();
+    } else {
+      // If a different account is selected, update the state and perform any other actions
+      setSelectedAccount(accountType);
+      // ... Additional logic if needed
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Wallet</Text>
 
       <View style={styles.balanceContainer}>
-          <View style={styles.balanceHeader}>
-            <Text style={styles.balanceHeaderText}>Account Balance</Text>
-            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
-              {balanceVisible ? (
-                <Ionicons name="eye-off" size={24} color="black" />
-              ) : (
-                <Ionicons name="eye" size={24} color="black" />
-              )}
-            </TouchableOpacity>
-          </View>
-          <View style={styles.balanceContent}>
-            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.balanceContentWrapper}>
-              {renderSwitchAccountButton()}
+        <View style={styles.balanceHeader}>
+          <Text style={styles.balanceHeaderText}>Account Balance</Text>
+          <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+            {balanceVisible ? (
+              <Ionicons name="eye-off" size={24} color="black" />
+            ) : (
+              <Ionicons name="eye" size={24} color="black" />
+            )}
+          </TouchableOpacity>
+        </View>
+        <View style={styles.balanceContent}>
+          <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.balanceContentWrapper}>
+            {renderSwitchAccountButton()}
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#51CC62" />
+            ) : (
               <Text style={styles.balanceText}>
-               {balanceVisible ? (
+                {balanceVisible ? (
                   selectedAccount === 'naira' ? (
                     `₦${walletDetails?.naira?.balance}`
                   ) : (
@@ -195,27 +222,12 @@ const Wallet = () => {
                   '*******'
                 )}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.fundButton} onPress={handleFundWallet}>
-              <Text style={styles.fundButtonText}>Fund Your Wallet</Text>
-            </TouchableOpacity>
-          </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.fundButton} onPress={handleFundWallet}>
+            <Text style={styles.fundButtonText}>Fund Your Wallet</Text>
+          </TouchableOpacity>
         </View>
-
-
-      {/* Bank Card Section */}
-      <Text style={styles.bankCardTitle}>Bank Card</Text>
-      <View style={styles.cardContainer}>
-        {/* Replace the logo and card details with your actual data */}
-        <Ionicons name="card" size={48} color="#51CC62" />
-        <View style={styles.cardDetails}>
-          <Text style={styles.cardName}>{cardDetails?.masked_pan}</Text>
-          {/* Replace other details accordingly */}
-          <Text style={styles.cardNumber}>{`**** **** **** ${cardDetails?.id}`}</Text>
-        </View>
-        <TouchableOpacity>
-          <Ionicons name="trash" size={24} color="red" />
-        </TouchableOpacity>
       </View>
 
        {/* Add New Card Button */}
@@ -224,15 +236,27 @@ const Wallet = () => {
         <Text style={styles.addCardText}>Add New Card</Text>
       </TouchableOpacity>
 
-      {/* Switch Account Button */}
-      {/* <TouchableOpacity onPress={() => switchAccountModalRef.current?.open()} style={styles.switchAccountButton}>
-        <Image source={selectedAccount === 'naira' ? require('./Assests/nigeria.png') : require('./Assests/usa.png')} style={styles.countryLogo} />
-        <Text style={styles.switchAccountText}>
-          Switch to {selectedAccount === 'naira' ? 'Dollar Account' : 'Naira Account'}
-        </Text>
-      </TouchableOpacity> */}
+      {/* Bank Card Section */}
+      <Text style={styles.bankCardTitle}>Bank Card</Text>
+      <ScrollView>
+        {cardDetails.map((card) => (
+          <View key={card.id} style={styles.cardContainer}>
+            {/* Replace the logo and card details with your actual data */}
+            <Ionicons name="card" size={48} color="#51CC62" />
+            <View style={styles.cardDetails}>
+              <Text style={styles.cardName}>{card.bank_name}</Text>
+              <Text style={styles.cardName}>{card.masked_pan}</Text>
+              {/* Replace other details accordingly */}
+              {/* <Text style={styles.cardNumber}>{`**** **** **** ${card.id}`}</Text> */}
+            </View>
+            <TouchableOpacity>
+              <Ionicons name="trash" size={24} color="red" />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
 
-      {/* Modalize for switching account */}
+      {/* Switch Account Button */}
       <Modalize ref={switchAccountModalRef} adjustToContentHeight>
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
@@ -246,19 +270,6 @@ const Wallet = () => {
           </TouchableOpacity>
         </View>
       </Modalize>
-
-      {/* WebView Modal */}
-      {/* <Modalize
-        ref={switchAccountModalRef}
-        modalStyle={styles.modalContainer}
-        alwaysOpen={500}
-        handlePosition="inside"
-        onClosed={handleCloseWebViewModal}
-      >
-        <View style={styles.webViewContainer}>
-          {webViewUrl && <WebView source={{ uri: webViewUrl }} />}
-        </View>
-      </Modalize> */}
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
@@ -399,10 +410,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.5)',
     padding: 15,
     borderRadius: 10,
+    marginBottom: 20, 
   },
   addCardText: {
     fontSize: 16,
     marginLeft: 10,
+  },
+  countrylogo: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
   },
   countryLogo: {
     width: 24,

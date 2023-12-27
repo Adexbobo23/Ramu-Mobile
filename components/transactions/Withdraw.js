@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
 import axios from 'axios';
@@ -15,42 +15,17 @@ const Withdraw = () => {
   const [selectedAccount, setSelectedAccount] = useState('naira');
   const [userToken, setUserToken] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleWithdraw = () => {
-    if (!withdrawAmount) {
-      alert('Please enter the withdrawal amount');
-      return;
-    }
-
-    // Proceed to withdrawal confirmation (WithdrawOtp screen)
-    navigation.navigate('AuthTrans', { withdrawAmount });
-    console.log(`Withdraw amount: ${withdrawAmount}`);
-  };
+  const [transactionPin, setTransactionPin] = useState('');
+  const [narration, setNarration] = useState('');
 
   useEffect(() => {
-    // Fetch wallet details initially
     fetchWalletDetails(selectedAccount);
   }, [selectedAccount]);
 
-  useEffect(() => {
-    // Fetch user token from AsyncStorage
-    const fetchUserToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        if (token) {
-          setUserToken(token);
-        }
-      } catch (error) {
-        console.error('Error fetching user token:', error.message);
-      }
-    };
-
-    fetchUserToken();
-  }, []);
 
   const fetchWalletDetails = async () => {
     try {
-      setIsLoading(true);
+      setIsLoading(true); 
 
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await axios.get(
@@ -71,11 +46,11 @@ const Withdraw = () => {
         dollar: dollarDetails,
       });
 
-      setIsLoading(false);
+      setIsLoading(false); 
     } catch (error) {
-      setIsLoading(false);
+      setIsLoading(false); 
       console.error('Error fetching wallet details:', error);
-      // Handle error appropriately, e.g., show an error message to the user
+      Alert.alert('Error', 'Failed to fetch wallet details.');
     }
   };
 
@@ -97,25 +72,90 @@ const Withdraw = () => {
   );
 
   const handleSwitchAccount = () => {
-    // Open the modal for switching accounts
     switchAccountModalRef.current?.open();
   };
 
   const handleAccountSelection = (accountType) => {
     if (accountType === selectedAccount) {
-      // If the clicked account is already selected, close the modal
       switchAccountModalRef.current?.close();
     } else {
-      // If a different account is selected, update the state and perform any other actions
       setSelectedAccount(accountType);
-      // ... Additional logic if needed
     }
   };
 
+
+  const handleWithdraw = async () => {
+    if (!withdrawAmount || !transactionPin || !narration) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+  
+    try {
+      setIsLoading(true);
+  
+      const userToken = await AsyncStorage.getItem('userToken');
+  
+      const withdrawData = {
+        amount: parseFloat(withdrawAmount),
+        wallet_address: walletDetails?.naira?.wallet_address,
+        transaction_pin: parseInt(transactionPin),
+        narration,
+      };
+  
+      const response = await axios.post(
+        'https://api-staging.ramufinance.com/api/v1/withdraw-to-bank',
+        withdrawData,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+  
+      if (response.status === 200 && response.data.status) {
+        navigation.navigate('PaymentConfirm');
+      } else {
+        console.error('Withdrawal failed - Response:', response);
+        if (response.data && response.data.message) {
+          Alert.alert('Error', `Failed to withdraw. Reason: ${response.data.message}`);
+        } else {
+          Alert.alert('Error', 'Failed to withdraw. Please try again later.');
+        }
+      }
+    } catch (error) {
+      console.error('Error withdrawing:', error);
+    
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+    
+        if (error.response.data && error.response.data.message) {
+          Alert.alert('Error', `Failed to withdraw. Reason: ${error.response.data.message}`);
+        } else {
+          Alert.alert('Error', `Failed to withdraw. Server error: ${error.response.status}`);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+        Alert.alert('Error', 'Failed to withdraw. No response received from the server.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error message:', error.message);
+        Alert.alert('Error', 'Failed to withdraw. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }    
+  };
+  
+  
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-      <Text style={styles.Title}>Withdraw</Text>
+        <Text style={styles.Title}>Withdraw</Text>
         <View style={styles.topBar}>
           <Text style={styles.accountBalance}>Account Balance</Text>
           <View style={styles.balanceContainer}>
@@ -155,6 +195,23 @@ const Withdraw = () => {
           onChangeText={(text) => setWithdrawAmount(text)}
         />
 
+        <TextInput
+          style={styles.input}
+          placeholder="Enter 4-digit transaction PIN"
+          keyboardType="numeric"
+          secureTextEntry
+          maxLength={4}
+          value={transactionPin}
+          onChangeText={(text) => setTransactionPin(text)}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Enter narration"
+          value={narration}
+          onChangeText={(text) => setNarration(text)}
+        />
+
         <Text style={styles.transactionLimits}>
           1. Minimum per transaction: N1000.00{'\n'}
           2. Maximum per transaction: N1000000.00
@@ -165,7 +222,6 @@ const Withdraw = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Modalize for switching account */}
       <Modalize ref={switchAccountModalRef} adjustToContentHeight>
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
@@ -182,6 +238,7 @@ const Withdraw = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -288,7 +345,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 52,
     width: '100%',
-    marginTop: 150,
+    marginTop: 40,
   },
   buttonText: {
     color: 'white',
