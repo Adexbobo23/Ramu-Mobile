@@ -8,6 +8,7 @@ import {
   ScrollView,
   Linking,
   Clipboard,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -23,6 +24,26 @@ const FundWallets = () => {
   const [nairaWallet, setNairaWallet] = useState(null);
   const [cards, setCards] = useState([]);
   const [cardModalVisible, setCardModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true); // Set loading to true
+
+      await fetchWalletDetails();
+      await fetchBankList();
+      await fetchCards();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     fetchWalletDetails();
@@ -181,6 +202,40 @@ const FundWallets = () => {
     );
   };
 
+
+  const renderVirtualAccountDetails = () => {
+    if (isLoading) {
+      return (
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      );
+    }
+
+    if (nairaWallet) {
+      return (
+        <>
+          <View style={styles.virtualAccountDetails}>
+            <Text style={styles.virtualAccountLabel}>Account Name:</Text>
+            <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_name}</Text>
+          </View>
+          <View style={styles.virtualAccountDetails}>
+            <Text style={styles.virtualAccountLabel}>Account Number:</Text>
+            <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_number}</Text>
+            <TouchableOpacity onPress={copyAccountNumber}>
+              <Ionicons name="copy" size={20} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.virtualAccountDetails}>
+            <Text style={styles.virtualAccountLabel}>Bank Name:</Text>
+            <Text style={styles.virtualAccountValue}>{nairaWallet.bank_name}</Text>
+          </View>
+        </>
+      );
+    }
+
+    return null;
+  };
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fund Wallet</Text>
@@ -198,25 +253,7 @@ const FundWallets = () => {
         {/* Virtual Account Details */}
         <View style={styles.BalanceContainer}>
           <Text style={styles.balanceHeaderText}>Virtual Account Details</Text>
-          {nairaWallet && (
-            <>
-              <View style={styles.virtualAccountDetails}>
-                <Text style={styles.virtualAccountLabel}>Account Name:</Text>
-                <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_name}</Text>
-              </View>
-              <View style={styles.virtualAccountDetails}>
-                <Text style={styles.virtualAccountLabel}>Account Number:</Text>
-                <Text style={styles.virtualAccountValue}>{nairaWallet.virtual_account_number}</Text>
-                <TouchableOpacity onPress={copyAccountNumber}>
-                  <Ionicons name="copy" size={20} color="#FFF" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.virtualAccountDetails}>
-                <Text style={styles.virtualAccountLabel}>Bank Name:</Text>
-                <Text style={styles.virtualAccountValue}>{nairaWallet.bank_name}</Text>
-              </View>
-            </>
-          )}
+          {renderVirtualAccountDetails()}
         </View>
 
         {/* Payment Methods */}

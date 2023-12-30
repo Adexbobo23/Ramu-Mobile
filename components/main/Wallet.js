@@ -190,6 +190,33 @@ const Wallet = () => {
     }
   };
 
+  const deleteCard = async (cardId) => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const apiUrl = `https://api-staging.ramufinance.com/api/v1/delete-card/${cardId}`;
+
+      const response = await axios.delete(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.data.status) {
+        // Card deleted successfully
+        Alert.alert('Success', 'Selected card deleted successfully');
+        // Refresh the card details after deletion
+        const updatedCards = await fetchCardDetails();
+        setCardDetails(updatedCards);
+      } else {
+        // Handle deletion failure
+        Alert.alert('Error', 'Failed to delete the card. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting card:', error);
+      Alert.alert('Error', 'Failed to delete the card. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Wallet</Text>
@@ -240,20 +267,20 @@ const Wallet = () => {
       <Text style={styles.bankCardTitle}>Bank Card</Text>
       <ScrollView>
         {cardDetails.map((card) => (
-          <View key={card.id} style={styles.cardContainer}>
-            {/* Replace the logo and card details with your actual data */}
-            <Ionicons name="card" size={48} color="#51CC62" />
-            <View style={styles.cardDetails}>
-              <Text style={styles.cardName}>{card.bank_name}</Text>
-              <Text style={styles.cardName}>{card.masked_pan}</Text>
-              {/* Replace other details accordingly */}
-              {/* <Text style={styles.cardNumber}>{`**** **** **** ${card.id}`}</Text> */}
+            <View key={card.id} style={styles.cardContainer}>
+              {/* Replace the logo and card details with your actual data */}
+              <Ionicons name="card" size={48} color="#51CC62" />
+              <View style={styles.cardDetails}>
+                <Text style={styles.cardName}>{card.bank_name}</Text>
+                <Text style={styles.cardName}>{card.masked_pan}</Text>
+                {/* Replace other details accordingly */}
+                {/* <Text style={styles.cardNumber}>{`**** **** **** ${card.id}`}</Text> */}
+              </View>
+              <TouchableOpacity onPress={() => deleteCard(card.id)}>
+                <Ionicons name="trash" size={24} color="red" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity>
-              <Ionicons name="trash" size={24} color="red" />
-            </TouchableOpacity>
-          </View>
-        ))}
+          ))}
       </ScrollView>
 
       {/* Switch Account Button */}

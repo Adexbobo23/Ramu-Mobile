@@ -14,6 +14,33 @@ const Discover = () => {
     const [selectedPopularStock, setSelectedPopularStock] = useState(null);
     const modalRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sectors, setSectors] = useState([]);
+
+
+    useEffect(() => {
+      // Fetch sectors data when the component mounts and user token is available
+      const fetchSectors = async () => {
+        try {
+          const response = await axios.get('https://api-staging.ramufinance.com/api/v1/get-sectors', {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          });
+
+          if (response.data.status) {
+            setSectors(response.data.data);
+          } else {
+            console.error('Error fetching sectors data:', response.data.message);
+          }
+        } catch (error) {
+          console.error('Error fetching sectors data:', error.message);
+        }
+      };
+
+      if (userToken) {
+        fetchSectors();
+      }
+    }, [userToken]);
 
 
     const handleStockSelect = (stock) => {
@@ -116,6 +143,13 @@ const Discover = () => {
     );
 
 
+    const handleSectorSelect = (sector) => {
+      // Add your logic for handling sector selection
+      console.log('Selected sector:', sector);
+      // Add more actions as needed
+    };
+
+
   return (
     <>
     <ScrollView style={styles.container}>
@@ -162,26 +196,31 @@ const Discover = () => {
       </View>
 
 
-      {/* Stocks Section */}
+      {/* Sectors Section */}
       <View style={styles.stocksSection}>
-      <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Sectors</Text>
-            <TouchableOpacity onPress={handleSeeAll}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Sectors</Text>
+          <TouchableOpacity onPress={handleSeeAll}>
             <Text style={styles.seeAll} onPress={() => navigateTo('Sectors')}>See All</Text>
-            </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
-        {/* Horizontal Scroll for Stocks List */}
+        {/* Horizontal Scroll for Sectors List */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-          {/* Sample Stock Item (repeat this for each stock) */}
-          <View style={styles.stockItem}>
-            <Image source={{ uri: 'https://cdn.sanity.io/images/kts928pd/production/acf71dc493554cc492578b8b5b8beb4ee20e8873-731x731.png' }} style={styles.stockImage3} />
-            <Text style={styles.stockName}>Stock Name</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Repeat... */}
+          {sectors.map((sector) => (
+            <TouchableOpacity
+              key={sector.id}
+              style={styles.stockItem}
+              onPress={() => handleSectorSelect(sector)}
+            >
+              {/* Use an appropriate image for the sector */}
+              <Image source={require('../Assests/sector.jpg')} style={styles.stockImage3} />
+              <Text style={styles.stockName}>{sector.name}</Text>
+              {/* You can customize the sector description as needed */}
+              <Text style={styles.stockDescription}>{sector.description || 'No description available'}</Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
-        
       </View>
 
       {/* Stocks Section */}

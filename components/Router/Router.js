@@ -56,6 +56,7 @@ import ContactForm from '../main/Contact';
 import Notification from '../main/Notifications';
 import InvestmentConfirm from '../Stock/InvestmentSuccessfull';
 import SellConfirm from '../Stock/SellSuccesfull';
+import ConvertFunds from '../transactions/Convertfunds';
 
 const Stack = createStackNavigator();
 
@@ -338,6 +339,11 @@ const Router = () => {
         <Stack.Screen
         name="SellConfirm"
         component={SellConfirm}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="ConvertFund"
+        component={ConvertFunds}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

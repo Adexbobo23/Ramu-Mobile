@@ -11,7 +11,7 @@ const FirstOpenPage = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../Assests/vector.png')} style={styles.logo} />
+      <Image source={require('../Assests/onboard.jpg')} style={styles.logo} />
       <View style={styles.contentContainer}>
         <Text style={styles.welcomeText}>Welcome to Ramu</Text>
         <Text style={styles.subText}>
@@ -30,12 +30,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: '#51CC62',
+    backgroundColor: '#FFF',
   },
   contentContainer: {
     borderTopRightRadius: 50,
     borderTopLeftRadius: 50,
-    backgroundColor: 'white',
+    backgroundColor: '#51CC62',
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -55,14 +55,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 35,
     fontWeight: 'bold',
-    color: '#51CC62',
+    color: '#FFF',
     marginBottom: 10,
     fontFamily: 'Roboto',
     marginTop: 20,
   },
   subText: {
     fontSize: 15,
-    color: 'black',
+    color: 'white',
     marginBottom: 10,
     fontFamily: 'sans-serif',
     textAlign: 'center',
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#51CC62',
+    backgroundColor: '#FFF',
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 20,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 27,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#51CC62',
     textAlign: 'center',
   },
 });

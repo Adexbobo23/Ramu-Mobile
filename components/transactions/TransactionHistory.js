@@ -25,27 +25,29 @@ const TransactionItem = ({ transaction, onPress }) => (
 );
 
 const TransactionDetails = ({ transactionDetails, onCloseDetails }) => (
-  <View style={styles.detailsContainer}>
-    <Text style={styles.detailsTitle}>Transaction Details</Text>
-    {transactionDetails &&
-      transactionDetails.map((detail) => (
-        <View key={detail.id} style={styles.transactionDetailContainer}>
-          <Text style={styles.transactionDetailText}>
-            Transaction Type: {detail.txn_type}
-          </Text>
-          <Text style={styles.transactionDetailText}>
-            Amount: ${detail.amount}
-          </Text>
-          <Text style={styles.transactionDetailText}>
-            Transaction Reference: {detail.transaction_reference}
-          </Text>
-          {/* Add more details as needed */}
-        </View>
-      ))}
-    <TouchableOpacity style={styles.closeButton} onPress={onCloseDetails}>
-      <Text style={styles.buttonText}>Close Details</Text>
-    </TouchableOpacity>
-  </View>
+  <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <View style={styles.detailsContainer}>
+      <Text style={styles.detailsTitle}>Transaction Details</Text>
+      {transactionDetails &&
+        transactionDetails.map((detail) => (
+          <View key={detail.id} style={styles.transactionDetailContainer}>
+            <Text style={styles.transactionDetailText}>
+              Transaction Type: {detail.txn_type}
+            </Text>
+            <Text style={styles.transactionDetailText}>
+              Amount: ${detail.amount}
+            </Text>
+            <Text style={styles.transactionDetailText}>
+              Transaction Reference: {detail.transaction_reference}
+            </Text>
+            {/* Add more details as needed */}
+          </View>
+        ))}
+      <TouchableOpacity style={styles.closeButton} onPress={onCloseDetails}>
+        <Text style={styles.buttonText}>Close Details</Text>
+      </TouchableOpacity>
+    </View>
+  </ScrollView>
 );
 
 const TransactionHistory = () => {
@@ -98,6 +100,7 @@ const TransactionHistory = () => {
         <Text style={styles.headerText}>Transaction History</Text>
       </View>
 
+      <Text style={styles.headerText1}>Select wallet to view transactions</Text>
       <View style={styles.transactionList}>
         {transactions.map((transaction) => (
           <TransactionItem
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     marginTop: 50,
@@ -135,6 +138,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#51CC62',
+  },
+  headerText1: {
+    fontSize: 20,
+    fontWeight: 'normal',
+    color: '#51CC62',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   transactionList: {
     borderWidth: 0,
@@ -175,12 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 16,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+  
   },
   detailsTitle: {
     fontSize: 20,
@@ -190,6 +195,16 @@ const styles = StyleSheet.create({
   },
   transactionDetailContainer: {
     marginBottom: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 16,
+    margin: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    width: '90%'
   },
   transactionDetailText: {
     fontSize: 16,
@@ -204,6 +219,9 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
 });
 

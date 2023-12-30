@@ -14,6 +14,7 @@ const Portfolio = () => {
   const [sellQuantity, setSellQuantity] = useState('');
   const navigation = useNavigation();
   const modalizeRef = useRef(null);
+  const [transactionPin, setTransactionPin] = useState('');
 
   useEffect(() => {
     const fetchUserToken = async () => {
@@ -107,6 +108,7 @@ const Portfolio = () => {
         exchange: selectedStock?.exchange_code || '',
         order_side: '2',
         stock_market_id: 1,
+        transaction_pin: transactionPin,
       };
       
 
@@ -186,6 +188,18 @@ const Portfolio = () => {
                 placeholder="Enter quantity"
                 value={sellQuantity}
                 onChangeText={(text) => setSellQuantity(text)}
+              />
+            </View>
+            {/* Transaction Pin field */}
+            <View style={styles.formField}>
+              <Text style={styles.label}>Transaction Pin:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter transaction pin"
+                value={transactionPin}
+                onChangeText={(text) => setTransactionPin(text)}
+                keyboardType="numeric"
+                secureTextEntry={true}
               />
             </View>
 

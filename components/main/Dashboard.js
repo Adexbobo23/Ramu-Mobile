@@ -218,6 +218,16 @@ const Dashboard = () => {
     console.log('Sell button clicked');
   };
 
+  const handleCashButton = () => {
+    navigation.navigate('FundWallet');
+    console.log('Sell button clicked');
+  };
+
+  const handleConvertButton = () => {
+    navigation.navigate('ConvertFund');
+    console.log('Sell button clicked');
+  };
+
   const toggleBalanceVisibility = () => {
     setBalanceVisible(!balanceVisible);
   };
@@ -314,13 +324,15 @@ const handleSell = () => {
               )}
             </TouchableOpacity>
           </View>
-          <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.buttonContainer} onPress={handleInvestButton}>
-            <Text style={styles.buttonTextInvest}>INVEST</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonContainer1} onPress={handleSellButton}>
-            <Text style={styles.buttonTextSell}>SELL</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonsContainerCash}>
+            <TouchableOpacity style={styles.buttonContainerNew} onPress={handleCashButton}>
+              <Text style={styles.buttonTextCash}>Add Cash</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonContainerNew1} onPress={handleConvertButton}>
+              <Text style={styles.buttonTextConvert}>Convert</Text>
+            </TouchableOpacity>
+          </View>
+
         </View>
         </View>
 
@@ -351,6 +363,14 @@ const handleSell = () => {
               ))}
             </ScrollView>
           </View>
+        </View>
+        <View style={styles.buttonsContainer}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={handleInvestButton}>
+              <Text style={styles.buttonTextInvest}>INVEST</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonContainer1} onPress={handleSellButton}>
+              <Text style={styles.buttonTextSell}>SELL</Text>
+            </TouchableOpacity>
         </View>
         
         {isKYCCompleted ? (
@@ -413,7 +433,6 @@ const handleSell = () => {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        </View>
       </ScrollView>
 
         {/* Modalize for switching account */}
@@ -519,6 +538,7 @@ const styles = StyleSheet.create({
   stockcontainer: {
     flex: 1,
     padding: 20,
+    marginTop: -90
   },
   topBar: {
     flexDirection: 'column',
@@ -675,16 +695,16 @@ const styles = StyleSheet.create({
     color: 'white',
     marginTop: 10,
   },
-  buttonsContainer: {
+  buttonsContainerCash: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginTop: 10,
     padding: 10,
     marginBottom: 20,
-    marginTop: -30,
+    marginTop: -75,
   },
-  buttonContainer: {
+  buttonContainerNew: {
     backgroundColor: '#1FAE05',
     borderRadius: 15,
     paddingVertical: 10,
@@ -694,6 +714,40 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 80,
     marginLeft: 3,
+    marginBottom: 20
+  },
+  buttonContainerNew1: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: '45%',
+    height: 50,
+    textAlign: 'center',
+    borderWidth: 2,
+    borderColor: '#51CC62',
+    marginTop: 80,
+    marginLeft: 10,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 10,
+    padding: 10,
+    marginBottom: 20,
+    marginTop: -90,
+  },
+  buttonContainer: {
+    backgroundColor: '#1FAE05',
+    borderRadius: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: '35%',
+    height: 50,
+    textAlign: 'center',
+    marginTop: 0,
+    marginLeft: 40,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -706,13 +760,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    width: '45%',
+    width: '35%',
     height: 50,
     textAlign: 'center',
     borderWidth: 2,
     borderColor: '#51CC62',
-    marginTop: 80,
+    marginTop: 0,
     marginLeft: 20,
+    marginRight: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -725,6 +780,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonTextSell: {
+    fontSize: 20,
+    color: '#000',
+    textAlign: 'center',
+  },
+  buttonTextCash: {
+    fontSize: 20,
+    color: '#FFF',
+    textAlign: 'center',
+  },
+  buttonTextConvert: {
     fontSize: 20,
     color: '#000',
     textAlign: 'center',

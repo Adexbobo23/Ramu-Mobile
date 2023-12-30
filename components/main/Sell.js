@@ -9,6 +9,7 @@ const Sell = () => {
   const [selectedStock, setSelectedStock] = useState('');
   const [amount, setAmount] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [transactionPin, setTransactionPin] = useState('');
   const [stockPrice, setStockPrice] = useState('');
   const [showStockModal, setShowStockModal] = useState(false);
   const [featuredStocks, setFeaturedStocks] = useState([]);
@@ -16,7 +17,6 @@ const Sell = () => {
   const [isLoadingFeaturedStocks, setIsLoadingFeaturedStocks] = useState(true);
   const [isLoadingDollarBalance, setIsLoadingDollarBalance] = useState(true);
   const [totalAmount, setTotalAmount] = useState('');
-
 
   const fetchUserToken = async () => {
     try {
@@ -137,6 +137,26 @@ const Sell = () => {
     fetchFeaturedStocks();
   }, []);
 
+  const handleQuantityChange = (quantityValue) => {
+    setQuantity(quantityValue);
+    const selectedStockObject = featuredStocks.find(stock => stock.ticker_id === selectedStock);
+
+    if (selectedStockObject) {
+      const calculatedStockPrice = parseFloat(selectedStockObject.trade_price) * parseFloat(quantityValue);
+
+      if (!isNaN(calculatedStockPrice)) {
+        setStockPrice(calculatedStockPrice.toFixed(2));
+        setTotalAmount(calculatedStockPrice.toFixed(2));  // Update total amount
+      } else {
+        setStockPrice('');
+        setTotalAmount('');
+      }
+    } else {
+      setStockPrice('');
+      setTotalAmount('');
+    }
+  };
+
   const handleContinue = async () => {
     // Verify if the amount is less than or equal to the dollar wallet balance
     if (parseFloat(amount) <= dollarBalance) {
@@ -159,7 +179,8 @@ const Sell = () => {
             quantity: quantity,
             symbol: selectedStockObject.ticker_id,
             exchange: selectedStockObject.exchange,
-            order_side: "1", // Assuming "1" is for buying, update if needed
+            order_side: "2",
+            transaction_pin: transactionPin, // Include transaction pin
           };
 
           const response = await fetch('https://api-staging.ramufinance.com/api/v1/create-order', {
@@ -190,27 +211,6 @@ const Sell = () => {
       Alert.alert('Insufficient Funds', 'You do not have sufficient funds in your Dollar Wallet.');
     }
   };
-
-  const handleQuantityChange = (quantityValue) => {
-    setQuantity(quantityValue);
-    const selectedStockObject = featuredStocks.find(stock => stock.ticker_id === selectedStock);
-    
-    if (selectedStockObject) {
-      const calculatedStockPrice = parseFloat(selectedStockObject.trade_price) * parseFloat(quantityValue);
-  
-      if (!isNaN(calculatedStockPrice)) {
-        setStockPrice(calculatedStockPrice.toFixed(2));
-        setTotalAmount(calculatedStockPrice.toFixed(2));  // Update total amount
-      } else {
-        setStockPrice('');
-        setTotalAmount('');
-      }
-    } else {
-      setStockPrice('');
-      setTotalAmount('');
-    }
-  };
-  
 
   const navigateToMore = () => {
     navigation.navigate('More');
@@ -299,6 +299,18 @@ const Sell = () => {
             style={[styles.input, styles.stockPriceInput]}
             value={totalAmount}
             editable={false}
+          />
+        </View>
+        <View style={styles.formField}>
+          <Text style={styles.label}>Transaction Pin</Text>
+          {/* Transaction Pin field */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter transaction pin"
+            value={transactionPin}
+            onChangeText={setTransactionPin}
+            keyboardType="numeric"
+            secureTextEntry={true}
           />
         </View>
         <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
