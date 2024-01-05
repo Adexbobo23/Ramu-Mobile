@@ -25,8 +25,24 @@ const Dashboard = () => {
   const modalRef = useRef(null);
   const [selectedTopTrendingStock, setSelectedTopTrendingStock] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userName, setUserName] = useState('');
 
+  
 
+  useEffect(() => {
+    fetchUserName();
+  }, []);
+
+  const fetchUserName = async () => {
+    try {
+      const storedUserName = await AsyncStorage.getItem('userName');
+      if (storedUserName) {
+        setUserName(storedUserName);
+      }
+    } catch (error) {
+      console.error('Error fetching userName from AsyncStorage:', error.message);
+    }
+  };
 
   const handleStockSelect = (stock) => {
     // Store the selected stock in the state
@@ -293,7 +309,7 @@ const handleSell = () => {
       <View style={styles.container1}>
       <View style={styles.mainWelcome}>
       <Image source={require('../Assests/icon.png')} style={styles.comlogo} />
-      <Text style={styles.welcomeText}>Hi, Oliyide</Text>
+      <Text style={styles.welcomeText}>Hi, {userName || 'Guest'}</Text>
       {/* <Text>{walletDetails?.virtual_account_name}</Text> */}
       <TouchableOpacity style={styles.notificationIconContainer} onPress={handleSeeAll}>
         <Ionicons name="search" size={28} color="black" />

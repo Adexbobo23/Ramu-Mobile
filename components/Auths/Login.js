@@ -32,6 +32,8 @@ const Login = ({ navigation }) => {
 
       await AsyncStorage.setItem('userToken', response.data.data.token);
       await AsyncStorage.setItem('userId', response.data.data.id);
+      await AsyncStorage.setItem('userName', response.data.data.user_name);
+      await AsyncStorage.setItem('firstName', response.data.data.first_name);
 
       showAlert('Login Successful', 'Welcome back!');
       navigation.navigate('Dashboard');

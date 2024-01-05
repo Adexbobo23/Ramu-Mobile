@@ -352,13 +352,16 @@ const StockInvest = () => {
         <View style={styles.formField}>
           <Text style={styles.label}>Amount</Text>
           {/* Amount field */}
+          <View style={styles.inputContainer}>
+        <Text style={styles.dollarSymbol}>$</Text>
           <TextInput
-            style={styles.input}
+            style={styles.inputa}
             placeholder="Enter amount"
             value={amount}
             onChangeText={handleAmountChange}
             keyboardType="numeric"
           />
+        </View>
         </View>
         <View style={styles.formField}>
           <Text style={styles.label}>Quantity</Text>
@@ -370,13 +373,16 @@ const StockInvest = () => {
           />
         </View>
         <View style={styles.formField}>
-          <Text style={styles.label}>Stock Price</Text>
+          <Text style={styles.label}>Total Ammount</Text>
           {/* Stock Price field */}
-          <TextInput
-            style={[styles.input, styles.stockPriceInput]}
-            value={stockPrice}
-            editable={false}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.dollarSymbol}>$</Text>
+            <TextInput
+              style={[styles.inputa, styles.stockPriceInput]}
+              value={stockPrice}
+              editable={false}
+            />
+          </View>
         </View>
     
         <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
@@ -480,6 +486,21 @@ const styles = StyleSheet.create({
     width: '90%',
     borderRadius: 15,
     marginLeft: 15
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#51CC62',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    width: '100%',
+  },
+  dollarSymbol: {
+    fontSize: 18,
+    color: '#000',
+    marginRight: 5,
   },
   boldText: {
     fontWeight: 'normal',
