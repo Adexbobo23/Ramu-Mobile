@@ -15,8 +15,37 @@ const Discover = () => {
     const modalRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [sectors, setSectors] = useState([]);
+    const [blogs, setBlogs] = useState([]);
 
+    useEffect(() => {
+      // Fetch blogs data when the component mounts and user token is available
+      const fetchBlogs = async () => {
+        try {
+          const userToken = await AsyncStorage.getItem('userToken');
+  
+          if (!userToken) {
+            console.error('User token not available.');
+            return;
+          }
+  
+          const response = await axios.get('https://api-staging.ramufinance.com/api/v1/blog-posts', {
+            headers: { Authorization: `Bearer ${userToken}` },
+          });
+  
+          if (response.data.status) {
+            setBlogs(response.data.data.slice(0, 5)); // Limit to the first 5 blogs
+          } else {
+            console.error('Error fetching blogs:', response.data.message);
+          }
+        } catch (error) {
+          console.error('Error fetching blogs:', error);
+        }
+      };
+  
+      fetchBlogs();
+    }, []); 
 
+    
     useEffect(() => {
       // Fetch sectors data when the component mounts and user token is available
       const fetchSectors = async () => {
@@ -274,31 +303,33 @@ const Discover = () => {
         </ScrollView> 
       </View>
 
-      {/* News Section */}
-      <View style={styles.newsSection}>
-      <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Stocks News</Text>
-            <TouchableOpacity>
-            <Text style={styles.seeAll}>See All</Text>
-            </TouchableOpacity>
+      {/* Blogs Section */}
+      <View style={styles.stocksSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Blogs</Text>
+          <TouchableOpacity onPress={handleSeeAll}>
+            <Text style={styles.seeAll} onPress={() => navigateTo('Blogs')}>
+              See All
+            </Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.sectionTitle}>News</Text>
 
-        {/* List of Stock News */}
-        <ScrollView style={styles.newsList}>
-          {/* Sample News Item (repeat this for each news) */}
-          <View style={styles.newsItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIMqIF9VPmuROuNlAIaZnIdZrgs-Y6GZ4fQLOXlKl9pbdTmf9DKM9B9EfsehuPpm6deWE&usqp=CAU' }} style={styles.newsImage} />
-            <Text style={styles.newsTitle}>News Title</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-           {/* Sample News Item (repeat this for each news) */}
-           <View style={styles.newsItem}>
-            <Image source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIMqIF9VPmuROuNlAIaZnIdZrgs-Y6GZ4fQLOXlKl9pbdTmf9DKM9B9EfsehuPpm6deWE&usqp=CAU' }} style={styles.newsImage} />
-            <Text style={styles.newsTitle}>News Title</Text>
-            <Text style={styles.stockDescription}>Stock Description</Text>
-          </View>
-          {/* Repeat... */}
+        {/* Horizontal Scroll for Blogs List */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
+          {blogs.map((blog) => (
+            <TouchableOpacity
+              key={blog.id}
+              style={styles.newsItem}
+              onPress={() => navigateToBlogDetails(blog)}
+            >
+              <Image
+                source={{ uri: `data:image/jpeg;base64,${blog.thumbnail_image}` }}
+                style={styles.newsImage}
+              />
+              <Text style={styles.newsTitle}>{blog.title}</Text>
+              <Text style={styles.stockDescription}>{blog.writer_info.user_name}</Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       </View>
     </ScrollView>
@@ -439,16 +470,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  newsSection: {},
-  newsList: {},
+  newsList: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+  },
   newsItem: {
-    marginBottom: 16,
+    marginRight: 15,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    width: 200, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
   newsImage: {
     width: '100%',
-    height: 150,
+    height: 120, 
     borderRadius: 8,
     marginBottom: 8,
+  },
+  newsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  stockDescription: {
+    fontSize: 14,
+    color: '#666',
   },
   newsTitle: {
     fontSize: 18,

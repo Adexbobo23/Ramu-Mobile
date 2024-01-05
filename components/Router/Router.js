@@ -58,6 +58,7 @@ import InvestmentConfirm from '../Stock/InvestmentSuccessfull';
 import SellConfirm from '../Stock/SellSuccesfull';
 import ConvertFunds from '../transactions/Convertfunds';
 import AddSettlementAccountModal from '../transactions/More/AddSettlementAccountModal';
+import BlogList from '../main/BlogList';
 
 const Stack = createStackNavigator();
 
@@ -350,6 +351,11 @@ const Router = () => {
         <Stack.Screen
         name="AddSettle"
         component={AddSettlementAccountModal}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="Blogs"
+        component={BlogList}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

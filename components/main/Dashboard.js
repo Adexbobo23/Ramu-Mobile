@@ -714,7 +714,7 @@ const styles = StyleSheet.create({
   },
   buttonContainerNew: {
     backgroundColor: '#1FAE05',
-    borderRadius: 5,
+    borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
     width: '45%',
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
   },
   buttonContainerNew1: {
     backgroundColor: 'white',
-    borderRadius: 5,
+    borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
     width: '45%',
