@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
 import axios from 'axios';
 
+
 const Withdraw = () => {
   const navigation = useNavigation();
   const switchAccountModalRef = useRef(null);
@@ -29,6 +30,7 @@ const Withdraw = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [transactionPin, setTransactionPin] = useState('');
   const [transactionPinModalVisible, setTransactionPinModalVisible] = useState(false);
+
 
   useEffect(() => {
     fetchWalletDetails(selectedAccount);
@@ -186,7 +188,10 @@ const Withdraw = () => {
     }    
   };
   
-  
+  const handleCreateSettlementAccount = () => {
+    navigation.navigate('AddSettle');
+  };
+
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -239,7 +244,15 @@ const Withdraw = () => {
         <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdraw}>
           <Text style={styles.buttonText}>Withdraw</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.settlementContainer} onPress={handleCreateSettlementAccount}>
+          <Text style={styles.settlementText}>
+            Don't have a settlement account? Create here
+          </Text>
+        </TouchableOpacity>
+
       </View>
+
 
       {/* Transaction Pin Modal */}
       <Modalize
@@ -392,6 +405,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 22,
   },
+  settlementContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  settlementText: {
+    fontSize: 16,
+    color: '#51CC62',
+    marginLeft: 5,
+  },
+  
 });
 
 export default Withdraw;

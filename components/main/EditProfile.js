@@ -15,11 +15,11 @@ import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 
 const EditProfile = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('Feat');
-  const [lastName, setLastName] = useState('Side');
-  const [phoneNumber, setPhoneNumber] = useState('0810000000');
-  const [gender, setGender] = useState('male');
-  const [address, setAddress] = useState('address');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [gender, setGender] = useState('');
+  const [address, setAddress] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [base64Image, setBase64Image] = useState(null);
 
@@ -31,20 +31,15 @@ const EditProfile = ({ navigation }) => {
 
   const convertImageToBase64 = async (contentUri) => {
     try {
-      // Get the file URI from the content URI
       const fileUri = contentUri.replace('file://', '');
-  
-      // Read the image file as base64
       const base64 = await FileSystem.readAsStringAsync(fileUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
-  
       setBase64Image(base64);
     } catch (error) {
       console.error('Error converting image to base64:', error);
     }
   };
-  
 
   const handleChooseImage = async () => {
     try {
@@ -54,9 +49,12 @@ const EditProfile = ({ navigation }) => {
       });
 
       if (result.type === 'success') {
+        convertImageToBase64(result.uri);
         setProfileImage(result);
-      } else {
+      } else if (result.type === 'cancel') {
         console.log('User cancelled document picker');
+        // Optionally, you can provide feedback to the user that they canceled the operation.
+        // For example, you can show a message or not clear the existing image.
       }
     } catch (error) {
       console.error('Error picking document:', error);
@@ -75,65 +73,65 @@ const EditProfile = ({ navigation }) => {
   
       const apiUrl = `https://api-staging.ramufinance.com/api/v1/edit-profile/${user_id}`;
   
-      const formData = new FormData();
-      formData.append('first_name', firstName);
-      formData.append('last_name', lastName);
-      formData.append('phone_number', phoneNumber);
-      formData.append('gender', gender);
-      formData.append('address', address);
+      const data = {
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber,
+        gender: gender,
+        address: address,
+        profile_image: base64Image, 
+      };
   
-      if (base64Image) {
-        formData.append('profile_image', base64Image);
-      }
-  
-      const response = await axios.put(apiUrl, formData, {
+      const response = await axios.put(apiUrl, data, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
         },
       });
   
       console.log('API Response:', response.data);
   
-      // Check for a successful response
-      if (response.data && response.data.success) {
-        // Clear form fields and show success alert
-        setFirstName('');
-        setLastName('');
-        setPhoneNumber('');
-        setGender('');
-        setAddress('');
-        setProfileImage(null);
-        setBase64Image(null);
+      if (response.data && response.data.status) {
+        // Assuming the response.data.data contains the updated profile data
+        const updatedProfileData = response.data.data;
+  
+        // Update local state or context with the new data
+        setFirstName(updatedProfileData.first_name);
+        setLastName(updatedProfileData.last_name);
+        setPhoneNumber(updatedProfileData.phone_number);
+        setGender(updatedProfileData.gender);
+        setAddress(updatedProfileData.address);
+        // ...
   
         Alert.alert('Success', 'Profile edited successfully!');
         navigation.navigate('Personal');
       } else {
-        // Handle API error response
         console.error('API Error:', response.data);
   
-        // Check for validation errors
         if (response.status === 422) {
           const validationErrors = response.data.errors;
           console.log('Validation Errors:', validationErrors);
-  
-          // Display error messages to the user
-          Alert.alert('Validation Error', 'An error occurred while editing the profile. Please try again.');
-  
-          // Log additional information for debugging
+          Alert.alert(
+            'Validation Error',
+            'An error occurred while editing the profile. Please try again.'
+          );
           console.log('Validation Response:', response);
         } else {
-          // Show a generic error message
-          Alert.alert('Error', 'An error occurred while editing the profile. Please try again.');
+          Alert.alert(
+            'Error',
+            'An error occurred while editing the profile. Please try again.'
+          );
         }
       }
     } catch (error) {
       console.error('Error:', error);
-  
-      // Show a generic error message for unexpected errors
-      Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
+      Alert.alert(
+        'Error',
+        'An unexpected error occurred. Please try again later.'
+      );
     }
   };
+  
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -245,12 +243,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 20,
     height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   saveButtonText: {
     color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: 'normal',
-    fontSize: 22,
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
 

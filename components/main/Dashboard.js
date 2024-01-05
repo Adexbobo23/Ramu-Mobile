@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -249,12 +249,19 @@ const navigateToDiscover = () => {
 };
 
 
-const handlePressKyc = () => {
-  navigation.navigate('KYC');
+const handlePressKyc = async () => {
   console.log('Complete your KYC clicked');
-  setKYCCompleted(true);
+
+  try {
     // Save KYC status to AsyncStorage or make an API request
-    AsyncStorage.setItem('kycStatus', 'completed');
+    await AsyncStorage.setItem('kycStatus', 'completed');
+    setKYCCompleted(true);
+
+    // Open the specified URL in the user's browser
+    await Linking.openURL('https://ramufinance.com/dojah.html');
+  } catch (error) {
+    console.error('Error saving KYC status or opening URL:', error);
+  }
 };
 
 const handleSeeAll = () => {
@@ -546,7 +553,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    height: 170,
+    height: 190,
     backgroundColor: '#147603',
     borderRadius: 30,
     marginTop: 30,
@@ -702,15 +709,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 10,
     marginBottom: 20,
-    marginTop: -75,
+    marginTop: -90,
+    marginRight: 50,
   },
   buttonContainerNew: {
     backgroundColor: '#1FAE05',
-    borderRadius: 15,
+    borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
     width: '45%',
-    height: 50,
+    height: 40,
     textAlign: 'center',
     marginTop: 80,
     marginLeft: 3,
@@ -718,11 +726,11 @@ const styles = StyleSheet.create({
   },
   buttonContainerNew1: {
     backgroundColor: 'white',
-    borderRadius: 15,
+    borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
     width: '45%',
-    height: 50,
+    height: 40,
     textAlign: 'center',
     borderWidth: 2,
     borderColor: '#51CC62',
@@ -785,12 +793,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonTextCash: {
-    fontSize: 20,
+    fontSize: 13,
     color: '#FFF',
     textAlign: 'center',
   },
   buttonTextConvert: {
-    fontSize: 20,
+    fontSize: 13,
     color: '#000',
     textAlign: 'center',
   },
