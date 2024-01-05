@@ -11,6 +11,7 @@ const SignupComponent = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
+  const [gender, setGender] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -74,7 +75,7 @@ const SignupComponent = ({ navigation }) => {
   // };
 
   const handleSignup = async () => {
-    if (!userName || !firstName || !lastName || !phoneNumber || !email || !password || !confirmPassword || !termsAccepted || !address || !selectedNationality) {
+    if (!userName || !firstName || !lastName || !phoneNumber || !email || !password || !confirmPassword || !termsAccepted || !address || !selectedNationality || !gender) {
       alert('Please fill in all required fields');
       return;
     }
@@ -90,6 +91,7 @@ const SignupComponent = ({ navigation }) => {
         password_confirmation: confirmPassword,
         address,
         nationality: selectedNationality,
+        gender,
       };
   
       // Make the API call using Axios
@@ -212,6 +214,16 @@ const SignupComponent = ({ navigation }) => {
           style={styles.input}
           value={phoneNumber}
           onChangeText={setPhoneNumber}
+          required
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Gender *</Text>
+        <TextInput
+          placeholder="Enter your gender"
+          style={styles.input}
+          value={gender}
+          onChangeText={setGender}
           required
         />
       </View>
