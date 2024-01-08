@@ -41,9 +41,9 @@ const TransactionHistory = () => {
 
       {transactions.map((transaction) => (
         <View key={transaction.id} style={styles.transactionDetailContainer}>
-          <Text style={styles.transactionDetailText}>ID: {transaction.id}</Text>
+          {/* <Text style={styles.transactionDetailText}>ID: {transaction.id}</Text> */}
           <Text style={styles.transactionDetailText}>Amount: {transaction.amount}</Text>
-          <Text style={styles.transactionDetailText}>Type: {transaction.type}</Text>
+          <Text style={styles.transactionDetailText}>Type: {transaction.descriptions}</Text>
           {/* Add more transaction details as needed */}
         </View>
       ))}

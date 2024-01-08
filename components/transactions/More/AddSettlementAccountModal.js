@@ -63,7 +63,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Account Number"
+        placeholder="Beneficiary Account Number"
         value={accountNumber}
         onChangeText={(text) => setAccountNumber(text)}
       />
@@ -75,7 +75,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Beneficiary Bank Name"
+        placeholder="Bank Name"
         value={beneficiaryBankName}
         onChangeText={(text) => setBeneficiaryBankName(text)}
       />

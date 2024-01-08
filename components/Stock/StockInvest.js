@@ -27,15 +27,63 @@ const StockInvest = () => {
   const [transactionPin, setTransactionPin] = useState('');
   const [transactionPinModalVisible, setTransactionPinModalVisible] = useState(false);
 
+  const [nairaAmount, setNairaAmount] = useState('');
+  const [exchangeRate, setExchangeRate] = useState(0);
+  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(true);
+  const [nairaAmountInput, setNairaAmountInput] = useState('');
+
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const userToken = await fetchUserToken();
+  
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/exchange-rate', {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message);
+        }
+  
+        const exchangeRateData = await response.json();
+        const ngnToUsdRate = parseFloat(exchangeRateData.data.ngn_usd);
+        setExchangeRate(ngnToUsdRate);
+      } catch (error) {
+        console.error('Error fetching exchange rate:', error.message);
+      } finally {
+        setIsLoadingExchangeRate(false);
+      }
+    };
+  
+    fetchExchangeRate();
+  }, []);
+
+  
+
   useEffect(() => {
     // Fetch featured stocks on component mount
     fetchFeaturedStocks();
   }, []);
 
   const handleAmountChange = (amountValue) => {
-    setAmount(amountValue);
-    calculateQuantityAndStockPrice(amountValue);
+    setNairaAmountInput(amountValue);
+
+    if (!isNaN(amountValue) && exchangeRate > 0) {
+      const nairaAmountFloat = parseFloat(amountValue);
+      const dollarAmount = nairaAmountFloat / exchangeRate;
+      const formattedDollarAmount = dollarAmount.toFixed(2);
+      setAmount(formattedDollarAmount);
+      calculateQuantityAndStockPrice(formattedDollarAmount);
+    } else {
+      setAmount('');
+      setQuantity('');
+      setStockPrice('');
+    }
   };
+
 
   const calculateQuantityAndStockPrice = (amountValue) => {
     const selectedStockObject = featuredStocks.find((stock) => stock.ticker_id === selectedStock);
@@ -66,16 +114,16 @@ const StockInvest = () => {
         fetchDollarBalance(),
         calculateStockPrice(),
       ]);
-  
+
       console.log('Dollar Balance:', balance);
       console.log('Calculated Stock Price:', calculatedStockPrice);
-  
+
       if (!isNaN(calculatedStockPrice) && calculatedStockPrice <= parseFloat(balance)) {
         console.log('Sufficient Funds. Proceeding with the order...');
-  
+
         // Calculate quantity and stock price after selecting the stock
         calculateQuantityAndStockPrice(amount);
-  
+
         // Show the Transaction Pin modal
         setTransactionPinModalVisible(true);
       } else {
@@ -87,8 +135,6 @@ const StockInvest = () => {
       console.error('Error:', error.message);
     }
   };
-  
-  
   
 
   const handleStockSelect = (stockId) => {
@@ -233,6 +279,7 @@ const StockInvest = () => {
     }
   };
   
+  
 
   const createOrder = async (calculatedStockPrice) => {
     try {
@@ -350,18 +397,18 @@ const StockInvest = () => {
           </Modal>
         </View>
         <View style={styles.formField}>
-          <Text style={styles.label}>Amount</Text>
+          <Text style={styles.label}>Amount (Naira)</Text>
           {/* Amount field */}
           <View style={styles.inputContainer}>
-        <Text style={styles.dollarSymbol}>$</Text>
-          <TextInput
-            style={styles.inputa}
-            placeholder="Enter amount"
-            value={amount}
-            onChangeText={handleAmountChange}
-            keyboardType="numeric"
-          />
-        </View>
+            <Text style={styles.dollarSymbol}>₦</Text>
+            <TextInput
+              style={styles.inputa}
+              placeholder="Enter amount in Naira"
+              value={nairaAmountInput}
+              onChangeText={(text) => handleAmountChange(text)}
+              keyboardType="numeric"
+            />
+          </View>
         </View>
         <View style={styles.formField}>
           <Text style={styles.label}>Quantity</Text>

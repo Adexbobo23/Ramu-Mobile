@@ -35,7 +35,7 @@ const Dashboard = () => {
 
   const fetchUserName = async () => {
     try {
-      const storedUserName = await AsyncStorage.getItem('userName');
+      const storedUserName = await AsyncStorage.getItem('firstName');
       if (storedUserName) {
         setUserName(storedUserName);
       }
