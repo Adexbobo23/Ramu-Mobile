@@ -84,7 +84,6 @@ const StockInvest = () => {
     }
   };
 
-
   const calculateQuantityAndStockPrice = (amountValue) => {
     const selectedStockObject = featuredStocks.find((stock) => stock.ticker_id === selectedStock);
 
@@ -114,18 +113,20 @@ const StockInvest = () => {
         fetchDollarBalance(),
         calculateStockPrice(),
       ]);
-
+  
       console.log('Dollar Balance:', balance);
       console.log('Calculated Stock Price:', calculatedStockPrice);
-
+  
       if (!isNaN(calculatedStockPrice) && calculatedStockPrice <= parseFloat(balance)) {
         console.log('Sufficient Funds. Proceeding with the order...');
-
+  
         // Calculate quantity and stock price after selecting the stock
         calculateQuantityAndStockPrice(amount);
-
+  
         // Show the Transaction Pin modal
+        console.log('Before setting Transaction Pin modal visibility');
         setTransactionPinModalVisible(true);
+        console.log('After setting Transaction Pin modal visibility');
       } else {
         // Insufficient funds or invalid calculatedStockPrice
         console.log('Insufficient Funds or Invalid Calculated Stock Price.');
@@ -135,7 +136,6 @@ const StockInvest = () => {
       console.error('Error:', error.message);
     }
   };
-  
 
   const handleStockSelect = (stockId) => {
     setSelectedStock(stockId);
@@ -145,33 +145,40 @@ const StockInvest = () => {
     calculateQuantityAndStockPrice(amount);
   };
 
-
   const handleTransactionPinSubmit = async () => {
     try {
       // Create order
       const calculatedStockPrice = await calculateStockPrice();
       const success = await createOrder(calculatedStockPrice);
-
+  
       if (success) {
         console.log('Order created successfully.');
-
+  
         // Continue with any additional steps or navigation here
         navigation.navigate('InvConfirm');
       } else {
         // Handle order creation failure
         console.log('Failed to create order.');
-        Alert.alert('Order Creation Failed', 'Failed to create the investment order.');
+        Alert.alert('Order Creation Failed', 'Failed to create the investment order. Incorrect Pin');
       }
-
+  
       // Clear the transaction pin after submission
       setTransactionPin('');
       // Hide the Transaction Pin modal
       setTransactionPinModalVisible(false);
     } catch (error) {
       console.error('Error:', error.message);
+  
+      // Display the error message from the server response
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message || 'Failed to create the investment order. Please try again later.';
+        Alert.alert('Order Creation Failed', errorMessage);
+      } else {
+        // Display a generic error message
+        Alert.alert('Order Creation Failed', 'Failed to create the investment order. Please try again later.');
+      }
     }
   };
-
 
   const fetchUserToken = async () => {
     try {
@@ -278,9 +285,7 @@ const StockInvest = () => {
       return 0;
     }
   };
-  
-  
-
+ 
   const createOrder = async (calculatedStockPrice) => {
     try {
       const userToken = await fetchUserToken();
@@ -437,33 +442,34 @@ const StockInvest = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      <Modalize
-        adjustToContentHeight
-        isOpen={transactionPinModalVisible}
-        onClosed={() => setTransactionPinModalVisible(false)}
-        ScrollViewProps={{ showsVerticalScrollIndicator: false }}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={transactionPinModalVisible}
+        onRequestClose={() => setTransactionPinModalVisible(false)}
       >
-        <View style={styles.formField}>
-          <Text style={styles.label}>Transaction Pin</Text>
-          <View style={styles.transactionPinContainer}>
-            {[...Array(4)].map((_, index) => (
-              <TextInput
-                key={index}
-                style={styles.transactionPinInput}
-                placeholder="●"
-                secureTextEntry
-                maxLength={1}
-                keyboardType="numeric"
-                value={transactionPin.charAt(index)}
-                onChangeText={(pin) => setTransactionPin(pin)}
-              />
-            ))}
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.formField}>
+              <Text style={styles.label}>Transaction Pin</Text>
+              <View style={styles.transactionPinContainer}>
+                <TextInput
+                  style={styles.transactionPinInput}
+                  placeholder="Enter your transaction pin"
+                  secureTextEntry
+                  maxLength={4}
+                  keyboardType="numeric"
+                  value={transactionPin}
+                  onChangeText={(pin) => setTransactionPin(pin)}
+                />
+              </View>
+              <TouchableOpacity style={styles.transactionPinSubmitButton} onPress={handleTransactionPinSubmit}>
+                <Text style={styles.transactionPinSubmitButtonText}>Submit</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <TouchableOpacity style={styles.transactionPinSubmitButton} onPress={handleTransactionPinSubmit}>
-            <Text style={styles.transactionPinSubmitButtonText}>Submit</Text>
-          </TouchableOpacity>
         </View>
-      </Modalize>
+      </Modal>
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>
