@@ -1,27 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 const AddSettlementAccountModal = ({ isVisible, onClose }) => {
   const navigation = useNavigation();
-  const [bankCode, setBankCode] = useState('101');
+  const [banks, setBanks] = useState([]);
+  const [selectedBank, setSelectedBank] = useState(null);
   const [accountNumber, setAccountNumber] = useState('');
   const [beneficiaryAccountName, setBeneficiaryAccountName] = useState('');
-  const [beneficiaryBankName, setBeneficiaryBankName] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const fetchBanks = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await axios.get('https://api-staging.ramufinance.com/api/v1/fetch-bank-ussd', {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.data && response.data.status) {
+        setBanks(response.data.data);
+      } else {
+        console.error('Failed to fetch banks - Response:', response);
+      }
+    } catch (error) {
+      console.error('Error fetching banks:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch bank names and codes
+    fetchBanks();
+  }, []);
+
 
   const handleAddAccount = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
-  
+
+      if (!selectedBank || !accountNumber || !beneficiaryAccountName) {
+        Alert.alert('Validation Error', 'Please fill in all the fields.');
+        return;
+      }
+
       const accountData = {
-        bank_code: bankCode,
+        bank_code: selectedBank.code,
         account_number: accountNumber,
         beneficiary_account_name: beneficiaryAccountName,
-        beneficiary_bank_name: beneficiaryBankName,
+        beneficiary_bank_name: selectedBank.name,
       };
-  
+
       const response = await axios.post(
         'https://api-staging.ramufinance.com/api/v1/add-settlement-account',
         accountData,
@@ -31,7 +62,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
           },
         }
       );
-  
+
       if (response.status === 201) {
         Alert.alert('Success', 'Settlement account added successfully!');
 
@@ -50,17 +81,51 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
       Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
     }
   };
-  
+
+   const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.dropdownItem}
+      onPress={() => {
+        setSelectedBank(item);
+        setModalVisible(false);
+      }}
+    >
+      <Text>{item.name}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.modalContainer}>
       <Text style={styles.modalOption}>Add Settlement Account</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Bank Code"
-        value={bankCode}
-        onChangeText={(text) => setBankCode(text)}
-      />
+
+      <TouchableOpacity
+        style={styles.dropdownButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text>{selectedBank ? selectedBank.name : 'Select Bank'}</Text>
+      </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalDropdown}>
+          <FlatList
+            data={banks}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.code.toString()}
+          />
+          <TouchableOpacity
+            style={styles.modalCloseButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
       <TextInput
         style={styles.input}
         placeholder="Beneficiary Account Number"
@@ -73,18 +138,14 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
         value={beneficiaryAccountName}
         onChangeText={(text) => setBeneficiaryAccountName(text)}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Bank Name"
-        value={beneficiaryBankName}
-        onChangeText={(text) => setBeneficiaryBankName(text)}
-      />
+
       <TouchableOpacity style={styles.addButton} onPress={handleAddAccount}>
         <Text style={styles.buttonText}>Add Account</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -119,6 +180,33 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 22,
+  },
+  dropdownButton: {
+    height: 60,
+    borderColor: '#51CC62',
+    borderWidth: 1.5,
+    marginBottom: 20,
+    paddingLeft: 10,
+    borderRadius: 15,
+    justifyContent: 'center',
+  },
+  modalDropdown: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+  },
+  dropdownItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+  },
+  modalCloseButton: {
+    width: '100%',
+    backgroundColor: '#51CC62',
+    padding: 15,
+    alignItems: 'center',
   },
 });
 

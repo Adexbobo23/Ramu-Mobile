@@ -319,7 +319,16 @@ const handleSell = () => {
       </TouchableOpacity>
     </View>
       <View style={styles.topBar}>
+        <View style={styles.hideen}>
           <Text style={styles.acoountbalance}>Account Balance</Text>
+          <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+              {balanceVisible ? (
+                <Ionicons name="eye-off" size={24} color="white" />
+              ) : (
+                <Ionicons name="eye" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+          </View>
           <View style={styles.balanceContainer}>
             {renderSwitchAccountButton()}
             <TouchableOpacity onPress={toggleBalanceVisibility}>
@@ -339,19 +348,15 @@ const handleSell = () => {
                 </Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
-              {balanceVisible ? (
-                <Ionicons name="eye-off" size={24} color="white" />
-              ) : (
-                <Ionicons name="eye" size={24} color="white" />
-              )}
-            </TouchableOpacity>
+            
           </View>
           <View style={styles.buttonsContainerCash}>
             <TouchableOpacity style={styles.buttonContainerNew} onPress={handleCashButton}>
+              <Ionicons name="cash-outline" size={27} color="white" />
               <Text style={styles.buttonTextCash}>Add Cash</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonContainerNew1} onPress={handleConvertButton}>
+              <Ionicons name="repeat" size={33} color="black" />
               <Text style={styles.buttonTextConvert}>Convert</Text>
             </TouchableOpacity>
           </View>
@@ -444,7 +449,7 @@ const handleSell = () => {
               style={styles.stockItemContainer}
               onPress={() => handleStockSelect(stock)}
             >
-              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+              <Image source={{ uri: stock.logo }} style={styles.stockImage} />
               <View style={styles.stockDetailsContainer}>
                 <Text style={styles.stockTitleText}>{stock.company_name}</Text>
                 <Text style={styles.stockDescriptionText}>{stock.description}</Text>
@@ -569,8 +574,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    height: 190,
-    backgroundColor: '#147603',
+    height: 200,
+    backgroundColor: '#63E185',
     borderRadius: 30,
     marginTop: 30,
     width: '93%',
@@ -610,19 +615,23 @@ const styles = StyleSheet.create({
     marginTop: 10, 
     marginBottom: 20,
   },
+  hideen: {
+    flexDirection: 'row'
+  },
   eyeIconContainer: {
-    marginLeft: 50,
+    marginLeft: 100,
+    marginTop: 25,
   },
   acoountbalance: {
     fontSize: 17,
-    fontWeight: 'normal',
-    color: 'white',
+    fontWeight: 'bold',
+    color: 'black',
     marginTop: 30,
     marginLeft: 20,
   },
   balanceText: {
     fontSize: 18,
-    color: 'white',
+    color: 'black',
   },
   mainWelcome: {
     flexDirection: 'row',
@@ -676,7 +685,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
     marginLeft: 10,
-    color: 'white',
+    color: 'black',
     paddingRight: 10,
     paddingLeft: 10,
     marginTop: 10,
@@ -726,32 +735,36 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     marginTop: -90,
-    marginRight: 50,
+    marginRight: 65,
   },
   buttonContainerNew: {
-    backgroundColor: '#1FAE05',
+    backgroundColor: '#00BB33',
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    width: '45%',
-    height: 40,
+    width: '65%',
+    height: 50,
     textAlign: 'center',
     marginTop: 80,
     marginLeft: 3,
-    marginBottom: 20
+    marginBottom: 20,
+    elevation : 5,
+    flexDirection: 'row',
   },
   buttonContainerNew1: {
     backgroundColor: 'white',
+    flexDirection: 'row',
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    width: '45%',
-    height: 40,
+    width: '65%',
+    height: 50,
     textAlign: 'center',
     borderWidth: 2,
     borderColor: '#51CC62',
     marginTop: 80,
     marginLeft: 10,
+    elevation : 5,
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -761,6 +774,9 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     marginTop: -90,
+  },
+  iconStyle: {
+    marginRight: 5,
   },
   buttonContainer: {
     backgroundColor: '#1FAE05',
@@ -809,14 +825,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonTextCash: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#FFF',
     textAlign: 'center',
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginTop: 4,
+    marginRight: 10,
   },
   buttonTextConvert: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#000',
     textAlign: 'center',
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginTop: 6,
+    marginRight: 10,
   },
   stocksSection: {
     marginBottom: 20,

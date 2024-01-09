@@ -198,7 +198,16 @@ const Withdraw = () => {
       <View style={styles.container}>
         <Text style={styles.Title}>Withdraw</Text>
         <View style={styles.topBar}>
-          <Text style={styles.accountBalance}>Account Balance</Text>
+          <View style={styles.hideen}>
+            <Text style={styles.acoountbalance}>Account Balance</Text>
+              <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+                {balanceVisible ? (
+                  <Feather name="eye-off" size={24} color="white" />
+                ) : (
+                  <Feather name="eye" size={24} color="white" />
+                )}
+              </TouchableOpacity>
+          </View>
           <View style={styles.balanceContainer}>
             {renderSwitchAccountButton()}
             <TouchableOpacity onPress={toggleBalanceVisibility}>
@@ -218,13 +227,7 @@ const Withdraw = () => {
                 </Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
-              {balanceVisible ? (
-                <Feather name="eye-off" size={24} color="white" />
-              ) : (
-                <Feather name="eye" size={24} color="white" />
-              )}
-            </TouchableOpacity>
+           
           </View>
         </View>
 
@@ -358,11 +361,12 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   eyeIconContainer: {
-    marginLeft: 50,
+    marginLeft: 100,
+    marginTop: 30,
   },
-  accountBalance: {
+  acoountbalance: {
     fontSize: 17,
-    fontWeight: 'normal',
+    fontWeight: 'bold',
     color: 'white',
     marginTop: 30,
     marginLeft: 20,
@@ -372,6 +376,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginLeft: 10,
+  },
+  hideen: {
+    flexDirection: 'row'
   },
   switchAccountContainer: {
     flexDirection: 'row',

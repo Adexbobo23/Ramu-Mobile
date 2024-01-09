@@ -61,15 +61,16 @@ const Portfolio = () => {
   }, [stockData]);
   
 
-  // Filter stock data based on search query
-  useEffect(() => {
-    const filteredStocks = stockData.filter(
-      (stock) =>
-        stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        stock.ticker_id.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setStockData(filteredStocks);
-  }, [searchQuery]);
+// Filter stock data based on search query
+useEffect(() => {
+  const filteredStocks = stockData.filter(
+    (stock) =>
+      (stock.company_name && stock.company_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (stock.ticker_id && stock.ticker_id.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+  setStockData(filteredStocks);
+}, [searchQuery]);
+
 
   const navigateTo = (screen) => {
     navigation.navigate(screen);
@@ -363,8 +364,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 60,
+    borderColor: '#51CC62',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
@@ -374,10 +375,11 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
+    height: 60
   },
   sellButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 30,
     fontWeight: 'bold',
   },
   navBar: {
