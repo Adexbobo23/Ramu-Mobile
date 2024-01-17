@@ -130,7 +130,7 @@ const StockInvest = () => {
       } else {
         // Insufficient funds or invalid calculatedStockPrice
         console.log('Insufficient Funds or Invalid Calculated Stock Price.');
-        Alert.alert('Invalid Amount', 'Please enter a valid amount.');
+        Alert.alert('Insufficient Fund', 'Please fund your account.');
       }
     } catch (error) {
       console.error('Error:', error.message);

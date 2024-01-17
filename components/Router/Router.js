@@ -59,6 +59,8 @@ import SellConfirm from '../Stock/SellSuccesfull';
 import ConvertFunds from '../transactions/Convertfunds';
 import AddSettlementAccountModal from '../transactions/More/AddSettlementAccountModal';
 import BlogList from '../main/BlogList';
+import PrivacyPolicyScreen from '../main/PrivacyPolicy';
+import TermsOfServiceScreen from '../main/TermsOfServices';
 
 const Stack = createStackNavigator();
 
@@ -356,6 +358,16 @@ const Router = () => {
         <Stack.Screen
         name="Blogs"
         component={BlogList}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="TermsOfServices"
+        component={TermsOfServiceScreen}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

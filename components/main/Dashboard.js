@@ -7,6 +7,7 @@ import { Modalize } from 'react-native-modalize';
 // import WebView from 'react-native-webview';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons'; 
+import StockChart from './Charts/StockChart'
 
 
 const Dashboard = () => {
@@ -27,6 +28,10 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userName, setUserName] = useState('');
 
+  const chartData = [50, 45, 40, 30, 35, 45, 50, 55, 60];
+
+  // Calculate the maximum value in the chart data
+  const maxDataValue = Math.max(...chartData);
   
 
   useEffect(() => {
@@ -431,9 +436,9 @@ const handleSell = () => {
          </TouchableOpacity>
         )}
         
+        {/* Stock Chart */}
         <View style={styles.lossChartContainer}>
-          {/* Loss Chart */}
-          <Text style={styles.lossPercentageText}>-10%</Text>
+            <StockChart />
         </View>
         <View style={styles.featuredStockContainer1}>
           <Text style={styles.featuredStockText}>Featured Stocks</Text>
@@ -441,6 +446,7 @@ const handleSell = () => {
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
+
         {/* Stock Data */}
         <ScrollView style={styles.stockListContainer}>
           {stockData.map((stock) => (
@@ -963,7 +969,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginTop: 10,
+    marginTop: 30,
   },
   featuredStockText: {
     color: '#000',
@@ -1098,6 +1104,39 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  lossChartContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    marginLeft: 20,
+  },
+  yAxisLabelContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 5,
+    paddingTop: 5,
+  },
+  yAxisLabel: {
+    fontSize: 12,
+    color: '#888',
+  },
+  lineChartContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    flex: 1,
+  },
+  dataPoint: {
+    width: 20,
+    backgroundColor: '#51CC62',
+  },
+  xAxisLabelsContainer: {
+    flexDirection: 'row',
+    marginTop: 5,
+  },
+  xAxisLabel: {
+    flex: 1,
+    fontSize: 12,
+    textAlign: 'center',
+    color: '#888',
   },
 });
 

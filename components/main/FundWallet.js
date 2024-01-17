@@ -241,6 +241,12 @@ const FundWallets = () => {
       <Text style={styles.title}>Fund Wallet</Text>
       <ScrollView>
 
+         {/* Virtual Account Details */}
+         <View style={styles.BalanceContainer}>
+          <Text style={styles.balanceHeaderText}>Virtual Account Details</Text>
+          {renderVirtualAccountDetails()}
+        </View>
+
         {/* Amount Input */}
         <TextInput
           style={styles.amountInput}
@@ -250,11 +256,7 @@ const FundWallets = () => {
           onChangeText={(text) => setAmount(text)}
         />
 
-        {/* Virtual Account Details */}
-        <View style={styles.BalanceContainer}>
-          <Text style={styles.balanceHeaderText}>Virtual Account Details</Text>
-          {renderVirtualAccountDetails()}
-        </View>
+       
 
         {/* Payment Methods */}
         <Text style={styles.paymentMethodTitle}>Card Payment</Text>

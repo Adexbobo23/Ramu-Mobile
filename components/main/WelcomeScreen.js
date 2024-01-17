@@ -13,11 +13,11 @@ const WelcomeScreen = ({ navigation }) => {
   };
 
   const handlePrivacyPolicy = () => {
-    // Handle privacy policy action
+    navigation.navigate('PrivacyPolicy');
   };
 
   const handleTermsOfService = () => {
-    // Handle terms of service action
+    navigation.navigate('TermsOfServices');
   };
 
   return (

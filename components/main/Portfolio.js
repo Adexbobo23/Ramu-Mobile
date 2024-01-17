@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import StockChart from './Charts/StockChart';
 
 const Portfolio = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -150,6 +151,10 @@ useEffect(() => {
       {/* Title for Total Balance */}
       <Text style={styles.totalBalanceTitle}>Total Balance</Text>
 
+      <View style={styles.lossChartContainer}>
+            <StockChart />
+      </View>
+
       {/* Stock Data */}
       <ScrollView style={styles.stockList}>
         {stockData.map((stock) => (
@@ -157,11 +162,11 @@ useEffect(() => {
             {/* Replace the following image with your logic for displaying the stock logo */}
             <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
             <View style={styles.stockDetails}>
-              <Text style={styles.stockTitle}>{`Market: ${stock.key}`}</Text>
-              <Text style={styles.stockDescription}>{`Ticker: ${stock.ticker_id}`}</Text>
+              <Text style={styles.stockTitle}>{`${stock.key}`}</Text>
+              {/* <Text style={styles.stockDescription}>{`Ticker: ${stock.ticker_id}`}</Text> */}
               {/* Render additional important data here */}
-              <Text style={styles.additionalData}>{`Quantity: ${stock.quantity}, Currency: ${stock.currency}`}</Text>
-              <Text style={styles.additionalData}>{`Exchange Code: ${stock.exchange_code}`}</Text>
+              <Text style={styles.additionalData}>{`Quantity: ${stock.quantity}`}</Text>
+              {/* <Text style={styles.additionalData}>{`Exchange Code: ${stock.exchange_code}`}</Text> */}
               {/* Add more data fields as needed */}
               <View style={styles.stockRow}>
                 {/* Replace the following image with your logic for displaying the chart image */}
