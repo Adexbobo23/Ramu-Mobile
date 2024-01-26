@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
+import StockDetailsChart from '../main/Charts/StockDetailsChart';
 
 const PopularThisWeek = () => {
   const navigation = useNavigation();
@@ -11,7 +12,7 @@ const PopularThisWeek = () => {
   const [stockData, setStockData] = useState([]);
   const [userToken, setUserToken] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedStock, setSelectedStock] = useState(null); // Track the selected stock
+  const [selectedStock, setSelectedStock] = useState(null);
   const modalRef = useRef(null);
 
   const handleStockSelect = (stock) => {
@@ -77,15 +78,13 @@ const PopularThisWeek = () => {
   );
 
   const handleInvest = () => {
-    // Logic for handling investment
     console.log('Invest button pressed');
-    // Add your logic here
+    navigation.navigate('StockInvest');
   };
-
+  
   const handleSell = () => {
-    // Logic for handling selling
     console.log('Sell button pressed');
-    // Add your logic here
+    navigation.navigate('Portfolio');
   };
 
   return (
@@ -126,10 +125,10 @@ const PopularThisWeek = () => {
       <Modalize ref={modalRef}>
         {/* Content for the modal */}
         <View style={styles.modalContent}>
-          {/* Display full details of the selected stock */}
           {selectedStock && (
             <React.Fragment>
               <Text style={styles.modalTitle}>Stock Details</Text>
+              <StockDetailsChart />
               <Text style={styles.stockDetailText}>{`Company Name: ${selectedStock.company_name}`}</Text>
               <Text style={styles.stockDetailText}>{`Description: ${selectedStock.description}`}</Text>
               <Text style={styles.stockDetailText}>{`Trade Price: $${selectedStock.trade_price.toFixed(2)}`}</Text>
@@ -235,6 +234,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 16,
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   modalTitle: {
     fontSize: 38,

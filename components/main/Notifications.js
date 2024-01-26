@@ -1,32 +1,85 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Notification = () => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      message: 'You just invested in a stock.',
-    },
-    {
-        id: 2,
-        message: 'You just sell a stock.',
-    },
-    {
-        id: 3,
-        message: 'A new stock was added to your portfolio.',
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
-  const clearNotification = (id) => {
-    setNotifications((prevNotifications) => prevNotifications.filter((notif) => notif.id !== id));
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      // Get userToken from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+
+      if (userToken) {
+        const apiUrl = 'https://api-staging.ramufinance.com/api/v1/notifications';
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+
+        if (response.data.status) {
+          setNotifications(response.data.data);
+        } else {
+          Alert.alert('Failed to fetch notifications', response.data.message || 'Please try again.');
+        }
+      } else {
+        Alert.alert('Failed to fetch notifications', 'User token not found.');
+      }
+    } catch (error) {
+      console.error('Error while fetching notifications:', error);
+      Alert.alert('Failed to fetch notifications', 'An error occurred. Please try again.');
+    }
   };
+
+
+const markAsRead = async () => {
+  try {
+    // Get userToken from AsyncStorage
+    const userToken = await AsyncStorage.getItem('userToken');
+
+    if (userToken) {
+      const apiUrl = 'https://api-staging.ramufinance.com/api/v1/mark-as-read';
+
+      // Log request details for debugging
+      console.log('Request URL:', apiUrl);
+      console.log('Request Headers:', { Authorization: `Bearer ${userToken}` });
+
+      // Make the Axios request using the correct HTTP method (e.g., GET)
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      // Log response details for debugging
+      console.log('Response:', response.data);
+
+      if (response.data.status) {
+        // Update the local state after marking as read
+        setNotifications([]);
+      } else {
+        Alert.alert('Failed to mark notifications as read', response.data.message || 'Please try again.');
+      }
+    } else {
+      Alert.alert('Failed to mark notifications as read', 'User token not found.');
+    }
+  } catch (error) {
+    console.error('Error while marking notifications as read:', error);
+    Alert.alert('Failed to mark notifications as read', 'An error occurred. Please try again.');
+  }
+};
+
+  
 
   const renderItem = ({ item }) => (
     <View style={styles.notificationItem}>
-      <Text style={styles.notificationText}>{item.message}</Text>
-      <Text style={styles.clearButton} onPress={() => clearNotification(item.id)}>
-        Clear
-      </Text>
+      <Text style={styles.notificationText}>{item.data.message}</Text>
     </View>
   );
 
@@ -40,6 +93,10 @@ const Notification = () => {
         renderItem={renderItem}
         style={styles.notificationList}
       />
+
+      <TouchableOpacity style={styles.markAsReadButton} onPress={markAsRead}>
+        <Text style={styles.markAsReadButtonText}>Mark All as Read</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -80,6 +137,21 @@ const styles = StyleSheet.create({
   clearButton: {
     color: 'red',
     fontWeight: 'bold',
+  },
+  markAsReadButton: {
+    backgroundColor: '#51CC62',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+    width: '100%',
+    height: 52,
+    alignItems: 'center',
+  },
+  markAsReadButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 

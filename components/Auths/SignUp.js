@@ -76,7 +76,7 @@ const SignupComponent = ({ navigation }) => {
 
   const handleSignup = async () => {
     if (!userName || !firstName || !lastName || !phoneNumber || !email || !password || !confirmPassword || !termsAccepted || !address || !selectedNationality || !gender) {
-      alert('Please fill in all required fields');
+      alert('Please fill in all required fields including the Terms and Privacy checkbox');
       return;
     }
   

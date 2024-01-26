@@ -6,41 +6,12 @@ import {
   TextInput,
   Alert,
   StyleSheet,
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-
-const CustomDropdown = ({ options, selectedValue, onValueChange }) => {
-  const [visible, setVisible] = useState(false);
-
-  return (
-    <View style={styles.dropdownContainer}>
-      <TouchableOpacity
-        style={styles.dropdownButton}
-        onPress={() => setVisible(!visible)}
-      >
-        <Text>{options.find((option) => option.value === selectedValue)?.label}</Text>
-      </TouchableOpacity>
-      {visible && (
-        <View style={styles.dropdownList}>
-          {options.map((option) => (
-            <TouchableOpacity
-              key={option.value}
-              style={styles.dropdownItem}
-              onPress={() => {
-                onValueChange(option.value);
-                setVisible(false);
-              }}
-            >
-              <Text>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
 
 const ConvertFunds = () => {
   const navigation = useNavigation();
@@ -49,6 +20,7 @@ const ConvertFunds = () => {
   const [convertFrom, setConvertFrom] = useState('NGN');
   const [convertTo, setConvertTo] = useState('USD');
   const [exchangeRate, setExchangeRate] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     fetchExchangeRate();
@@ -124,25 +96,51 @@ const ConvertFunds = () => {
       }
     } catch (error) {
       console.error('Error converting funds:', error);
-      Alert.alert('Error', 'Failed to convert funds. Please try again later.');
+      Alert.alert('Hey', 'Failed to convert funds. Insufficient Fund.');
     }
   };
 
-  const calculateConvertedAmount = () => {
-    if (!exchangeRate || !convertAmount) {
-      return 'Exchange rate not available';
-    }
-
-    const rate = convertTo === 'USD' ? exchangeRate.ngn_usd : exchangeRate.usd_ngn;
-    const convertedAmount = parseFloat(convertAmount) * parseFloat(rate);
-
-    return `Converted Amount: ${convertedAmount.toFixed(2)} ${convertTo}`;
-  };
-
-  const currencyOptions = [
-    { label: 'NGN', value: 'NGN' },
-    { label: 'USD', value: 'USD' },
-  ];
+  const renderCurrencyModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isModalVisible}
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay} />
+      </TouchableWithoutFeedback>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>Select Currencies</Text>
+        <TouchableOpacity
+          style={styles.currencyButton}
+          onPress={() => {
+            setConvertFrom('NGN');
+            setConvertTo('USD');
+            setModalVisible(false);
+          }}
+        >
+          <Text style={styles.currencyButtonText}>NGN to USD</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.currencyButton}
+          onPress={() => {
+            setConvertFrom('USD');
+            setConvertTo('NGN');
+            setModalVisible(false);
+          }}
+        >
+          <Text style={styles.currencyButtonText}>USD to NGN</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.modalCloseButton}
+          onPress={() => setModalVisible(false)}
+        >
+          <Text style={styles.modalCloseButtonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
 
   return (
     <View style={styles.container}>
@@ -157,26 +155,20 @@ const ConvertFunds = () => {
       />
 
       <Text style={styles.exchangeRate}>
-        Exchange Rate: 1 {convertFrom} = {exchangeRate?.[`${convertFrom.toLowerCase()}_to_${convertTo.toLowerCase()}`]} {convertTo}
+        Exchange Rate: {exchangeRate ? (
+          convertFrom === 'NGN'
+            ? `1 NGN = ${exchangeRate.ngn_usd} USD`
+            : `1 USD = ${exchangeRate.usd_ngn} NGN`
+        ) : (
+          'Fetching exchange rate...'
+        )}
       </Text>
 
-      <Text style={styles.convertedAmount}>
-        {calculateConvertedAmount()}
-      </Text>
+      <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(true)}>
+        <Text style={styles.buttonText}>Select Currencies</Text>
+      </TouchableOpacity>
 
-      <Text style={styles.label}>Select From Currency</Text>
-      <CustomDropdown
-        options={currencyOptions}
-        selectedValue={convertFrom}
-        onValueChange={setConvertFrom}
-      />
-
-      <Text style={styles.label1}>Select To Currency</Text>
-      <CustomDropdown
-        options={currencyOptions}
-        selectedValue={convertTo}
-        onValueChange={setConvertTo}
-      />
+      {renderCurrencyModal()}
 
       <TouchableOpacity style={styles.convertButton} onPress={handleConvert}>
         <Text style={styles.buttonText}>Convert</Text>
@@ -191,13 +183,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 25,
     fontWeight: 'bold',
     color: '#51CC62',
-    marginBottom: 50,
-    marginTop: -100,
+    marginBottom: 20,
   },
   input: {
     height: 60,
@@ -208,70 +200,75 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 15,
   },
-  label: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: '#51CC62',
-    alignSelf: 'flex-start',
-  },
-  label1: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: '#51CC62',
-    alignSelf: 'flex-start',
-    marginTop: 50
-  },
-  dropdownContainer: {
-    width: '100%',
-    borderColor: '#51CC62',
-    borderWidth: 1.5,
-    borderRadius: 15,
-    marginBottom: 20,
-    position: 'relative',
-    height: 50,
-  },
-  dropdownButton: {
-    width: '100%',
-    padding: 10,
-  },
-  dropdownList: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    width: '100%',
-    borderColor: '#51CC62',
-    borderWidth: 1.5,
-    borderRadius: 15,
-    marginTop: 2,
-    backgroundColor: '#51CC62',
-    zIndex: 2,
-  },
-  dropdownItem: {
-    padding: 10,
-  },
   exchangeRate: {
     fontSize: 16,
     color: '#333',
     marginBottom: 10,
   },
-  convertedAmount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#51CC62',
-    marginBottom: 40,
-  },
-  convertButton: {
+  modalButton: {
     backgroundColor: '#51CC62',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 80,
+    marginTop: 20,
     width: '100%',
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#51CC62',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  currencyButton: {
+    backgroundColor: '#51CC62',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  currencyButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalCloseButton: {
+    backgroundColor: '#51CC62',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  convertButton: {
+    backgroundColor: '#51CC62',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+    width: '100%',
   },
 });
 

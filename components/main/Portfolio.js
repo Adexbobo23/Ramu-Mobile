@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import StockChart from './Charts/StockChart';
+import StockDetailsChart from './Charts/StockDetailsChart';
+import PortfolioChart from './Charts/PortfolioChart';
 
 const Portfolio = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,6 +18,8 @@ const Portfolio = () => {
   const navigation = useNavigation();
   const modalizeRef = useRef(null);
   const [transactionPin, setTransactionPin] = useState('');
+  const [actualBalance, setActualBalance] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserToken = async () => {
@@ -31,6 +35,51 @@ const Portfolio = () => {
 
     fetchUserToken();
   }, []);
+
+  useEffect(() => {
+    const fetchUserToken = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        if (userToken) {
+          fetchActualBalance(userToken); 
+          fetchStockData(userToken); 
+        }
+      } catch (error) {
+        console.error('Error fetching user token:', error.message);
+      }
+    };
+
+    fetchUserToken();
+  }, []);
+
+
+  const fetchActualBalance = async (userToken) => {
+    try {
+      const apiUrl = 'https://api-staging.ramufinance.com/api/v1/get-portfolio-balance';
+
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.data.status) {
+        setActualBalance(parseFloat(response.data.data.balance));
+      } else {
+        console.error('Error fetching actual balance:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching actual balance:', error.message);
+    } finally {
+      setLoading(false); 
+    }
+  };
+
+  // Modify the useEffect that calculates total balance to use actualBalance
+  useEffect(() => {
+    setTotalBalance(actualBalance);
+  }, [actualBalance]);
+
 
   const fetchStockData = async (userToken) => {
     try {
@@ -49,17 +98,29 @@ const Portfolio = () => {
       }
     } catch (error) {
       console.error('Error fetching stock data:', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+
   useEffect(() => {
-    const total = stockData.reduce((acc, stock) => {
-      // Check if trade_price is defined before using it
+    const totalAmount = stockData.reduce((acc, stock) => {
       const tradePrice = parseFloat(stock.trade_price);
-      return isNaN(tradePrice) ? acc : acc + tradePrice;
+      const quantity = parseInt(stock.quantity, 10);
+
+      if (isNaN(tradePrice) || isNaN(quantity)) {
+        console.warn(`Invalid trade_price or quantity for stock: ${stock.ticker_id}`);
+        return acc;
+      }
+
+      const stockAmount = tradePrice * quantity;
+      return acc + stockAmount;
     }, 0);
-    setTotalBalance(total);
+
+    setTotalBalance(totalAmount);
   }, [stockData]);
+
   
 
 // Filter stock data based on search query
@@ -143,43 +204,55 @@ useEffect(() => {
         />
       </View>
 
-      {/* Account Balance */}
+       {/* Account Balance */}
       <View style={styles.accountBalanceContainer}>
-        <Text style={styles.totalBalanceText}>${totalBalance.toFixed(2)}</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#51CC62" />
+        ) : (
+          <Text style={styles.totalBalanceText}>${actualBalance.toFixed(2)}</Text>
+        )}
       </View>
 
       {/* Title for Total Balance */}
       <Text style={styles.totalBalanceTitle}>Total Balance</Text>
 
       <View style={styles.lossChartContainer}>
-            <StockChart />
+        {/* <StockChart /> */}
       </View>
 
       {/* Stock Data */}
       <ScrollView style={styles.stockList}>
-        {stockData.map((stock) => (
-          <TouchableOpacity key={stock.ticker_id} style={styles.stockItem} onPress={() => openSellModal(stock)}>
-            {/* Replace the following image with your logic for displaying the stock logo */}
-            <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
-            <View style={styles.stockDetails}>
-              <Text style={styles.stockTitle}>{`${stock.key}`}</Text>
-              {/* <Text style={styles.stockDescription}>{`Ticker: ${stock.ticker_id}`}</Text> */}
-              {/* Render additional important data here */}
-              <Text style={styles.additionalData}>{`Quantity: ${stock.quantity}`}</Text>
-              {/* <Text style={styles.additionalData}>{`Exchange Code: ${stock.exchange_code}`}</Text> */}
-              {/* Add more data fields as needed */}
-              <View style={styles.stockRow}>
-                {/* Replace the following image with your logic for displaying the chart image */}
-                <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                <Text style={styles.stockPrice}>{`$${(parseFloat(stock.trade_price) || 0).toFixed(2)}`}</Text>
+        <PortfolioChart />
+        {loading ? (
+          <ActivityIndicator size="large" color="#51CC62" />
+        ) : (
+          stockData.map((stock) => (
+            <TouchableOpacity key={stock.ticker_id} style={styles.stockItem} onPress={() => openSellModal(stock)}>
+              {/* Replace the following image with your logic for displaying the stock logo */}
+              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+              <View style={styles.stockDetails}>
+                <Text style={styles.stockTitle}>{`${stock.key}`}</Text>
+                {/* <Text style={styles.stockDescription}>{`Ticker: ${stock.ticker_id}`}</Text> */}
+                {/* Render additional important data here */}
+                <Text style={styles.additionalData}>{`Quantity: ${stock.quantity}`}</Text>
+                <Text style={styles.additionalData}>{`Initial Trade Price: ${stock.initial_trade_price}`}</Text>
+                {/* <Text style={styles.additionalData}>{`Exchange Code: ${stock.exchange_code}`}</Text> */}
+                {/* Add more data fields as needed */}
+                <View style={styles.stockRow}>
+                  {/* Replace the following image with your logic for displaying the chart image */}
+                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                  <Text style={styles.stockPrice}>Market Price {`$${(parseFloat(stock.trade_price) || 0).toFixed(2)}`}</Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
 
       {/* Sell Modal using Modalize */}
       <Modalize ref={modalizeRef} adjustToContentHeight>
+      <Text style={styles.PortfolioTitle}>Portfolio Stock Details</Text>
+        <StockDetailsChart />
         {selectedStock && (
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedStock?.key}</Text>
@@ -294,6 +367,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     marginBottom: 30,
+  },
+  PortfolioTitle: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#51CC62',
+    marginTop: 20,
   },
   stockList: {
     flex: 1,

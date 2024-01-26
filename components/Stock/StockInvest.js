@@ -31,6 +31,8 @@ const StockInvest = () => {
   const [exchangeRate, setExchangeRate] = useState(0);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(true);
   const [nairaAmountInput, setNairaAmountInput] = useState('');
+  const [selectedStockMarketId, setSelectedStockMarketId] = useState('');
+
 
   useEffect(() => {
     const fetchExchangeRate = async () => {
@@ -131,17 +133,18 @@ const StockInvest = () => {
         // Insufficient funds or invalid calculatedStockPrice
         console.log('Insufficient Funds or Invalid Calculated Stock Price.');
         Alert.alert('Insufficient Fund', 'Please fund your account.');
+        navigation.navigate('PaymentFailed');
       }
     } catch (error) {
       console.error('Error:', error.message);
     }
   };
 
-  const handleStockSelect = (stockId) => {
+  const handleStockSelect = (stockId, stockMarketId) => {
     setSelectedStock(stockId);
+    setSelectedStockMarketId(stockMarketId);
     setShowStockModal(false);
 
-    // Calculate quantity and stock price after selecting the stock
     calculateQuantityAndStockPrice(amount);
   };
 
@@ -301,7 +304,7 @@ const StockInvest = () => {
         symbol: selectedStock,
         exchange: 'NSDQ',
         order_side: '1',
-        stock_market_id: 1,
+        stock_market_id: '1',
         transaction_pin: transactionPin,
       };
 
@@ -580,8 +583,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    color: '#000',
+    color: '#51CC62',
     marginBottom: 5,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   placeholderText: {
     color: 'gray',
@@ -649,6 +654,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
+    alignItems: 'center'
   },
   modalItem: {
     paddingVertical: 12,

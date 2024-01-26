@@ -7,7 +7,8 @@ import { Modalize } from 'react-native-modalize';
 // import WebView from 'react-native-webview';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons'; 
-import StockChart from './Charts/StockChart'
+import StockChart from './Charts/StockChart';
+import StockDetailsChart from './Charts/StockDetailsChart';
 
 
 const Dashboard = () => {
@@ -297,14 +298,13 @@ const handleNotification = () => {
 };
 
 const handleInvest = () => {
-  // Logic for handling investment
   console.log('Invest button pressed');
-  // Add your logic here
+  navigation.navigate('StockInvest');
 };
 
 const handleSell = () => {
-  // Logic for handling selling
   console.log('Sell button pressed');
+  navigation.navigate('Portfolio');
 };
 
 
@@ -389,7 +389,10 @@ const handleSell = () => {
                   style={styles.stockItem}
                   onPress={() => handleTrendingStockSelect(stock)}
                 >
-                  <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+                  <Image
+                    source={{ uri: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c516.png" }}
+                    style={styles.stockImage1}
+                  />
                   <Text style={styles.stockName}>{stock.company_name}</Text>
                   <Text style={styles.stockDescription}>{stock.description}</Text>
                 </TouchableOpacity>
@@ -437,9 +440,9 @@ const handleSell = () => {
         )}
         
         {/* Stock Chart */}
-        <View style={styles.lossChartContainer}>
+        {/* <View style={styles.lossChartContainer}>
             <StockChart />
-        </View>
+        </View>  */}
         <View style={styles.featuredStockContainer1}>
           <Text style={styles.featuredStockText}>Featured Stocks</Text>
           <TouchableOpacity  onPress={handleSeeAll}>
@@ -453,9 +456,12 @@ const handleSell = () => {
             <TouchableOpacity
               key={stock.ticker_id}
               style={styles.stockItemContainer}
-              onPress={() => handleStockSelect(stock)}
+              // onPress={() => handleStockSelect(stock)}
             >
-              <Image source={{ uri: stock.logo }} style={styles.stockImage} />
+              <Image
+                source={{ uri: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c516.png" }}
+                style={styles.stockImage}
+              />
               <View style={styles.stockDetailsContainer}>
                 <Text style={styles.stockTitleText}>{stock.company_name}</Text>
                 <Text style={styles.stockDescriptionText}>{stock.description}</Text>
@@ -487,10 +493,10 @@ const handleSell = () => {
         <Modalize ref={modalRef}>
           {/* Content for the modal */}
           <View style={styles.modalContent}>
-            {/* Display full details of the selected featured stock */}
             {selectedFeaturedStock && (
               <React.Fragment>
                 <Text style={styles.modalTitle}>Stock Details</Text>
+                
                 <Text style={styles.stockDetailText}>{`Company Name: ${selectedFeaturedStock.company_name}`}</Text>
                 <Text style={styles.stockDetailText}>{`Description: ${selectedFeaturedStock.description}`}</Text>
                 <Text style={styles.stockDetailText}>{`Trade Price: $${selectedFeaturedStock.trade_price.toFixed(2)}`}</Text>
@@ -517,6 +523,7 @@ const handleSell = () => {
             {selectedTopTrendingStock && (
               <React.Fragment>
                 <Text style={styles.modalTitle}>Stock Details</Text>
+                <StockDetailsChart />
                 <Text style={styles.stockDetailText}>{`Company Name: ${selectedTopTrendingStock.company_name}`}</Text>
                 <Text style={styles.stockDetailText}>{`Description: ${selectedTopTrendingStock.description}`}</Text>
                 <Text style={styles.stockDetailText}>{`Trade Price: $${selectedTopTrendingStock.trade_price.toFixed(2)}`}</Text>
@@ -875,6 +882,19 @@ const styles = StyleSheet.create({
   },
   stockItem: {
     marginRight: 16,
+    marginBottom: 5,
+    // backgroundColor: '#FFFFFF',
+    // borderRadius: 10,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 5,
+    // elevation: 3,
+    borderWidth: 0,
+    borderColor: '#51CC62',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 16,
   },
   stockImage: {
     width: 100,
@@ -883,8 +903,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   stockImage1: {
-    width: 100,
-    height: 100,
+    width: 60,
+    height: 60,
     borderRadius: 10,
     marginBottom: 8,
   },
@@ -1071,6 +1091,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 16,
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   modalTitle: {
     fontSize: 38,
@@ -1079,8 +1101,10 @@ const styles = StyleSheet.create({
     color: '#51CC62'
   },
   stockDetailText: {
-    fontSize: 19,
+    fontSize: 20,
     marginBottom: 8,
+    fontWeight: 'bold',
+    color: '#333'
   },
   buttonsContainer: {
     flexDirection: 'row',

@@ -4,12 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
-const PasswordReset = () => {
+const PasswordReset = ({ route }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigation = useNavigation();
+  const { email, otp } = route.params;
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -20,58 +21,59 @@ const PasswordReset = () => {
   };
 
   const handlePasswordReset = async () => {
-    // Perform validation here
     if (password === '') {
-      alert('Please enter a password');
+      Alert.alert('Please enter a password');
       return;
     }
 
     if (confirmPassword === '') {
-      alert('Please confirm your password');
+      Alert.alert('Please confirm your password');
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      Alert.alert('Passwords do not match');
       return;
     }
 
     try {
-      // Send the resetData to the backend API
       const apiUrl = 'https://api-staging.ramufinance.com/api/v1/reset-password';
-      const response = await axios.post(apiUrl, { password });
+      const response = await axios.post(apiUrl, {
+        email,
+        password,
+        password_confirmation: confirmPassword,
+        otp,
+      });
 
       console.log('Password reset response:', response.data);
 
-      // Check if the API request was successful
       if (response.data.status) {
-        // Navigate to the PasswordResetSuccessful page
+        Alert.alert('Success', 'Password reset successfully.');
         navigation.navigate('PasswordResetSuccessful');
       } else {
-        // Display an error message
-        Alert.alert('Failed to reset password', 'Please try again.');
+        Alert.alert('Failed to reset password', response.data.message || 'Please try again.');
       }
     } catch (error) {
       console.error('Error while resetting password:', error);
-    
+
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
+
+        if (error.response.status === 422) {
+          Alert.alert('Failed to reset password', 'Invalid OTP. Please try again.');
+        } else {
+          Alert.alert('Failed to reset password', 'Please try again.');
+        }
       } else if (error.request) {
-        // The request was made but no response was received
         console.error('No response received');
         console.error('Request data:', error.request);
+        Alert.alert('Failed to reset password', 'No response received. Please try again.');
       } else {
-        // Something happened in setting up the request that triggered an Error
         console.error('Error setting up the request:', error.message);
+        Alert.alert('Failed to reset password', 'An error occurred. Please try again.');
       }
-    
-      // Display a generic error message to the user
-      Alert.alert('Failed to reset password', 'Please try again.');
     }
-    
   };
 
   return (

@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#51CC62'
   },
   modalContainer: {
     flex: 1,

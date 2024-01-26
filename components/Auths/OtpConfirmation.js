@@ -1,46 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
 const OtpConfirmation = ({ route }) => {
-  const [otpCode, setOtpCode] = useState(['', '', '', '']);
   const [remainingTime, setRemainingTime] = useState(60);
   const navigation = useNavigation();
   const { email } = route.params;
+  const otpInputs = useRef([]);
 
   useEffect(() => {
     sendOtpCode();
   }, []);
 
-  const sendOtpCode = () => {
-    // Simulating sending OTP code to the email
-    // In a real application, you would send the OTP code to the user's email address using a backend API
+  const sendOtpCode = async () => {
+    try {
+      const response = await axios.post(
+        'https://api-staging.ramufinance.com/api/v1/resend-password-reset-otp',
+        {
+          email: email,
+        }
+      );
 
-    // Start the countdown timer for 60 seconds
-    let time = 60;
-    const timer = setInterval(() => {
-      time--;
-      setRemainingTime(time);
+      if (response.data.status) {
+        // Start the countdown timer for 60 seconds
+        let time = 60;
+        const timer = setInterval(() => {
+          time--;
+          setRemainingTime(time);
 
-      if (time === 0) {
-        clearInterval(timer);
+          if (time === 0) {
+            clearInterval(timer);
+          }
+        }, 1000);
+      } else {
+        console.error('Error sending OTP:', response.data.message);
+        Alert.alert('Error', 'Error sending OTP. Please try again.');
       }
-    }, 1000);
+    } catch (error) {
+      console.error('An error occurred while sending OTP:', error);
+      Alert.alert('Error', 'An error occurred while sending OTP. Please try again.');
+    }
   };
 
   const handleVerifyOtp = () => {
-    // Validate input fields
-    if (otpCode.every((code) => code.trim().length > 0)) {
-      // Logic for handling the verification of the OTP code
-      const otp = otpCode.join('');
-      console.log('OTP code:', otp);
-      // ... your code here ...
+    const otp = otpInputs.current.map((input) => input.value).join('');
 
-      // Navigate to the PasswordReset component
-      navigation.navigate('PasswordReset');
+    if (otp.trim().length > 0) {
+      // Pass email and otp as part of navigation state
+      navigation.navigate('PasswordReset', { email, otp });
     } else {
-      // Display an error message
       Alert.alert('Error', 'Please enter the OTP code.');
     }
   };
@@ -50,9 +59,13 @@ const OtpConfirmation = ({ route }) => {
   };
 
   const handleOtpCodeChange = (index, value) => {
-    const updatedOtpCode = [...otpCode];
-    updatedOtpCode[index] = value;
-    setOtpCode(updatedOtpCode);
+    if (index < otpInputs.current.length - 1 && value.trim().length > 0) {
+      otpInputs.current[index + 1].focus();
+    }
+
+    const updatedOtpInputs = [...otpInputs.current];
+    updatedOtpInputs[index].value = value;
+    otpInputs.current = updatedOtpInputs;
   };
 
   return (
@@ -61,17 +74,18 @@ const OtpConfirmation = ({ route }) => {
       <Text style={styles.subtitle}>Code has been sent to your email:</Text>
       <Text style={styles.email}>{email}</Text>
       <View style={styles.otpContainer}>
-        {otpCode.map((value, index) => (
-          <TextInput
-            key={index}
-            style={styles.otpInput}
-            keyboardType="numeric"
-            value={value}
-            onChangeText={(text) => handleOtpCodeChange(index, text)}
-            maxLength={1}
-            required
-          />
-        ))}
+        {Array(4)
+          .fill(0)
+          .map((_, index) => (
+            <TextInput
+              key={index}
+              ref={(input) => (otpInputs.current[index] = input)}
+              style={styles.otpInput}
+              keyboardType="numeric"
+              onChangeText={(text) => handleOtpCodeChange(index, text)}
+              maxLength={1}
+            />
+          ))}
       </View>
       {remainingTime > 0 && (
         <Text style={styles.resendText}>
@@ -87,6 +101,7 @@ const OtpConfirmation = ({ route }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

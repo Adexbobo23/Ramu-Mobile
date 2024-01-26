@@ -3,10 +3,8 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 
 const EmailVerifySuccessful = ({ navigation }) => {
   const handleGoToDashboard = () => {
-    // Logic for handling "Dashboard" button press
-    console.log('Go to Dashboard');
-    // Navigate to the Dashboard page
-    navigation.navigate('Dashboard');
+    console.log('Go to login');
+    navigation.navigate('Login');
   };
 
   return (
@@ -16,7 +14,7 @@ const EmailVerifySuccessful = ({ navigation }) => {
       <Text style={styles.messageText1}>Let's get some business done!</Text>
       <Image source={require('../Assests/Frame_158.png')} style={styles.image} />
       <TouchableOpacity style={styles.dashboardButton} onPress={handleGoToDashboard}>
-        <Text style={styles.buttonText}>Dashboard</Text>
+        <Text style={styles.buttonText}>Go to Login</Text>
       </TouchableOpacity>
     </View>
   );

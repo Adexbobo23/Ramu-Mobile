@@ -19,13 +19,11 @@ import axios from 'axios';
 
 const Withdraw = () => {
   const navigation = useNavigation();
-  const switchAccountModalRef = useRef(null);
   const transactionPinModalRef = useRef(null);
 
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [walletDetails, setWalletDetails] = useState(null);
-  const [selectedAccount, setSelectedAccount] = useState('naira');
   const [userToken, setUserToken] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [transactionPin, setTransactionPin] = useState('');
@@ -33,8 +31,8 @@ const Withdraw = () => {
 
 
   useEffect(() => {
-    fetchWalletDetails(selectedAccount);
-  }, [selectedAccount]);
+    fetchWalletDetails();
+  }, []);
 
   const fetchWalletDetails = async () => {
     try {
@@ -87,13 +85,13 @@ const Withdraw = () => {
     switchAccountModalRef.current?.open();
   };
 
-  const handleAccountSelection = (accountType) => {
-    if (accountType === selectedAccount) {
-      switchAccountModalRef.current?.close();
-    } else {
-      setSelectedAccount(accountType);
-    }
-  };
+  // const handleAccountSelection = (accountType) => {
+  //   if (accountType === selectedAccount) {
+  //     switchAccountModalRef.current?.close();
+  //   } else {
+  //     setSelectedAccount(accountType);
+  //   }
+  // };
 
   const handleWithdraw = async () => {
     if (!withdrawAmount) {
@@ -200,34 +198,24 @@ const Withdraw = () => {
         <View style={styles.topBar}>
           <View style={styles.hideen}>
             <Text style={styles.acoountbalance}>Account Balance</Text>
-              <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
-                {balanceVisible ? (
-                  <Feather name="eye-off" size={24} color="white" />
-                ) : (
-                  <Feather name="eye" size={24} color="white" />
-                )}
-              </TouchableOpacity>
+            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+              {balanceVisible ? (
+                <Feather name="eye-off" size={24} color="white" />
+              ) : (
+                <Feather name="eye" size={24} color="white" />
+              )}
+            </TouchableOpacity>
           </View>
           <View style={styles.balanceContainer}>
-            {renderSwitchAccountButton()}
             <TouchableOpacity onPress={toggleBalanceVisibility}>
               {isLoading ? (
                 <ActivityIndicator size="small" color="white" />
               ) : (
                 <Text style={styles.balanceText}>
-                  {balanceVisible ? (
-                    selectedAccount === 'naira' ? (
-                      `₦${walletDetails?.naira?.balance}`
-                    ) : (
-                      `$${walletDetails?.dollar?.balance}`
-                    )
-                  ) : (
-                    '*******'
-                  )}
+                  {balanceVisible ? `₦${walletDetails?.naira?.balance}` : '*******'}
                 </Text>
               )}
             </TouchableOpacity>
-           
           </View>
         </View>
 
@@ -256,46 +244,31 @@ const Withdraw = () => {
 
       </View>
 
-
       {/* Transaction Pin Modal */}
       <Modalize
-          ref={transactionPinModalRef}
-          adjustToContentHeight
-          snapPoint={500} 
-        >
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalOption}>Enter 4-digit transaction PIN</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              secureTextEntry
-              maxLength={4}
-              value={transactionPin}
-              onChangeText={(text) => setTransactionPin(text)}
-            />
-            <TouchableOpacity style={styles.withdrawButton} onPress={handleConfirmWithdrawal}>
-              <Text style={styles.buttonText}>Confirm Withdrawal</Text>
-            </TouchableOpacity>
-          </View>
-        </Modalize>
-
-      {/* Switch Account Modal */}
-      <Modalize ref={switchAccountModalRef} adjustToContentHeight>
+        ref={transactionPinModalRef}
+        adjustToContentHeight
+        snapPoint={500}
+      >
         <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={() => handleAccountSelection('naira')} style={styles.modalOptionContainer}>
-            <Image source={require('../Assests/nigeria.png')} style={styles.countryLogo} />
-            <Text style={styles.modalOption}>Switch to Naira Account</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => handleAccountSelection('dollar')} style={styles.modalOptionContainer}>
-            <Image source={require('../Assests/usa.png')} style={styles.countryLogo} />
-            <Text style={styles.modalOption}>Switch to Dollar Account</Text>
+          <Text style={styles.modalOption}>Enter 4-digit transaction PIN</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            secureTextEntry
+            maxLength={4}
+            value={transactionPin}
+            onChangeText={(text) => setTransactionPin(text)}
+          />
+          <TouchableOpacity style={styles.withdrawButton} onPress={handleConfirmWithdrawal}>
+            <Text style={styles.buttonText}>Confirm Withdrawal</Text>
           </TouchableOpacity>
         </View>
       </Modalize>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   scrollContainer: {

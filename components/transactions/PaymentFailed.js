@@ -23,7 +23,7 @@ const PaymentFailed = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Transaction Failed</Text>
-            <Text style={styles.subtitle}>Your Payment was Unsuccessful</Text>
+            <Text style={styles.subtitle}>Your Transaction was Unsuccessful</Text>
 
             {loading ? (
                 <ActivityIndicator size="large" color="#FF0000" style={styles.loading} />

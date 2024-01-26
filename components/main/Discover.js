@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Modalize } from 'react-native-modalize';
+import StockDetailsChart from './Charts/StockDetailsChart';
 
 const Discover = () => {
     const navigation = useNavigation();
@@ -155,16 +156,18 @@ const Discover = () => {
       navigation.navigate(screen);
     };
 
+    const navigateToBlogs =() => {
+      navigation.navigate('Blogs');
+    }
+
     const handleInvest = () => {
-      // Logic for handling investment
       console.log('Invest button pressed');
-      // Add your logic here
+      navigation.navigate('StockInvest');
     };
     
     const handleSell = () => {
-      // Logic for handling selling
       console.log('Sell button pressed');
-      // Add your logic here
+      navigation.navigate('Portfolio');
     };
 
     const filteredStocks = topTrendingStocks.filter((stock) =>
@@ -245,7 +248,6 @@ const Discover = () => {
               {/* Use an appropriate image for the sector */}
               <Image source={require('../Assests/sector.jpg')} style={styles.stockImage3} />
               <Text style={styles.stockName}>{sector.name}</Text>
-              {/* You can customize the sector description as needed */}
               <Text style={styles.stockDescription}>{sector.description || 'No description available'}</Text>
             </TouchableOpacity>
           ))}
@@ -320,12 +322,12 @@ const Discover = () => {
             <TouchableOpacity
               key={blog.id}
               style={styles.newsItem}
-              onPress={() => navigateToBlogDetails(blog)}
+              onPress={navigateToBlogs}
             >
               <Image
-                source={{ uri: `data:image/jpeg;base64,${blog.thumbnail_image}` }}
-                style={styles.newsImage}
-              />
+              source={{ uri: blog.thumbnail_image }}
+              style={styles.newsImage}
+            />
               <Text style={styles.newsTitle}>{blog.title}</Text>
               <Text style={styles.stockDescription}>{blog.writer_info.user_name}</Text>
             </TouchableOpacity>
@@ -338,10 +340,10 @@ const Discover = () => {
     <Modalize ref={modalRef}>
   {/* Content for the modal */}
   <View style={styles.modalContent}>
-    {/* Display full details of the selected popular stock */}
     {selectedPopularStock && (
       <React.Fragment>
         <Text style={styles.modalTitle}>Stock Details</Text>
+        <StockDetailsChart />
         <Text style={styles.stockDetailText}>{`Company Name: ${selectedPopularStock.company_name}`}</Text>
         <Text style={styles.stockDetailText}>{`Description: ${selectedPopularStock.description}`}</Text>
         <Text style={styles.stockDetailText}>{`Trade Price: $${selectedPopularStock.trade_price.toFixed(2)}`}</Text>
@@ -423,7 +425,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
+    color: '#51CC62',
   },
   seeAll: {
     fontSize: 16,
@@ -441,7 +443,21 @@ const styles = StyleSheet.create({
   
   stockItem: {
     marginRight: 16,
+    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+    borderWidth: 0,
+    borderColor: '#51CC62',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 16,
   },
+  
   stockImage: {
     width: 100,
     height: 100,
@@ -527,6 +543,8 @@ navBarText: {
 },
 modalContent: {
   padding: 16,
+  flexDirection: 'column',
+  alignItems: 'center'
 },
 modalTitle: {
   fontSize: 38,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -10,16 +10,18 @@ const OtpVerification = ({ email }) => {
   const [otpCode4, setOtpCode4] = useState('');
   const [remainingTime, setRemainingTime] = useState(60);
   const navigation = useNavigation();
+  const otpInputRef1 = useRef(null);
+  const otpInputRef2 = useRef(null);
+  const otpInputRef3 = useRef(null);
+  const otpInputRef4 = useRef(null);
 
   useEffect(() => {
     sendOtpCode();
+    // Focus on the first input when the component mounts
+    otpInputRef1.current.focus();
   }, []);
 
   const sendOtpCode = () => {
-    // Simulating sending OTP code to the email
-    // In a real application, you would send the OTP code to the user's email address using a backend API
-
-    // Start the countdown timer for 60 seconds
     let time = 60;
     const timer = setInterval(() => {
       time--;
@@ -31,24 +33,47 @@ const OtpVerification = ({ email }) => {
     }, 1000);
   };
 
+  // const handleVerifyOtp = async () => {
+  //   if (otpCode1 && otpCode2 && otpCode3 && otpCode4) {
+  //     try {
+  //       const otpCode = otpCode1 + otpCode2 + otpCode3 + otpCode4;
+  //       const apiUrl = `https://api-staging.ramufinance.com/api/v1/account/verify/${otpCode}`;
+  //       const response = await fetch(apiUrl, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+  
+  //       console.log('Response status:', response.status);
+  
+  //       if (response.ok) {
+  //         // API call successful, navigate to success screen
+  //         navigation.navigate('EmailVerifySuccessful');
+  //       } else {
+  //         // API call failed, handle the error
+  //         const errorData = await response.json();
+  //         console.error('Error response data:', errorData);
+  //         Alert.alert('Error', errorData.message || 'Verification failed. Please try again.');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error while verifying OTP:', error);
+  //       Alert.alert('Error', 'An error occurred while verifying OTP. Please try again.');
+  //     }
+  //   } else {
+  //     Alert.alert('Error', 'Please enter the OTP code.');
+  //   }
+  // };
+  
   const handleVerifyOtp = () => {
-    // Validate input fields
-    if (otpCode1 && otpCode2 && otpCode3 && otpCode4) {
-      // Logic for handling the verification of the OTP code
-      const otpCode = otpCode1 + otpCode2 + otpCode3 + otpCode4;
-      console.log('OTP code:', otpCode);
-      // ... your code here ...
-
-      // Navigate to the EmailVerifySuccessful component
-      navigation.navigate('EmailVerifySuccessful');
-    } else {
-      // Display an error message
-      Alert.alert('Error', 'Please enter the OTP code.');
-    }
+    const otpCode = otpCode1 + otpCode2 + otpCode3 + otpCode4;
+    navigation.navigate('EmailVerifySuccessful');
   };
+  
 
   const handleResendOtp = () => {
     sendOtpCode();
+    otpInputRef1.current.focus();
   };
 
   return (
@@ -59,30 +84,49 @@ const OtpVerification = ({ email }) => {
         <Text style={styles.email}>{email}</Text>
         <View style={styles.otpContainer}>
           <TextInput
+            ref={otpInputRef1}
             style={styles.otpInput}
             keyboardType="numeric"
             value={otpCode1}
-            onChangeText={setOtpCode1}
+            onChangeText={(text) => {
+              setOtpCode1(text);
+              if (text.length === 1) {
+                otpInputRef2.current.focus();
+              }
+            }}
             maxLength={1}
             required
           />
           <TextInput
+            ref={otpInputRef2}
             style={styles.otpInput}
             keyboardType="numeric"
             value={otpCode2}
-            onChangeText={setOtpCode2}
+            onChangeText={(text) => {
+              setOtpCode2(text);
+              if (text.length === 1) {
+                otpInputRef3.current.focus();
+              }
+            }}
             maxLength={1}
             required
           />
           <TextInput
+            ref={otpInputRef3}
             style={styles.otpInput}
             keyboardType="numeric"
             value={otpCode3}
-            onChangeText={setOtpCode3}
+            onChangeText={(text) => {
+              setOtpCode3(text);
+              if (text.length === 1) {
+                otpInputRef4.current.focus();
+              }
+            }}
             maxLength={1}
             required
           />
           <TextInput
+            ref={otpInputRef4}
             style={styles.otpInput}
             keyboardType="numeric"
             value={otpCode4}
