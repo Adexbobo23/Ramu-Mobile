@@ -12,7 +12,6 @@ import axios from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import * as FileSystem from 'expo-file-system';
 
 const EditProfile = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
@@ -21,25 +20,6 @@ const EditProfile = ({ navigation }) => {
   const [gender, setGender] = useState('');
   const [address, setAddress] = useState('');
   const [profileImage, setProfileImage] = useState(null);
-  const [base64Image, setBase64Image] = useState(null);
-
-  useEffect(() => {
-    if (profileImage) {
-      convertImageToBase64(profileImage.uri);
-    }
-  }, [profileImage]);
-
-  const convertImageToBase64 = async (contentUri) => {
-    try {
-      const fileUri = contentUri.replace('file://', '');
-      const base64 = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      setBase64Image(base64);
-    } catch (error) {
-      console.error('Error converting image to base64:', error);
-    }
-  };
 
   const handleChooseImage = async () => {
     try {
@@ -49,7 +29,6 @@ const EditProfile = ({ navigation }) => {
       });
 
       if (result.type === 'success') {
-        convertImageToBase64(result.uri);
         setProfileImage(result);
       } else if (result.type === 'cancel') {
         console.log('User cancelled document picker');
@@ -73,18 +52,24 @@ const EditProfile = ({ navigation }) => {
   
       const apiUrl = `https://api-staging.ramufinance.com/api/v1/edit-profile/${user_id}`;
   
-      const data = {
-        first_name: firstName,
-        last_name: lastName,
-        phone_number: phoneNumber,
-        gender: gender,
-        address: address,
-        profile_image: base64Image, 
-      };
+      const data = new FormData();
+      data.append('first_name', firstName);
+      data.append('last_name', lastName);
+      data.append('phone_number', phoneNumber);
+      data.append('gender', gender);
+      data.append('address', address);
+  
+      if (profileImage) {
+        data.append('profile_image', {
+          name: 'profile_image.jpg',
+          type: 'image/jpeg',
+          uri: profileImage.uri,
+        });
+      }
   
       const response = await axios.put(apiUrl, data, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${userToken}`,
         },
       });
@@ -92,16 +77,17 @@ const EditProfile = ({ navigation }) => {
       console.log('API Response:', response.data);
   
       if (response.data && response.data.status) {
-        // Assuming the response.data.data contains the updated profile data
         const updatedProfileData = response.data.data;
   
-        // Update local state or context with the new data
         setFirstName(updatedProfileData.first_name);
         setLastName(updatedProfileData.last_name);
         setPhoneNumber(updatedProfileData.phone_number);
         setGender(updatedProfileData.gender);
         setAddress(updatedProfileData.address);
-        // ...
+  
+        if (updatedProfileData.profile_image) {
+          setProfileImage({ uri: updatedProfileData.profile_image });
+        }
   
         Alert.alert('Success', 'Profile edited successfully!');
         navigation.navigate('Personal');
@@ -111,10 +97,18 @@ const EditProfile = ({ navigation }) => {
         if (response.status === 422) {
           const validationErrors = response.data.errors;
           console.log('Validation Errors:', validationErrors);
-          Alert.alert(
-            'Validation Error',
-            'An error occurred while editing the profile. Please try again.'
-          );
+  
+          let errorMessage = 'An error occurred while editing the profile. Please try again.';
+  
+          if (validationErrors) {
+            for (const field in validationErrors) {
+              if (validationErrors.hasOwnProperty(field)) {
+                errorMessage += `\n${field}: ${validationErrors[field].join(', ')}`;
+              }
+            }
+          }
+  
+          Alert.alert('Validation Error', errorMessage);
           console.log('Validation Response:', response);
         } else {
           Alert.alert(
@@ -125,13 +119,14 @@ const EditProfile = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error:', error);
+      console.error('Full Error Object:', error);
+  
       Alert.alert(
         'Error',
         'An unexpected error occurred. Please try again later.'
       );
     }
   };
-  
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>

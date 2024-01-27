@@ -440,9 +440,9 @@ const handleSell = () => {
         )}
         
         {/* Stock Chart */}
-        {/* <View style={styles.lossChartContainer}>
+        <View style={styles.lossChartContainer}>
             <StockChart />
-        </View>  */}
+        </View> 
         <View style={styles.featuredStockContainer1}>
           <Text style={styles.featuredStockText}>Featured Stocks</Text>
           <TouchableOpacity  onPress={handleSeeAll}>

@@ -59,7 +59,7 @@ const ChangePassword = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
+      Alert.alert('Hey', 'Previous password entered is incorrect. Please enter correct previous password.');
     }
   
     // Reset the form fields after handling the password change

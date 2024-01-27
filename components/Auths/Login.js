@@ -112,7 +112,7 @@ const Login = ({ navigation }) => {
           {renderPasswordIcon()}
         </View>
       </View>
-      <Text style={styles.text}>At least 8 characters with uppercase letters and numbers</Text>
+      {/* <Text style={styles.text}>At least 8 characters with uppercase letters and numbers</Text> */}
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log in</Text>
       </TouchableOpacity>
