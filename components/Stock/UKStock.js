@@ -43,7 +43,7 @@ const UKStock = () => {
     // Fetch stock data when the component mounts and user token is available
     const fetchStockData = async () => {
       try {
-        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-stocks-market?exchange_code=LSE', {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },

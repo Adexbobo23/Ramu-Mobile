@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import {
   VictoryChart,
@@ -113,18 +114,44 @@ const StockChart = () => {
     );
   };
 
+  // Render additional information
+  const renderAdditionalInfo = () => {
+    if (!loading && stockDetailsData.length > 0) {
+      const latestDataPoint = stockDetailsData[stockDetailsData.length - 1];
+      return (
+        <View style={styles.additionalInfo}>
+          <Text style={styles.infoText}>
+            Latest Price: {latestDataPoint.y.toFixed(2)}
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <ScrollView horizontal>
-      <View style={styles.chartContainer}>{renderChart()}</View>
+      <View style={styles.container}>
+        {renderChart()}
+        {renderAdditionalInfo()}
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  chartContainer: {
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  additionalInfo: {
+    marginTop: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });
 

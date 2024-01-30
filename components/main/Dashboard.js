@@ -307,6 +307,10 @@ const handleSell = () => {
   navigation.navigate('Portfolio');
 };
 
+const navigateTo = (screen) => {
+  navigation.navigate(screen);
+};
+
 
   return (
     <View style={styles.container}>
@@ -375,7 +379,7 @@ const handleSell = () => {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Top Trending</Text>
               <TouchableOpacity onPress={handleSeeAll}>
-                <Text style={styles.seeAll} onPress={() => navigateTo('Sectors')}>
+                <Text style={styles.seeAll} onPress={() => navigateTo('Popular')}>
                   See All
                 </Text>
               </TouchableOpacity>

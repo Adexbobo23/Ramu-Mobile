@@ -12,7 +12,7 @@ const USStock = () => {
   const [stockData, setStockData] = useState([]);
   const [userToken, setUserToken] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedStock, setSelectedStock] = useState(null); // Track the selected stock
+  const [selectedStock, setSelectedStock] = useState(null); 
   const modalRef = useRef(null);
 
   const handleStockSelect = (stock) => {
@@ -43,7 +43,7 @@ const USStock = () => {
     // Fetch stock data when the component mounts and user token is available
     const fetchStockData = async () => {
       try {
-        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+        const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-stocks-market?exchange_code=NSDQ', {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
