@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -71,7 +71,7 @@ const TransactionHistory = () => {
             Amount: {transaction.amount}
           </Text>
           <Text style={styles.transactionDetailText}>
-            Transaction Refrence: {transaction.transaction_reference}
+            Transaction Reference: {transaction.transaction_reference}
           </Text>
           <Text style={styles.transactionDetailText}>
             Status: {transaction.status}
@@ -89,62 +89,54 @@ const TransactionHistory = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalText1}>Transaction Details</Text>
-          <Text style={styles.modalText}>
-            Amount: {selectedTransaction?.amount}
-          </Text>
-          <Text style={styles.modalText}>
-            Transaction Reference: {selectedTransaction?.transaction_reference}
-          </Text>
-          <Text style={styles.modalText}>Status: {selectedTransaction?.status}</Text>
-          <Text style={styles.modalText}>Type: {selectedTransaction?.txn_type}</Text>
-          <Text style={styles.modalText}>
-            Narration: {selectedTransaction?.narration}
-          </Text>
-          <Text style={styles.modalText}>
-            Balance Before: {selectedTransaction?.balance_before}
-          </Text>
-          <Text style={styles.modalText}>
-            Balance After: {selectedTransaction?.balance_after}
-          </Text>
-          <Text style={styles.modalText}>
-            Quantity: {selectedTransaction?.quantity}
-          </Text>
-          <Text style={styles.modalText}>
-            Trade Price: {selectedTransaction?.trade_price}
-          </Text>
-          <Text style={styles.modalText}>
-            Currency: {selectedTransaction?.currency}
-          </Text>
-          <Text style={styles.modalText}>
-            Order Number: {selectedTransaction?.order_number}
-          </Text>
-          <Text style={styles.modalText}>
-            Source Account Number: {selectedTransaction?.source_account_number}
-          </Text>
-          <Text style={styles.modalText}>
-            Beneficiary Account Number: {selectedTransaction?.beneficiary_account_number}
-          </Text>
-          <Text style={styles.modalText}>
-            Source Bank Name: {selectedTransaction?.source_bank_name}
-          </Text>
-          <Text style={styles.modalText}>
-            Beneficiary Bank Name: {selectedTransaction?.beneficiary_bank_name}
-          </Text>
-
-          <Text style={styles.modalText}>
-            Date: {new Date(selectedTransaction?.created_at).toLocaleString()}
-          </Text>
-
-          {/* Add more details as needed */}
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setModalVisible(false)}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText1}>Transaction Details</Text>
+            <Text style={styles.modalText}>
+              Amount: {selectedTransaction?.amount}
+            </Text>
+            <Text style={styles.modalText}>
+              Transaction Reference: {selectedTransaction?.transaction_reference}
+            </Text>
+            <Text style={styles.modalText}>Status: {selectedTransaction?.status}</Text>
+            <Text style={styles.modalText}>Type: {selectedTransaction?.txn_type}</Text>
+            <Text style={styles.modalText}>
+              Narration: {selectedTransaction?.narration}
+            </Text>
+            {selectedTransaction?.txn_type === 'buy' && (
+              <>
+                <Text style={styles.modalText}>
+                  Balance Before: {selectedTransaction?.balance_before}
+                </Text>
+                <Text style={styles.modalText}>
+                  Balance After: {selectedTransaction?.balance_after}
+                </Text>
+                <Text style={styles.modalText}>
+                  Quantity: {selectedTransaction?.quantity}
+                </Text>
+                <Text style={styles.modalText}>
+                  Trade Price: {selectedTransaction?.trade_price}
+                </Text>
+              </>
+            )}
+            {selectedTransaction?.txn_type === 'sell' && (
+              <>
+                {/* Additional details for sell transaction */}
+                <Text style={styles.modalText}>
+                  Quantity Sold: {selectedTransaction?.quantity_sold}
+                </Text>
+                <Text style={styles.modalText}>
+                  Sell Price: {selectedTransaction?.sell_price}
+                </Text>
+              </>
+            )}
+            {/* Add more details as needed */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </ScrollView>

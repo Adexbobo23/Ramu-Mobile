@@ -56,25 +56,27 @@ const Portfolio = () => {
   const fetchActualBalance = async (userToken) => {
     try {
       const apiUrl = 'https://api-staging.ramufinance.com/api/v1/get-portfolio-balance';
-
+  
       const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       });
-
+  
       if (response.data.status) {
-        setActualBalance(parseFloat(response.data.data.balance));
+        const balances = response.data.data;
+        const totalBalance = balances.reduce((acc, entry) => acc + parseFloat(entry.balance), 0);
+        setActualBalance(totalBalance);
       } else {
         console.error('Error fetching actual balance:', response.data.message);
       }
     } catch (error) {
       console.error('Error fetching actual balance:', error.message);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-
+  
   // Modify the useEffect that calculates total balance to use actualBalance
   useEffect(() => {
     setTotalBalance(actualBalance);
@@ -257,6 +259,7 @@ useEffect(() => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedStock?.key}</Text>
             <Text style={styles.modalDescription}>{selectedStock?.ticker_id}</Text>
+            <Text style={styles.additionalData}>{`Initial Trade Price: ${selectedStock.initial_trade_price}`}</Text>
             <Text style={styles.modalPrice}>{`$${(selectedStock?.trade_price || 0).toFixed(2)}`}</Text>
 
             {/* Sell Form */}

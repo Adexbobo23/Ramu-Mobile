@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, TextInput, Button } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, TextInput, Button, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { Modalize } from 'react-native-modalize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,7 @@ const BlogList = () => {
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -17,6 +18,8 @@ const BlogList = () => {
 
   const fetchBlogs = async () => {
     try {
+      setIsLoading(true);
+
       const userToken = await AsyncStorage.getItem('userToken');
 
       const response = await axios.get('https://api-staging.ramufinance.com/api/v1/blog-posts', {
@@ -40,6 +43,8 @@ const BlogList = () => {
       }
     } catch (error) {
       console.error('Error fetching blogs:', error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,7 +110,10 @@ const BlogList = () => {
             </View>
           </TouchableOpacity>
         ))}
-        {blogs.length > 0 && (
+        {isLoading && (
+          <ActivityIndicator size="large" color="#51CC62" style={{ marginTop: 10 }} />
+        )}
+        {!isLoading && blogs.length > 0 && (
           <Button
             title="Load More"
             onPress={handleLoadMore}

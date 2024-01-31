@@ -36,7 +36,6 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
     fetchBanks();
   }, []);
 
-
   const handleAddAccount = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
@@ -82,7 +81,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
     }
   };
 
-   const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.dropdownItem}
       onPress={() => {
@@ -90,7 +89,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
         setModalVisible(false);
       }}
     >
-      <Text>{item.name}</Text>
+      <Text style={styles.dropdownItemText}>{item.name}</Text>
     </TouchableOpacity>
   );
 
@@ -102,7 +101,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
         style={styles.dropdownButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text>{selectedBank ? selectedBank.name : 'Select Bank'}</Text>
+        <Text style={styles.dropdownButtonText}>{selectedBank ? selectedBank.name : 'Select Bank'}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -121,7 +120,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
             style={styles.modalCloseButton}
             onPress={() => setModalVisible(false)}
           >
-            <Text>Close</Text>
+            <Text style={styles.modalCloseButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -145,7 +144,6 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -190,6 +188,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
   },
+  dropdownButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
   modalDropdown: {
     flex: 1,
     justifyContent: 'center',
@@ -202,11 +204,19 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     width: '100%',
   },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#333',
+  },
   modalCloseButton: {
     width: '100%',
     backgroundColor: '#51CC62',
     padding: 15,
     alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

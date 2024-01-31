@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import {
   VictoryChart,
   VictoryArea,
@@ -13,7 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PortfolioChart = () => {
   const [stockDetailsData, setStockDetailsData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,7 +21,6 @@ const PortfolioChart = () => {
 
         if (!userToken) {
           console.error('User token not found.');
-          setLoading(false);
           return;
         }
 
@@ -46,8 +44,6 @@ const PortfolioChart = () => {
         }
       } catch (error) {
         console.error('Error fetching portfolio graph data:', error.message);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -57,34 +53,30 @@ const PortfolioChart = () => {
   return (
     <ScrollView horizontal>
       <View style={styles.chartContainer}>
-        {loading ? (
-          <ActivityIndicator size="large" color="#51CC62" />
-        ) : (
-          <VictoryChart
-            theme={VictoryTheme.material}
-            containerComponent={
-              <VictoryVoronoiContainer
-                labels={({ datum }) => `${datum.x}: ${datum.y}`}
-                labelComponent={<VictoryTooltip />}
-              />
-            }
-            width={stockDetailsData.length * 70}
-          >
-            <VictoryAxis />
-            <VictoryAxis dependentAxis />
-            <VictoryArea
-              data={stockDetailsData}
-              style={{
-                data: {
-                  fill: '#51CC62',
-                  fillOpacity: 0.3,
-                  stroke: '#51CC62',
-                  strokeWidth: 2,
-                },
-              }}
+        <VictoryChart
+          theme={VictoryTheme.material}
+          containerComponent={
+            <VictoryVoronoiContainer
+              labels={({ datum }) => `${datum.x}: ${datum.y}`}
+              labelComponent={<VictoryTooltip />}
             />
-          </VictoryChart>
-        )}
+          }
+          width={stockDetailsData.length * 70}
+        >
+          <VictoryAxis />
+          <VictoryAxis dependentAxis />
+          <VictoryArea
+            data={stockDetailsData}
+            style={{
+              data: {
+                fill: '#51CC62',
+                fillOpacity: 0.3,
+                stroke: '#51CC62',
+                strokeWidth: 2,
+              },
+            }}
+          />
+        </VictoryChart>
       </View>
     </ScrollView>
   );

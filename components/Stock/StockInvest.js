@@ -32,6 +32,31 @@ const StockInvest = () => {
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(true);
   const [nairaAmountInput, setNairaAmountInput] = useState('');
   const [selectedStockMarketId, setSelectedStockMarketId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredStocks, setFilteredStocks] = useState([]);
+  
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    const filtered = featuredStocks.filter((stock) =>
+      stock.company_name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredStocks(filtered);
+  };
+  
+  const loadFeaturedStocks = async () => {
+    setIsLoadingFeaturedStocks(true);
+    try {
+      // Fetch featured stocks data
+      // ...
+      setFeaturedStocks(stockData.data);
+      setFilteredStocks(stockData.data); 
+    } catch (error) {
+      // Handle error
+    } finally {
+      setIsLoadingFeaturedStocks(false);
+    }
+  };
 
 
   useEffect(() => {
@@ -387,10 +412,17 @@ const StockInvest = () => {
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                {isLoadingFeaturedStocks ? (
-                  <ActivityIndicator size="large" color="#51CC62" />
-                ) : (
-                  featuredStocks.map((stock, index) => (
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search stocks..."
+                value={searchQuery}
+                onChangeText={(text) => handleSearch(text)}
+              />
+              {isLoadingFeaturedStocks ? (
+                <ActivityIndicator size="large" color="#51CC62" />
+              ) : (
+                <ScrollView style={{ maxHeight: 300 }}>
+                  {filteredStocks.map((stock, index) => (
                     <TouchableOpacity
                       key={index}
                       onPress={() => handleStockSelect(stock.ticker_id)}
@@ -398,9 +430,10 @@ const StockInvest = () => {
                     >
                       <Text>{stock.company_name} ({stock.ticker_id})</Text>
                     </TouchableOpacity>
-                  ))
-                )}
-              </View>
+                  ))}
+                </ScrollView>
+              )}
+            </View>
             </View>
           </Modal>
         </View>
@@ -524,6 +557,15 @@ const styles = StyleSheet.create({
   formField: {
     marginBottom: 20,
     width: '90%',
+  },
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#51CC62',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+    width: '80%'
   },
   input: {
     height: 50,
@@ -654,8 +696,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
-    alignItems: 'center'
+    alignItems: 'center',
+    maxHeight: 400,  
+    width: '100%',
   },
+  
   modalItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,

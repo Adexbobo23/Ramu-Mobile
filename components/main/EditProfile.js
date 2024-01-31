@@ -7,19 +7,59 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 import axios from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 
 const EditProfile = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [gender, setGender] = useState('');
-  const [address, setAddress] = useState('');
+  const [userInfo, setUserInfo] = useState({
+    id: '',
+    user_name: '',
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    email: '',
+    gender: '',
+    address: '',
+    profile_image: null,
+  });
+
   const [profileImage, setProfileImage] = useState(null);
+
+  const fetchUserInfo = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const userId = await AsyncStorage.getItem('userId');
+
+      if (!userToken || !userId) {
+        console.error('User Token or User ID not found in AsyncStorage');
+        return;
+      }
+
+      const apiUrl = `https://api-staging.ramufinance.com/api/v1/admin/user/${userId}`;
+
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.data && response.data.status) {
+        setUserInfo(response.data.data[0]);
+      } else {
+        console.error('Failed to fetch user info - Response:', response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch user info on component mount
+    fetchUserInfo();
+  }, []);
 
   const handleChooseImage = async () => {
     try {
@@ -40,23 +80,23 @@ const EditProfile = ({ navigation }) => {
 
   const handleSaveChanges = async () => {
     try {
-      const user_id = await AsyncStorage.getItem('userId');
       const userToken = await AsyncStorage.getItem('userToken');
-  
-      if (!user_id || !userToken) {
-        console.error('User ID or token not found in AsyncStorage');
+      const userId = await AsyncStorage.getItem('userId');
+
+      if (!userToken || !userId) {
+        console.error('User Token or User ID not found in AsyncStorage');
         return;
       }
-  
-      const apiUrl = `https://api-staging.ramufinance.com/api/v1/edit-profile/${user_id}`;
-  
+
+      const apiUrl = `https://api-staging.ramufinance.com/api/v1/edit-profile/${userId}`;
+
       const data = new FormData();
-      data.append('first_name', firstName);
-      data.append('last_name', lastName);
-      data.append('phone_number', phoneNumber);
-      data.append('gender', gender);
-      data.append('address', address);
-  
+      data.append('first_name', userInfo.first_name);
+      data.append('last_name', userInfo.last_name);
+      data.append('phone_number', userInfo.phone_number);
+      data.append('gender', userInfo.gender);
+      data.append('address', userInfo.address);
+
       if (profileImage) {
         data.append('profile_image', {
           name: 'profile_image.jpg',
@@ -64,40 +104,36 @@ const EditProfile = ({ navigation }) => {
           uri: profileImage.uri,
         });
       }
-  
+
       const response = await axios.put(apiUrl, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${userToken}`,
         },
       });
-  
+
       console.log('API Response:', response.data);
-  
+
       if (response.data && response.data.status) {
-        const updatedProfileData = response.data.data;
-  
-        setFirstName(updatedProfileData.first_name);
-        setLastName(updatedProfileData.last_name);
-        setPhoneNumber(updatedProfileData.phone_number);
-        setGender(updatedProfileData.gender);
-        setAddress(updatedProfileData.address);
-  
+        const updatedProfileData = response.data.data[0];
+
+        setUserInfo(updatedProfileData);
+
         if (updatedProfileData.profile_image) {
           setProfileImage({ uri: updatedProfileData.profile_image });
         }
-  
+
         Alert.alert('Success', 'Profile edited successfully!');
         navigation.navigate('Personal');
       } else {
         console.error('API Error:', response.data);
-  
+
         if (response.status === 422) {
           const validationErrors = response.data.errors;
           console.log('Validation Errors:', validationErrors);
-  
+
           let errorMessage = 'An error occurred while editing the profile. Please try again.';
-  
+
           if (validationErrors) {
             for (const field in validationErrors) {
               if (validationErrors.hasOwnProperty(field)) {
@@ -105,7 +141,7 @@ const EditProfile = ({ navigation }) => {
               }
             }
           }
-  
+
           Alert.alert('Validation Error', errorMessage);
           console.log('Validation Response:', response);
         } else {
@@ -118,7 +154,7 @@ const EditProfile = ({ navigation }) => {
     } catch (error) {
       console.error('Error:', error);
       console.error('Full Error Object:', error);
-  
+
       Alert.alert(
         'Error',
         'An unexpected error occurred. Please try again later.'
@@ -144,36 +180,36 @@ const EditProfile = ({ navigation }) => {
         <Text style={styles.label}>First Name</Text>
         <TextInput
           style={styles.input}
-          value={firstName}
-          onChangeText={(text) => setFirstName(text)}
+          value={userInfo.first_name}
+          onChangeText={(text) => setUserInfo({ ...userInfo, first_name: text })}
         />
 
         <Text style={styles.label}>Last Name</Text>
         <TextInput
           style={styles.input}
-          value={lastName}
-          onChangeText={(text) => setLastName(text)}
+          value={userInfo.last_name}
+          onChangeText={(text) => setUserInfo({ ...userInfo, last_name: text })}
         />
 
         <Text style={styles.label}>Phone Number</Text>
         <TextInput
           style={styles.input}
-          value={phoneNumber}
-          onChangeText={(text) => setPhoneNumber(text)}
+          value={userInfo.phone_number}
+          onChangeText={(text) => setUserInfo({ ...userInfo, phone_number: text })}
         />
 
         <Text style={styles.label}>Gender</Text>
         <TextInput
           style={styles.input}
-          value={gender}
-          onChangeText={(text) => setGender(text)}
+          value={userInfo.gender}
+          onChangeText={(text) => setUserInfo({ ...userInfo, gender: text })}
         />
 
         <Text style={styles.label}>Address</Text>
         <TextInput
           style={styles.input}
-          value={address}
-          onChangeText={(text) => setAddress(text)}
+          value={userInfo.address}
+          onChangeText={(text) => setUserInfo({ ...userInfo, address: text })}
         />
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>

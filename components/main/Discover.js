@@ -117,7 +117,7 @@ const Discover = () => {
   useEffect(() => {
     const fetchSectors = async () => {
       try {
-        const response = await axios.get('https://api-staging.ramufinance.com/api/v1/get-stocks-market', {
+        const response = await axios.get('https://api-staging.ramufinance.com/api/v1/get-sectors', {
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
