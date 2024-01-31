@@ -32,8 +32,6 @@ const EditProfile = ({ navigation }) => {
         setProfileImage(result);
       } else if (result.type === 'cancel') {
         console.log('User cancelled document picker');
-        // Optionally, you can provide feedback to the user that they canceled the operation.
-        // For example, you can show a message or not clear the existing image.
       }
     } catch (error) {
       console.error('Error picking document:', error);

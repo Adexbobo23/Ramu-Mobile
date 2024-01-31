@@ -101,6 +101,7 @@ const PersonalProfile = () => {
         <Text style={styles.fullName}>{userData.fullName}</Text>
 
         {/* User ID */}
+        <Text style={styles.user}>USER ID</Text>
         <Text style={styles.userId}>{userData.userId}</Text>
 
         {/* Labels and Information */}
@@ -191,6 +192,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
     marginBottom: 20,
+  },
+  user: {
+    fontSize: 16,
+    color: '#000',
+    marginTop: 20,
+    fontWeight: 'bold',
   },
   infoContainer: {
     width: '100%',

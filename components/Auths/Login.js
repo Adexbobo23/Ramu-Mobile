@@ -82,7 +82,7 @@ const Login = ({ navigation }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={require('../Assests/Frame.png')} style={styles.logo} resizeMode="contain" />
       <Text style={styles.welcomeText}>Welcome Back!</Text>
-      <Text style={styles.description}>Login to your account with ease</Text>
+      <Text style={styles.description}>Login to your account</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <View style={styles.inputWrapper}>

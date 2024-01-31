@@ -79,8 +79,8 @@ const OtpVerification = ({ email }) => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Verification</Text>
-        <Text style={styles.subtitle}>Code has been sent to your email:</Text>
+        <Text style={styles.title}>Email Verification</Text>
+        <Text style={styles.subtitle}>Enter the code sent to your email:</Text>
         <Text style={styles.email}>{email}</Text>
         <View style={styles.otpContainer}>
           <TextInput

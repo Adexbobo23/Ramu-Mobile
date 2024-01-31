@@ -238,7 +238,7 @@ const Withdraw = () => {
 
         <TouchableOpacity style={styles.settlementContainer} onPress={handleCreateSettlementAccount}>
           <Text style={styles.settlementText}>
-            Yet to add settlement account? Add now
+            Yet to add a settlement account? Add now
           </Text>
         </TouchableOpacity>
 

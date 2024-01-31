@@ -83,7 +83,7 @@ const SetPin = ({ navigation }) => {
           await AsyncStorage.setItem('userPin', enteredPin);
           Alert.alert('PIN Set', 'Your PIN has been set successfully.');
           // Navigate to the Dashboard or any other screen
-          navigation.navigate('Dashboard');
+          navigation.navigate('Login');
         } else if (response.status === 422) {
           // Handle validation error
           Alert.alert('Validation Error', result.message.pin_confirmation[0]);
@@ -125,11 +125,11 @@ const SetPin = ({ navigation }) => {
         </View>
 
         {/* Toggle PIN type button */}
-        <TouchableOpacity style={styles.toggleButton} onPress={handleTogglePinType}>
+        {/* <TouchableOpacity style={styles.toggleButton} onPress={handleTogglePinType}>
           <Text style={styles.toggleButtonText}>
             {isEnterPin ? 'Switch to Confirm PIN' : 'Switch to Enter PIN'}
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Set PIN button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSetPin}>

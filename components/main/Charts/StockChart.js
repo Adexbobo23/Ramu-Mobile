@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  Text,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   VictoryChart,
   VictoryArea,
@@ -14,11 +9,9 @@ import {
   VictoryVoronoiContainer,
   VictoryTooltip,
 } from 'victory-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StockChart = () => {
-  const [stockDetailsData, setStockDetailsData] = useState([]);
+  const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,42 +20,37 @@ const StockChart = () => {
         // Fetch user token from AsyncStorage
         const userToken = await AsyncStorage.getItem('userToken');
 
-        // If user token is not found, log an error and stop loading
+        // If user token is not available, handle accordingly (e.g., redirect to login)
         if (!userToken) {
-          console.error('User token not found.');
-          setLoading(false);
+          console.error('User token not found. Redirect to login or handle authentication.');
           return;
         }
 
-        // Define the API URL
-        const apiUrl =
-          'https://api-staging.ramufinance.com/api/v1/get-stock-graph?exchange_code=NSDQ&key=NSDQ~GOOG&range=7';
+        const exchangeCode = 'NSDQ';
+        const symbol = 'GOOG';
+        const range = 7;
 
-        // Make the API request with the user token
-        const response = await axios.get(apiUrl, {
+        const apiUrl = `https://api-staging.ramufinance.com/api/v1/get-stock-graph?exchange_code=${exchangeCode}&key=${exchangeCode}~${symbol}&range=${range}`;
+        const response = await fetch(apiUrl, {
           headers: {
-            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userToken}`,
           },
         });
 
-        // Check if the API request was successful
-        if (response.data.status) {
-          // Process the stock data from the API response
-          const stockData = response.data.data;
-          const formattedData = formatStockData(stockData);
-          setStockDetailsData(formattedData);
+        if (response.ok) {
+          const result = await response.json();
+          const stockChartData = result.data.map(item => ({
+            x: new Date(item.TRADE_TIME).toLocaleTimeString(),
+            y: item.CLOSE,
+          }));
+          setStockData(stockChartData);
         } else {
-          // Log an error if the API request was not successful
-          console.error(
-            'Error fetching stock graph data:',
-            response.data.message
-          );
+          console.error('Error fetching stock graph data:', response.statusText);
         }
       } catch (error) {
-        // Log an error if there is any issue with the API request
         console.error('Error fetching stock graph data:', error.message);
       } finally {
-        // Set loading to false regardless of success or failure
         setLoading(false);
       }
     };
@@ -70,88 +58,49 @@ const StockChart = () => {
     fetchData();
   }, []);
 
-  // Function to format stock data for VictoryChart
-  const formatStockData = (stockData) => {
-    return stockData.map((dataPoint) => ({
-      x: new Date(dataPoint.TRADE_TIME).toLocaleTimeString(),
-      y: dataPoint.CLOSE,
-    }));
-  };
-
-  // Function to render the VictoryChart component
-  const renderChart = () => {
-    if (loading) {
-      // Display loading indicator while data is being fetched
-      return <ActivityIndicator size="large" color="#51CC62" />;
-    }
-
-    // Render VictoryChart component with VictoryArea
-    return (
-      <VictoryChart
-        theme={VictoryTheme.material}
-        containerComponent={
-          <VictoryVoronoiContainer
-            labels={({ datum }) => `${datum.x}: ${datum.y}`}
-            labelComponent={<VictoryTooltip />}
-          />
-        }
-        width={stockDetailsData.length * 70}
-      >
-        <VictoryAxis />
-        <VictoryAxis dependentAxis />
-        <VictoryArea
-          data={stockDetailsData}
-          style={{
-            data: {
-              fill: '#51CC62',
-              fillOpacity: 0.3,
-              stroke: '#51CC62',
-              strokeWidth: 2,
-            },
-          }}
-        />
-      </VictoryChart>
-    );
-  };
-
-  // Render additional information
-  const renderAdditionalInfo = () => {
-    if (!loading && stockDetailsData.length > 0) {
-      const latestDataPoint = stockDetailsData[stockDetailsData.length - 1];
-      return (
-        <View style={styles.additionalInfo}>
-          <Text style={styles.infoText}>
-            Latest Price: {latestDataPoint.y.toFixed(2)}
-          </Text>
-        </View>
-      );
-    }
-    return null;
-  };
+  if (loading) {
+    return <ActivityIndicator size="large" color="#51CC62" />;
+  }
 
   return (
     <ScrollView horizontal>
-      <View style={styles.container}>
-        {renderChart()}
-        {renderAdditionalInfo()}
+      <View style={styles.lossChartContainer}>
+        <VictoryChart
+          theme={VictoryTheme.material}
+          containerComponent={
+            <VictoryVoronoiContainer
+              labels={({ datum }) => `${datum.x}: ${datum.y}`}
+              labelComponent={<VictoryTooltip />}
+            />
+          }
+          width={200}
+        >
+          <VictoryAxis
+            tickFormat={(x) => new Date(x).toLocaleTimeString()}
+          />
+          <VictoryAxis dependentAxis />
+          <VictoryArea
+            data={stockData}
+            style={{
+              data: {
+                fill: '#51CC62',
+                fillOpacity: 0.3,
+                stroke: '#51CC62',
+                strokeWidth: 2,
+              },
+            }}
+          />
+        </VictoryChart>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  lossChartContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  additionalInfo: {
-    marginTop: 20,
-  },
-  infoText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
   },
 });
 

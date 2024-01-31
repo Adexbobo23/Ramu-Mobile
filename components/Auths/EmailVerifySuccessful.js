@@ -3,18 +3,18 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 
 const EmailVerifySuccessful = ({ navigation }) => {
   const handleGoToDashboard = () => {
-    console.log('Go to login');
-    navigation.navigate('Login');
+    console.log('Go to transaction pin');
+    navigation.navigate('SetPin');
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.congratsText}>Congratulations!</Text>
-      <Text style={styles.messageText}>Your email has successfully been verified.</Text>
+      <Text style={styles.messageText}>Your email has been successfully verified.</Text>
       <Text style={styles.messageText1}>Let's get some business done!</Text>
       <Image source={require('../Assests/Frame_158.png')} style={styles.image} />
       <TouchableOpacity style={styles.dashboardButton} onPress={handleGoToDashboard}>
-        <Text style={styles.buttonText}>Go to Login</Text>
+        <Text style={styles.buttonText}>Set your transactions pin</Text>
       </TouchableOpacity>
     </View>
   );

@@ -61,6 +61,7 @@ import AddSettlementAccountModal from '../transactions/More/AddSettlementAccount
 import BlogList from '../main/BlogList';
 import PrivacyPolicyScreen from '../main/PrivacyPolicy';
 import TermsOfServiceScreen from '../main/TermsOfServices';
+import ResetTransactionForm from '../main/ResetTransactionPin';
 
 const Stack = createStackNavigator();
 
@@ -368,6 +369,11 @@ const Router = () => {
         <Stack.Screen
         name="TermsOfServices"
         component={TermsOfServiceScreen}
+        options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="ResetTrans"
+        component={ResetTransactionForm}
         options={{ headerShown: false }}
         />
       </Stack.Navigator>

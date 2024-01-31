@@ -280,7 +280,7 @@ const handlePressKyc = async () => {
     setKYCCompleted(true);
 
     // Open the specified URL in the user's browser
-    await Linking.openURL('https://ramufinance.com/dojah.html');
+    await Linking.openURL('https://ramufinance.com/kyc.html');
   } catch (error) {
     console.error('Error saving KYC status or opening URL:', error);
   }
@@ -427,7 +427,7 @@ const navigateTo = (screen) => {
           <Image source={require('../Assests/pana.png')} style={styles.getToKnowYouImage} />
         </View>
         ) : (
-          <TouchableOpacity onPress={handlePressKyc}>
+          <TouchableOpacity>
            <View style={styles.getToKnowYouContainer}>
            <View style={styles.getToKnowYouTextContainer}>
              <Text style={styles.getToKnowYouText}>LET'S GET TO KNOW YOU</Text>
@@ -444,9 +444,9 @@ const navigateTo = (screen) => {
         )}
         
         {/* Stock Chart */}
-        <View style={styles.lossChartContainer}>
+        {/* <View style={styles.lossChartContainer}>
             <StockChart />
-        </View> 
+        </View>  */}
         <View style={styles.featuredStockContainer1}>
           <Text style={styles.featuredStockText}>Featured Stocks</Text>
           <TouchableOpacity  onPress={handleSeeAll}>
@@ -803,7 +803,7 @@ const styles = StyleSheet.create({
     width: '35%',
     height: 50,
     textAlign: 'center',
-    marginTop: 0,
+    marginTop: -60,
     marginLeft: 40,
     marginBottom: 20,
     shadowColor: '#000',
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderWidth: 2,
     borderColor: '#51CC62',
-    marginTop: 0,
+    marginTop: -60,
     marginLeft: 20,
     marginRight: 20,
     shadowColor: '#000',
@@ -867,7 +867,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
-    marginTop: 120,
+    marginTop: 90,
   },
   seeAll: {
     fontSize: 16,
@@ -901,7 +901,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   stockImage: {
-    width: 100,
+    width: 50,
     height: 50,
     borderRadius: 50,
     marginBottom: 8,
@@ -976,7 +976,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginHorizontal: 20,
     marginVertical: 10,
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: -80,
   },
   lossPercentageText: {
     fontSize: 24,

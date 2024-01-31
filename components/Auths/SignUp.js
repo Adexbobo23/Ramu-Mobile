@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Activi
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import Modal from 'react-native-modal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignupComponent = ({ navigation }) => {
   const [userName, setUserName] = useState('');
@@ -21,6 +22,29 @@ const SignupComponent = ({ navigation }) => {
   const [selectedNationality, setSelectedNationality] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [nationalitySearch, setNationalitySearch] = useState('');
+  const [filteredNationality, setFilteredNationality] = useState([]);
+  const [isGenderModalVisible, setGenderModalVisible] = useState(false);
+
+  const openGenderModal = () => {
+    setGenderModalVisible(true);
+  };
+
+  const closeGenderModal = () => {
+    setGenderModalVisible(false);
+  };
+
+  const handleGenderSelect = (selectedGender) => {
+    setGender(selectedGender);
+    closeGenderModal();
+  };
+
+  useEffect(() => {
+    const filteredList = nationality.filter((item) =>
+      item.name.toLowerCase().includes(nationalitySearch.toLowerCase())
+    );
+    setFilteredNationality(filteredList);
+  }, [nationalitySearch, nationality]);
 
 
   // Check username availability when the username changes
@@ -99,14 +123,14 @@ const SignupComponent = ({ navigation }) => {
       const response = await axios.post(apiUrl, signupData);
   
       console.log('Signup response:', response.data);
+      await AsyncStorage.setItem('userToken', response.data.data.token);
+      await AsyncStorage.setItem('userName', response.data.data.user_name);
+      await AsyncStorage.setItem('firstName', response.data.data.first_name);
       showAlert('Registration Successful', 'Kindly verify your email address');
       navigation.navigate('OtpVerification');
     } catch (error) {
       // Handle errors more specifically
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-  
         // Handle different HTTP status codes
         if (error.response.status === 400) {
           // Bad Request - User input might be invalid
@@ -219,14 +243,29 @@ const SignupComponent = ({ navigation }) => {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Gender *</Text>
-        <TextInput
-          placeholder="Enter your gender"
-          style={styles.input}
-          value={gender}
-          onChangeText={setGender}
-          required
-        />
+        <TouchableOpacity style={styles.input2} onPress={openGenderModal}>
+          <Text style={styles.inputText}>{gender || 'Select your gender'}</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Gender Selection Modal */}
+      <Modal isVisible={isGenderModalVisible}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.closeButton} onPress={closeGenderModal}>
+            <Ionicons name="close" size={24} color="#51CC62" />
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.modalTitle}>Select Gender</Text>
+            <TouchableOpacity onPress={() => handleGenderSelect('Male')}>
+              <Text style={styles.modalOption}>Male</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleGenderSelect('Female')}>
+              <Text style={styles.modalOption}>Female</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Address *</Text>
         <TextInput
@@ -246,26 +285,44 @@ const SignupComponent = ({ navigation }) => {
       </View>
 
       {/* Nationality Modal */}
-    <Modal isVisible={isNationalityModalVisible}>
-      <View style={styles.modalContainer}>
-      <TouchableOpacity style={styles.closeButton} onPress={toggleNationalityModal}>
-          <Ionicons name="close" size={24} color="#51CC62" />
-        </TouchableOpacity>
-        <ScrollView>
-          {nationality.map((nationalityItem) => (
-            <TouchableOpacity
-              key={nationalityItem.alpha2Code}
-              style={styles.nationalityItem}
-              onPress={() => handleNationalitySelect(nationalityItem.name)}
-            >
-              <Text>{nationalityItem.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        {/* Additional UI components if needed */}
-        {/* ... */}
-      </View>
-    </Modal>
+      <Modal isVisible={isNationalityModalVisible}>
+        <View style={styles.modalContainer}>
+          {/* Close button */}
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => {
+              toggleNationalityModal();
+              setNationalitySearch('');
+            }}
+          >
+            <Ionicons name="close" size={24} color="#51CC62" />
+          </TouchableOpacity>
+
+          {/* Search Input */}
+          <View style={styles.searchContainer}>
+            {/* <Ionicons name="search" size={20} color="#51CC62" /> */}
+            <TextInput
+              placeholder="Search Nationality"
+              style={styles.input}
+              value={nationalitySearch}
+              onChangeText={setNationalitySearch}
+            />
+          </View>
+
+          {/* Nationality List */}
+          <ScrollView style={styles.nationalityListContainer}>
+            {filteredNationality.map((nationalityItem) => (
+              <TouchableOpacity
+                key={nationalityItem.alpha2Code}
+                style={styles.nationalityItem}
+                onPress={() => handleNationalitySelect(nationalityItem.name)}
+              >
+                <Text style={styles.nationalityItemText}>{nationalityItem.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </Modal>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Password *</Text>
@@ -299,6 +356,9 @@ const SignupComponent = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+        <Text style={styles.passwordRequirements}>
+          At least 8 characters with uppercase letters, numbers, and special characters
+        </Text>
       <View style={styles.checkboxContainer}>
         <TouchableOpacity style={styles.checkbox} onPress={toggleTermsAccepted}>
           {termsAccepted ? (
@@ -440,6 +500,7 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 20,
     alignItems: 'flex-end',
+    marginBottom: 20,
   },
   iconButton: {
     padding: 10,
@@ -482,6 +543,24 @@ const styles = StyleSheet.create({
     color: '#51CC62',
     textDecorationLine: 'underline',
     textAlign: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    color: '#51CC62',
+  },
+  modalOption: {
+    height: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    justifyContent: 'center',
+    paddingLeft: 10,
+    marginTop: 10
+  },
+  modalOptionText: {
+    color: '#333',
+    fontSize: 16,
   },
 });
 

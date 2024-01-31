@@ -18,7 +18,7 @@ const BlogList = () => {
   const fetchBlogs = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
-  
+
       const response = await axios.get('https://api-staging.ramufinance.com/api/v1/blog-posts', {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -28,7 +28,7 @@ const BlogList = () => {
           search: searchTerm,
         },
       });
-  
+
       if (response.data.status) {
         if (page === 1) {
           setBlogs(response.data.data);
@@ -42,7 +42,7 @@ const BlogList = () => {
       console.error('Error fetching blogs:', error.message);
     }
   };
-  
+
   const handleBlogSelect = (blog) => {
     setSelectedBlog(blog);
     modalRef.current?.open();
@@ -53,25 +53,25 @@ const BlogList = () => {
   };
 
   const handleSearch = () => {
-    setPage(1); 
+    setPage(1);
     fetchBlogs();
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search..."
-        value={searchTerm}
-        onChangeText={(text) => setSearchTerm(text)}
-      />
-      <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-        <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Search</Text>
-      </TouchableOpacity>
-    </View>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search..."
+          value={searchTerm}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Search</Text>
+        </TouchableOpacity>
+      </View>
 
-      <Text style={styles.title}>All News</Text>
+      <Text style={styles.title}>Latest Blogs</Text>
 
       <ScrollView
         style={styles.blogList}
@@ -79,7 +79,7 @@ const BlogList = () => {
         onScroll={({ nativeEvent }) => {
           if (
             nativeEvent.layoutMeasurement.height +
-              nativeEvent.contentOffset.y >=
+            nativeEvent.contentOffset.y >=
             nativeEvent.contentSize.height - 20
           ) {
             handleLoadMore();
@@ -106,12 +106,13 @@ const BlogList = () => {
           </TouchableOpacity>
         ))}
         {blogs.length > 0 && (
-        <Button
-          title="Load More"
-          onPress={handleLoadMore}
-          style={styles.loadMoreButton} 
-        />
-      )}
+          <Button
+            title="Load More"
+            onPress={handleLoadMore}
+            color="#51CC62"
+            style={styles.loadMoreButton}
+          />
+        )}
       </ScrollView>
 
       <Modalize ref={modalRef}>
@@ -145,6 +146,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#51CC62',
     marginTop: 20,
+    textAlign: 'center',
   },
   blogList: {
     marginBottom: 20,
@@ -174,6 +176,11 @@ const styles = StyleSheet.create({
   blogAuthor: {
     fontSize: 14,
     color: '#666',
+  },
+  blogBody: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
   },
   modalContent: {
     padding: 16,
@@ -213,13 +220,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#51CC62',
     padding: 10,
     borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadMoreButton: {
-    backgroundColor: '#51CC62',
     padding: 10,
     borderRadius: 5,
-    alignSelf: 'center', 
-    marginTop: 10, 
+    alignSelf: 'center',
+    marginTop: 10,
   },
 });
 

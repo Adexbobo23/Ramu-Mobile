@@ -15,7 +15,7 @@ const FirstOpenPage = () => {
       <View style={styles.contentContainer}>
         <Text style={styles.welcomeText}>Welcome to Ramu</Text>
         <Text style={styles.subText}>
-          Start your journey with Ramu and unlock the potential for financial growth.{'\n'}
+          Get hold of your finances{'\n'}
         </Text>
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   subText: {
-    fontSize: 15,
+    fontSize: 18,
     color: 'white',
     marginBottom: 10,
     fontFamily: 'sans-serif',

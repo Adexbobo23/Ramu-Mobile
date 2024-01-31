@@ -205,13 +205,14 @@ useEffect(() => {
       </View>
 
        {/* Account Balance */}
-      <View style={styles.accountBalanceContainer}>
-        {loading ? (
-          <ActivityIndicator size="large" color="#51CC62" />
-        ) : (
-          <Text style={styles.totalBalanceText}>${actualBalance.toFixed(2)}</Text>
-        )}
-      </View>
+       <View style={styles.accountBalanceContainer}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#51CC62" />
+          ) : (
+            <Text style={styles.totalBalanceText}>${totalBalance.toFixed(2)}</Text>
+          )}
+        </View>
+
 
       {/* Title for Total Balance */}
       <Text style={styles.totalBalanceTitle}>Total Balance</Text>
@@ -228,7 +229,6 @@ useEffect(() => {
         ) : (
           stockData.map((stock) => (
             <TouchableOpacity key={stock.ticker_id} style={styles.stockItem} onPress={() => openSellModal(stock)}>
-              {/* Replace the following image with your logic for displaying the stock logo */}
               <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
               <View style={styles.stockDetails}>
                 <Text style={styles.stockTitle}>{`${stock.key}`}</Text>
@@ -379,6 +379,7 @@ const styles = StyleSheet.create({
   },
   stockList: {
     flex: 1,
+    marginBottom: 80,
   },
   stockItem: {
     flexDirection: 'row',

@@ -593,10 +593,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 3,
+    marginBottom: 100
   },
   newsImage: {
     width: '100%',
-    height: 120, 
+    height: 100, 
     borderRadius: 8,
     marginBottom: 8,
   },

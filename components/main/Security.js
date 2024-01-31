@@ -11,7 +11,7 @@ const Security = () => {
   };
 
   const navigateToSetPin = () => {
-    navigation.navigate('SetPin');
+    navigation.navigate('ResetTrans');
   };
 
   const handleBiometricSwitch = (value) => {
@@ -49,8 +49,8 @@ const Security = () => {
 
       {/* Account Recovery */}
       <TouchableOpacity style={styles.securityOption} onPress={navigateToSetPin}>
-        <Text style={styles.securityOptionTitle}>Set Your Transactions Pin</Text>
-        <Text style={styles.securityOptionDesc}>Set your transaction pin to transact</Text>
+        <Text style={styles.securityOptionTitle}>Reset Transactions Pin</Text>
+        <Text style={styles.securityOptionDesc}>Reset your transaction pin to transact</Text>
       </TouchableOpacity>
       <View style={styles.hrLine} />
 

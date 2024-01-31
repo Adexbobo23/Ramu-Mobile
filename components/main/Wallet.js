@@ -258,13 +258,13 @@ const Wallet = () => {
       </View>
 
        {/* Add New Card Button */}
-       <TouchableOpacity style={styles.addCardButton} onPress={handleAddCard}>
+       <TouchableOpacity style={styles.addCardButton}>
         <Ionicons name="card-outline" size={24} color="black" />
         <Text style={styles.addCardText}>Add New Card</Text>
       </TouchableOpacity>
 
       {/* Bank Card Section */}
-      <Text style={styles.bankCardTitle}>Bank Card</Text>
+      <Text style={styles.bankCardTitle}>Bank Cards</Text>
       <ScrollView>
         {cardDetails.map((card) => (
             <View key={card.id} style={styles.cardContainer}>
