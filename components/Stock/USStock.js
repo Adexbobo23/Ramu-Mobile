@@ -87,6 +87,13 @@ const USStock = () => {
     navigation.navigate('Portfolio');
   };
 
+  const stockUS = [
+    require("../Assests/stocks/Apple.png"),
+    require("../Assests/stocks/Alphabet.png"),
+    require("../Assests/stocks/nvidia.png"),
+    require("../Assests/stocks/Meta_Logo.jpg"),
+  ];
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>US Stocks</Text>
@@ -103,19 +110,21 @@ const USStock = () => {
         <ActivityIndicator size="large" color="#51CC62" />
       ) : (
         <ScrollView style={styles.stockListContainer}>
-          {filteredStocks.map((stock) => (
+          {filteredStocks.map((stock, index) => (
             <TouchableOpacity
               key={stock.ticker_id}
               style={styles.stockItemContainer}
               onPress={() => handleStockSelect(stock)}
             >
-              <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
+              <Image source={stockUS[index]} style={styles.stockImage} />
               <View style={styles.stockDetailsContainer}>
-                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                <View style={styles.stockRowContainer}>
+                  <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                </View>
                 <Text style={styles.stockDescriptionText}>{stock.description}</Text>
                 <View style={styles.stockRowContainer}>
-                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                  
                 </View>
               </View>
             </TouchableOpacity>
@@ -246,6 +255,11 @@ const styles = StyleSheet.create({
   stockDetailText: {
     fontSize: 19,
     marginBottom: 8,
+  },
+  stockRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   buttonsContainer: {
     flexDirection: 'row',

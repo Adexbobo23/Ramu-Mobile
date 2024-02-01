@@ -23,11 +23,14 @@ const Dashboard = () => {
   const [stockData, setStockData] = useState([]);
   const [userToken, setUserToken] = useState('');
   const [topTrendingStocks, setTopTrendingStocks] = useState([]);
-  const [selectedFeaturedStock, setSelectedFeaturedStock] = useState(null);
-  const modalRef = useRef(null);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [selectedStockInModal, setSelectedStockInModal] = useState(null);
+  const featuredStockModalRef = useRef(null);
+  const topTrendingStockModalRef = useRef(null);
   const [selectedTopTrendingStock, setSelectedTopTrendingStock] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userName, setUserName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const chartData = [50, 45, 40, 30, 35, 45, 50, 55, 60];
 
@@ -51,17 +54,13 @@ const Dashboard = () => {
   };
 
   const handleStockSelect = (stock) => {
-    // Store the selected stock in the state
-    setSelectedFeaturedStock(stock);
-    // Open the modal when a stock is selected
-    modalRef.current?.open();
+    setSelectedStock(stock);
+    featuredStockModalRef.current?.open();
   };
 
   const handleTrendingStockSelect = (stock) => {
-    // Store the selected stock in the state
     setSelectedTopTrendingStock(stock);
-    // Open the modal when a stock is selected
-    modalRef.current?.open();
+    topTrendingStockModalRef.current?.open();
   };
   
   
@@ -113,6 +112,37 @@ const Dashboard = () => {
     fetchUserToken();
   }, []);
 
+  // useEffect(() => {
+  //   // Fetch stock data when the component mounts and user token is available
+  //   const fetchStockData = async () => {
+  //     try {
+  //       const response = await fetch('https://api-staging.ramufinance.com/api/v1/get-featured-stocks', {
+  //         headers: {
+  //           Authorization: `Bearer ${userToken}`,
+  //         },
+  //       });
+
+  //       if (response.ok) {
+  //         const result = await response.json();
+  //         if (result.status) {
+  //           // Set only the first 5 stocks
+  //           setStockData(result.data.slice(0, 5));
+  //         } else {
+  //           console.error('Error fetching stock data:', result.message);
+  //         }
+  //       } else {
+  //         console.error('Error fetching stock data:', response.statusText);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching stock data:', error.message);
+  //     }
+  //   };
+
+  //   if (userToken) {
+  //     fetchStockData();
+  //   }
+  // }, [userToken]);
+
   useEffect(() => {
     // Fetch stock data when the component mounts and user token is available
     const fetchStockData = async () => {
@@ -126,8 +156,7 @@ const Dashboard = () => {
         if (response.ok) {
           const result = await response.json();
           if (result.status) {
-            // Set only the first 5 stocks
-            setStockData(result.data.slice(0, 5));
+            setStockData(result.data);
           } else {
             console.error('Error fetching stock data:', result.message);
           }
@@ -136,6 +165,8 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Error fetching stock data:', error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -143,6 +174,12 @@ const Dashboard = () => {
       fetchStockData();
     }
   }, [userToken]);
+
+  const filteredStocks = stockData.filter(
+    (stock) =>
+      stock.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
 
   useEffect(() => {
@@ -311,7 +348,14 @@ const navigateTo = (screen) => {
   navigation.navigate(screen);
 };
 
-
+const stockLogos = [
+  require("../Assests/stocks/Apple.png"),
+  require("../Assests/stocks/Alphabet.png"),
+  require("../Assests/stocks/nvidia.png"),
+  require("../Assests/stocks/Meta_Logo.jpg"),
+  require("../Assests/stocks/oracle.png"),
+  require("../Assests/stocks/hsbc.png"),
+];
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -387,14 +431,14 @@ const navigateTo = (screen) => {
 
             {/* Horizontal Scroll for Top Trending Stocks List */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-              {topTrendingStocks.map((stock) => (
+              {topTrendingStocks.map((stock, index) => (
                 <TouchableOpacity
                   key={stock.ticker_id}
                   style={styles.stockItem}
                   onPress={() => handleTrendingStockSelect(stock)}
                 >
                   <Image
-                    source={{ uri: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c516.png" }}
+                    source={stockLogos[index]}
                     style={styles.stockImage1}
                   />
                   <Text style={styles.stockName}>{stock.company_name}</Text>
@@ -455,28 +499,56 @@ const navigateTo = (screen) => {
         </View>
 
         {/* Stock Data */}
-        <ScrollView style={styles.stockListContainer}>
+        {isLoading ? (
+        <ActivityIndicator size="large" color="#51CC62" />
+        ) : (
+          <ScrollView style={styles.stockListContainer}>
+            {filteredStocks.map((stock, index) => (
+              <TouchableOpacity
+                key={stock.ticker_id}
+                style={styles.stockItemContainer}
+                onPress={() => handleStockSelect(stock)}
+              >
+                <Image
+                  source={stockLogos[index]}
+                  style={styles.stockImage}
+                />
+
+                <View style={styles.stockDetailsContainer}>
+                  <View style={styles.stockRowContainer1}>
+                    <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                    <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                  </View>
+                  <Text style={styles.stockDescriptionText}>{stock.description}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+        </ScrollView>
+        )}
+        {/* <ScrollView style={styles.stockListContainer}>
           {stockData.map((stock) => (
             <TouchableOpacity
               key={stock.ticker_id}
               style={styles.stockItemContainer}
-              // onPress={() => handleStockSelect(stock)}
+              onPress={() => handleStockSelect(stock)}
             >
               <Image
                 source={{ uri: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c516.png" }}
                 style={styles.stockImage}
               />
               <View style={styles.stockDetailsContainer}>
-                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                <View style={styles.stockRowContainer1}>
+                  <Text style={styles.stockTitleText}>{stock.company_name}</Text>
+                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                </View>
                 <Text style={styles.stockDescriptionText}>{stock.description}</Text>
                 <View style={styles.stockRowContainer}>
-                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                  <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
+                 
                 </View>
               </View>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </ScrollView> */}
       </ScrollView>
 
         {/* Modalize for switching account */}
@@ -494,36 +566,34 @@ const navigateTo = (screen) => {
           </View>
         </Modalize>
 
-        <Modalize ref={modalRef}>
-          {/* Content for the modal */}
-          <View style={styles.modalContent}>
-            {selectedFeaturedStock && (
-              <React.Fragment>
-                <Text style={styles.modalTitle}>Stock Details</Text>
-                
-                <Text style={styles.stockDetailText}>{`Company Name: ${selectedFeaturedStock.company_name}`}</Text>
-                <Text style={styles.stockDetailText}>{`Description: ${selectedFeaturedStock.description}`}</Text>
-                <Text style={styles.stockDetailText}>{`Trade Price: $${selectedFeaturedStock.trade_price.toFixed(2)}`}</Text>
-                {/* Add more details as needed */}
-                
-                {/* Buttons */}
-                <View style={styles.buttonsContainer}>
-                  <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
-                    <Text style={styles.buttonText}>Invest</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
-                    <Text style={styles.buttonText}>Sell</Text>
-                  </TouchableOpacity>
-                </View>
-              </React.Fragment>
-            )}
-          </View>
-        </Modalize>
+        <Modalize ref={featuredStockModalRef}>
+        {/* Content for the modal */}
+        <View style={styles.modalContent}>
+          {selectedStock && (
+            <React.Fragment>
+              <Text style={styles.modalTitle}>Stock Details</Text>
+              <StockDetailsChart />
+              <Text style={styles.stockDetailText}>{`Company Name: ${selectedStock.company_name}`}</Text>
+              <Text style={styles.stockDetailText}>{`Description: ${selectedStock.description}`}</Text>
+              <Text style={styles.stockDetailText}>{`Trade Price: $${selectedStock.trade_price.toFixed(2)}`}</Text>
+              {/* Add more details as needed */}
 
-        <Modalize ref={modalRef}>
-          {/* Content for the modal */}
+              {/* Buttons */}
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
+                  <Text style={styles.buttonText}>Invest</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                  <Text style={styles.buttonText}>Sell</Text>
+                </TouchableOpacity>
+              </View>
+            </React.Fragment>
+          )}
+        </View>
+      </Modalize>
+
+        <Modalize ref={topTrendingStockModalRef}>
           <View style={styles.modalContent}>
-            {/* Display full details of the selected top trending stock */}
             {selectedTopTrendingStock && (
               <React.Fragment>
                 <Text style={styles.modalTitle}>Stock Details</Text>
@@ -531,9 +601,8 @@ const navigateTo = (screen) => {
                 <Text style={styles.stockDetailText}>{`Company Name: ${selectedTopTrendingStock.company_name}`}</Text>
                 <Text style={styles.stockDetailText}>{`Description: ${selectedTopTrendingStock.description}`}</Text>
                 <Text style={styles.stockDetailText}>{`Trade Price: $${selectedTopTrendingStock.trade_price.toFixed(2)}`}</Text>
-                {/* Add more details as needed */}
+              
 
-                {/* Buttons */}
                 <View style={styles.buttonsContainer}>
                   <TouchableOpacity style={styles.investButton} onPress={handleInvest}>
                     <Text style={styles.buttonText}>Invest</Text>
@@ -546,7 +615,6 @@ const navigateTo = (screen) => {
             )}
           </View>
         </Modalize>
-
 
 
       <View style={styles.navBar}>
@@ -594,7 +662,7 @@ const styles = StyleSheet.create({
     height: 200,
     backgroundColor: '#63E185',
     borderRadius: 30,
-    marginTop: 30,
+    marginTop: 20,
     width: '93%',
     marginLeft: 10,
     marginRight: 10,
@@ -1046,6 +1114,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  stockRowContainer1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   chartImage: {
     width: 20,
     height: 20,
@@ -1059,7 +1132,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#147603', 
     paddingHorizontal: 20,
-    paddingVertical: 25, 
+    paddingVertical: 25,
+    height: 80,
   },
   navBarItem: {
     flex: 1,

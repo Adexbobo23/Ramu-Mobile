@@ -86,6 +86,15 @@ const AllStocks = () => {
     navigation.navigate('Portfolio');
   };
 
+  const stockLogos = [
+    require("../Assests/stocks/Apple.png"),
+    require("../Assests/stocks/Alphabet.png"),
+    require("../Assests/stocks/nvidia.png"),
+    require("../Assests/stocks/Meta_Logo.jpg"),
+    require("../Assests/stocks/oracle.png"),
+    require("../Assests/stocks/hsbc.png"),
+  ];
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Select Stocks</Text>
@@ -102,24 +111,23 @@ const AllStocks = () => {
         <ActivityIndicator size="large" color="#51CC62" />
       ) : (
         <ScrollView style={styles.stockListContainer}>
-          {filteredStocks.map((stock) => (
+          {filteredStocks.map((stock, index) => (
             <TouchableOpacity
               key={stock.ticker_id}
               style={styles.stockItemContainer}
               onPress={() => handleStockSelect(stock)}
             >
               <Image
-                source={{ uri: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c516.png" }}
+                source={stockLogos[index]}
                 style={styles.stockImage}
               />
 
               <View style={styles.stockDetailsContainer}>
-                <Text style={styles.stockTitleText}>{stock.company_name}</Text>
-                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
                 <View style={styles.stockRowContainer}>
-                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
+                  <Text style={styles.stockTitleText}>{stock.company_name}</Text>
                   <Text style={styles.stockPriceText}>{`$${stock.trade_price.toFixed(2)}`}</Text>
                 </View>
+                <Text style={styles.stockDescriptionText}>{stock.description}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -272,6 +280,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  stockRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 

@@ -229,7 +229,25 @@ const Discover = () => {
     stock.company_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const stockLogos = [
+    require("../Assests/stocks/Apple.png"),
+    require("../Assests/stocks/Alphabet.png"),
+    require("../Assests/stocks/nvidia.png"),
+    require("../Assests/stocks/Meta_Logo.jpg"),
+    require("../Assests/stocks/oracle.png"),
+    require("../Assests/stocks/hsbc.png"),
+  ];
 
+  const stockUk = [
+    require("../Assests/stocks/hsbc.png"),
+  ];
+
+  const stockUS = [
+    require("../Assests/stocks/Apple.png"),
+    require("../Assests/stocks/Alphabet.png"),
+    require("../Assests/stocks/nvidia.png"),
+    require("../Assests/stocks/Meta_Logo.jpg"),
+  ];
   return (
     <>
       <ScrollView style={styles.container}>
@@ -262,13 +280,13 @@ const Discover = () => {
           <ActivityIndicator size="large" color="#51CC62" />
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-            {filteredStocks.map((stock) => (
+            {filteredStocks.map((stock, index) => (
               <TouchableOpacity
                 key={stock.ticker_id}
                 style={styles.stockItem}
                 onPress={() => handleStockSelect(stock)}
               >
-                <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+                <Image source={stockLogos[index]} style={styles.stockImage1} />
                 <Text style={styles.stockName}>{stock.company_name}</Text>
                 <Text style={styles.stockDescription}>{stock.description}</Text>
               </TouchableOpacity>
@@ -326,13 +344,13 @@ const Discover = () => {
             <ActivityIndicator size="large" color="#51CC62" />
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-              {ukStocks.map((stock) => (
+              {ukStocks.map((stock, index) => (
                 <TouchableOpacity
                   key={stock.ticker_id}
                   style={styles.stockItem}
                   onPress={() => handleStockSelect(stock)}
                 >
-                  <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+                  <Image source={stockUk[index]} style={styles.stockImage1} />
                   <Text style={styles.stockName}>{stock.company_name}</Text>
                   <Text style={styles.stockDescription}>{stock.description}</Text>
                 </TouchableOpacity>
@@ -357,13 +375,13 @@ const Discover = () => {
             <ActivityIndicator size="large" color="#51CC62" />
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stocksList}>
-              {usStocks.map((stock) => (
+              {usStocks.map((stock, index) => (
                 <TouchableOpacity
                   key={stock.ticker_id}
                   style={styles.stockItem}
                   onPress={() => handleStockSelect(stock)}
                 >
-                  <Image source={require('../Assests/trade.jpg')} style={styles.stockImage1} />
+                  <Image source={stockUS[index]} style={styles.stockImage1} />
                   <Text style={styles.stockName}>{stock.company_name}</Text>
                   <Text style={styles.stockDescription}>{stock.description}</Text>
                 </TouchableOpacity>
@@ -557,8 +575,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   stockImage1: {
-    width: 100,
-    height: 100,
+    width: 60,
+    height: 60,
     borderRadius: 10,
     marginBottom: 8,
   },

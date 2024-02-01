@@ -157,7 +157,7 @@ const ConvertFunds = () => {
       <Text style={styles.exchangeRate}>
         Exchange Rate: {exchangeRate ? (
           convertFrom === 'NGN'
-            ? `1 NGN = ${exchangeRate.ngn_usd} USD`
+            ? `1 USD = ${exchangeRate.ngn_usd} NGN`
             : `1 USD = ${exchangeRate.usd_ngn} NGN`
         ) : (
           'Fetching exchange rate...'
