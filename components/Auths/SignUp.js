@@ -99,8 +99,11 @@ const SignupComponent = ({ navigation }) => {
   // };
 
   const handleSignup = async () => {
+    setLoading(true);
+
     if (!userName || !firstName || !lastName || !phoneNumber || !email || !password || !confirmPassword || !termsAccepted || !address || !selectedNationality || !gender) {
       alert('Please fill in all required fields including the Terms and Privacy checkbox');
+      setLoading(false);
       return;
     }
   
@@ -130,31 +133,35 @@ const SignupComponent = ({ navigation }) => {
       navigation.navigate('OtpVerification');
     } catch (error) {
       // Handle errors more specifically
-      if (error.response) {
-        // Handle different HTTP status codes
-        if (error.response.status === 400) {
-          // Bad Request - User input might be invalid
-          alert('Invalid input. Please check your data and try again.');
-        } else if (error.response.status === 401) {
-          // Unauthorized - User authentication failed
-          alert('Authentication failed. Please check your credentials and try again.');
-        } else {
-          // Other server response errors
-          alert('Error response from server. Please try again later.');
-        }
-  
-        console.error('Error response from server:', error.response.data);
-        console.error('Status code:', error.response.status);
-        console.error('Headers:', error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('No response received from server:', error.request);
-        alert('No response received from the server. Please try again later.');
+      // Handle errors more specifically
+    if (error.response) {
+      // Handle different HTTP status codes
+      if (error.response.status === 400) {
+        // Bad Request - User input might be invalid
+        alert('Invalid input. Please check your data and try again.');
+      } else if (error.response.status === 401) {
+        // Unauthorized - User authentication failed
+        alert('Authentication failed. Please check your credentials and try again.');
+      } else if (error.response.status === 422 && error.response.data.message && error.response.data.message.email) {
+        // Specific error condition - email has already been taken
+        alert('Error, The email has already been taken.');
       } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error('Error setting up the request:', error.message);
-        alert('Error setting up the request. Please check your network connection and try again.');
-      } 
+        // Other server response errors
+        alert('Error, Invalid credentials. Please enter valid email or username.');
+      }
+
+      console.error('Error response from server:', error.response.data);
+      console.error('Status code:', error.response.status);
+      console.error('Headers:', error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received from server:', error.request);
+      alert('No response received from the server. Please try again later.');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error setting up the request:', error.message);
+      alert('Error setting up the request. Please check your network connection and try again.');
+    }
     } finally {
       setLoading(false);
     }
@@ -552,7 +559,7 @@ const styles = StyleSheet.create({
   },
   modalOption: {
     height: 50,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: '#ccc',
     justifyContent: 'center',
     paddingLeft: 10,

@@ -221,7 +221,7 @@ const Withdraw = () => {
 
         <TextInput
           style={styles.input}
-          placeholder="Enter amount to withdraw"
+          placeholder="Enter the amount to withdraw"
           keyboardType="numeric"
           value={withdrawAmount}
           onChangeText={(text) => setWithdrawAmount(text)}

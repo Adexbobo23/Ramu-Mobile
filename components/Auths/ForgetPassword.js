@@ -52,8 +52,9 @@ const ForgetPassword = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Forgot Password?</Text>
-      <Text style={styles.description}>We can help you get your password back</Text>
-      <Text style={styles.description1}>just enter your email address</Text>
+      <Text style={styles.description}>please enter your email address to
+      retrieve your password.
+      </Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email *</Text>
         <TextInput

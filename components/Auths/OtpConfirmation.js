@@ -71,7 +71,9 @@ const OtpConfirmation = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Verification</Text>
-      <Text style={styles.subtitle}>Code has been sent to your email:</Text>
+      <Text style={styles.subtitle}>
+        We have sent a mail with the verification code to your email:
+      </Text>
       <Text style={styles.email}>{email}</Text>
       <View style={styles.otpContainer}>
         {Array(4)
@@ -119,6 +121,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     marginBottom: 10,
+    textAlign: 'center',
   },
   email: {
     fontSize: 16,

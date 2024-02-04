@@ -82,21 +82,21 @@ const EditProfile = ({ navigation }) => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const userId = await AsyncStorage.getItem('userId');
-
+  
       if (!userToken || !userId) {
         console.error('User Token or User ID not found in AsyncStorage');
         return;
       }
-
+  
       const apiUrl = `https://api-staging.ramufinance.com/api/v1/edit-profile/${userId}`;
-
+  
       const data = new FormData();
       data.append('first_name', userInfo.first_name);
       data.append('last_name', userInfo.last_name);
       data.append('phone_number', userInfo.phone_number);
       data.append('gender', userInfo.gender);
       data.append('address', userInfo.address);
-
+  
       if (profileImage) {
         data.append('profile_image', {
           name: 'profile_image.jpg',
@@ -104,36 +104,36 @@ const EditProfile = ({ navigation }) => {
           uri: profileImage.uri,
         });
       }
-
+  
       const response = await axios.put(apiUrl, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${userToken}`,
         },
       });
-
+  
       console.log('API Response:', response.data);
-
+  
       if (response.data && response.data.status) {
         const updatedProfileData = response.data.data[0];
-
+  
         setUserInfo(updatedProfileData);
-
+  
         if (updatedProfileData.profile_image) {
           setProfileImage({ uri: updatedProfileData.profile_image });
         }
-
+  
         Alert.alert('Success', 'Profile edited successfully!');
         navigation.navigate('Personal');
       } else {
         console.error('API Error:', response.data);
-
+  
         if (response.status === 422) {
           const validationErrors = response.data.errors;
           console.log('Validation Errors:', validationErrors);
-
+  
           let errorMessage = 'An error occurred while editing the profile. Please try again.';
-
+  
           if (validationErrors) {
             for (const field in validationErrors) {
               if (validationErrors.hasOwnProperty(field)) {
@@ -141,7 +141,7 @@ const EditProfile = ({ navigation }) => {
               }
             }
           }
-
+  
           Alert.alert('Validation Error', errorMessage);
           console.log('Validation Response:', response);
         } else {
@@ -154,13 +154,14 @@ const EditProfile = ({ navigation }) => {
     } catch (error) {
       console.error('Error:', error);
       console.error('Full Error Object:', error);
-
+  
       Alert.alert(
         'Error',
         'An unexpected error occurred. Please try again later.'
       );
     }
   };
+  
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>

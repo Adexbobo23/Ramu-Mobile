@@ -14,7 +14,7 @@ const EmailVerifySuccessful = ({ navigation }) => {
       <Text style={styles.messageText1}>Let's get some business done!</Text>
       <Image source={require('../Assests/Frame_158.png')} style={styles.image} />
       <TouchableOpacity style={styles.dashboardButton} onPress={handleGoToDashboard}>
-        <Text style={styles.buttonText}>Set your transactions pin</Text>
+        <Text style={styles.buttonText}>Set transaction PIN</Text>
       </TouchableOpacity>
     </View>
   );

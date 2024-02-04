@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, ScrollView, Image, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,11 +18,11 @@ import StockDetailsChart from './Charts/StockDetailsChart';
 
 const Discover = () => {
   const navigation = useNavigation();
+  const modalRef = useRef(null);
   const [topTrendingStocks, setTopTrendingStocks] = useState([]);
   const [userToken, setUserToken] = useState('');
   const [stockData, setStockData] = useState([]);
   const [selectedPopularStock, setSelectedPopularStock] = useState(null);
-  const modalRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sectors, setSectors] = useState([]);
   const [blogs, setBlogs] = useState([]);
@@ -25,11 +34,6 @@ const Discover = () => {
   const [loadingUsStocks, setLoadingUsStocks] = useState(false);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [selectedSector, setSelectedSector] = useState(null);
-
-  const handleSectorSelect = (sector) => {
-    setSelectedSector(sector);
-  };
-  
 
   useEffect(() => {
     fetchUsStocks();
@@ -248,6 +252,7 @@ const Discover = () => {
     require("../Assests/stocks/nvidia.png"),
     require("../Assests/stocks/Meta_Logo.jpg"),
   ];
+
   return (
     <>
       <ScrollView style={styles.container}>
@@ -326,7 +331,6 @@ const Discover = () => {
           </ScrollView>
         )}
       </View>
-
 
         {/* UK Stocks Section */}
         <View style={styles.stocksSection}>
@@ -492,7 +496,6 @@ const Discover = () => {
       </View>
     </>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -569,8 +572,8 @@ const styles = StyleSheet.create({
   },
   
   stockImage: {
-    width: 100,
-    height: 100,
+    width: 60,
+    height: 60,
     borderRadius: 50,
     marginBottom: 8,
   },
@@ -581,8 +584,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   stockImage3: {
-    width: 100,
-    height: 100,
+    width: 60,
+    height: 60,
     borderRadius: 10,
     marginBottom: 8,
   },
@@ -628,84 +631,81 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  newsTitle: {
-    fontSize: 18,
+  modalContent: {
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    marginBottom: 16,
+  },
+  stockDetailText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  investButton: {
+    backgroundColor: '#51CC62',
+    padding: 12,
+    borderRadius: 8,
+    width: '48%',
+    alignItems: 'center',
+  },
+  sellButton: {
+    backgroundColor: '#FF6666',
+    padding: 12,
+    borderRadius: 8,
+    width: '48%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: '#147603',
-    padding: 10,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingVertical: 25,
-},
-navBarItem: {
-    flex: 1,
+    justifyContent: 'space-around',
     alignItems: 'center',
-},
-navBarText: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    backgroundColor: '#147603',
+    paddingVertical: 10,
+  },
+  navBarItem: {
+    alignItems: 'center',
+  },
+  navBarText: {
     color: 'white',
-},
-modalContent: {
-  padding: 16,
-  flexDirection: 'column',
-  alignItems: 'center'
-},
-modalTitle: {
-  fontSize: 38,
-  fontWeight: 'bold',
-  marginBottom: 16,
-  color: '#51CC62'
-},
-stockDetailText: {
-  fontSize: 19,
-  marginBottom: 8,
-},
-buttonsContainer: {
-  flexDirection: 'row',
-  marginTop: 20,
-},
-investButton: {
-  flex: 1,
-  backgroundColor: '#51CC62',
-  padding: 10,
-  borderRadius: 5,
-  marginRight: 10,
-  alignItems: 'center',
-},
-sellButton: {
-  flex: 1,
-  backgroundColor: '#FF6347',
-  padding: 10,
-  borderRadius: 5,
-  alignItems: 'center',
-},
-buttonText: {
-  color: 'white',
-  fontSize: 16,
-},
-relatedStockItem: {
-  marginTop: 8,
-  backgroundColor: '#f0f0f0',
-  padding: 8,
-  borderRadius: 8,
-},
-relatedStockName: {
-  fontSize: 14,
-  fontWeight: 'bold',
-  marginBottom: 4,
-  color: '#333',
-},
-relatedStockDescription: {
-  fontSize: 12,
-  color: '#666',
-},
+    marginTop: 4,
+  },
+  relatedStockItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+    borderWidth: 0,
+    borderColor: '#51CC62',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 16,
+    marginBottom: 16,
+    marginRight: 16,
+  },
+  relatedStockName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#333',
+  },
+  relatedStockDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
 });
 
 export default Discover;

@@ -1,36 +1,36 @@
 {
   "expo": {
-    "name": "ramu-mobile-app",
-    "slug": "ramu",
-    "description": "Ramu finance stock trading app",
-    "version": "1.0.1",
+    "name": "Ramu",
+    "slug": "Ramu",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/png/ramu2.jpg",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/png/white_logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#51CC62"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/png/ramu2.jpg",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.adexbobo23.ramumobileapp"
+      "package": "com.ramufinance.Ramu"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "8b64fc45-e47d-409e-8abc-19153e9d93e2"
+        "projectId": "9e478a8c-23fa-4e57-baf2-e12fac5347bb"
       }
-    },
-    "owner": "adexbobo23"
+    }
   }
 }

@@ -10,6 +10,7 @@ const BlogList = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [totalBlogs, setTotalBlogs] = useState(0);
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -33,6 +34,8 @@ const BlogList = () => {
       });
 
       if (response.data.status) {
+        setTotalBlogs(response.data.total);
+
         if (page === 1) {
           setBlogs(response.data.data);
         } else {
@@ -54,7 +57,9 @@ const BlogList = () => {
   };
 
   const handleLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
+    if (blogs.length < totalBlogs) {
+      setPage((prevPage) => prevPage + 1);
+    }
   };
 
   const handleSearch = () => {
@@ -113,7 +118,7 @@ const BlogList = () => {
         {isLoading && (
           <ActivityIndicator size="large" color="#51CC62" style={{ marginTop: 10 }} />
         )}
-        {!isLoading && blogs.length > 0 && (
+        {!isLoading && blogs.length > 0 && blogs.length < totalBlogs && (
           <Button
             title="Load More"
             onPress={handleLoadMore}

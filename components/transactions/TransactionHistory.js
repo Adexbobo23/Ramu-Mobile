@@ -171,12 +171,12 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   transactionDetailText: {
-    fontSize: 16,
+    fontSize: 13,
   },
   transactionDetailText1: {
     fontSize: 19,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#51CC62'
   },
   modalContainer: {
@@ -193,11 +193,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalText: {
-    fontSize: 19,
+    fontSize: 13,
     marginBottom: 8,
   },
   modalText1: {
-    fontSize: 26,
+    fontSize: 20,
     marginBottom: 10,
     fontWeight: 'bold'
   },

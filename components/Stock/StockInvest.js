@@ -461,7 +461,7 @@ const StockInvest = () => {
           />
         </View>
         <View style={styles.formField}>
-          <Text style={styles.label}>Total Ammount</Text>
+          <Text style={styles.label}>Total Amount</Text>
           {/* Stock Price field */}
           <View style={styles.inputContainer}>
             <Text style={styles.dollarSymbol}>$</Text>

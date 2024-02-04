@@ -117,7 +117,7 @@ const Login = ({ navigation }) => {
         <Text style={styles.buttonText}>Log in</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleForgotPassword}>
-        <Text style={styles.forgotPassword}>Forgot Password?</Text>
+        <Text style={styles.forgotPassword}>Forget password?</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleCreateAccount}>
         <Text style={styles.createAccount}>

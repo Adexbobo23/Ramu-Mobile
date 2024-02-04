@@ -95,7 +95,7 @@ const markAsRead = async () => {
       />
 
       <TouchableOpacity style={styles.markAsReadButton} onPress={markAsRead}>
-        <Text style={styles.markAsReadButtonText}>Mark All as Read</Text>
+        <Text style={styles.markAsReadButtonText}>Mark all as read</Text>
       </TouchableOpacity>
     </View>
   );
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     elevation: 2,
-    height: 60,
+    height: 80,
   },
   notificationText: {
     flex: 1,
