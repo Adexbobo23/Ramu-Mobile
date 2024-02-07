@@ -254,7 +254,7 @@ useEffect(() => {
       {/* Sell Modal using Modalize */}
       <Modalize ref={modalizeRef} adjustToContentHeight>
       <Text style={styles.PortfolioTitle}>Portfolio Stock Details</Text>
-        <StockDetailsChart />
+        <PortfolioChart />
         {selectedStock && (
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedStock?.key}</Text>

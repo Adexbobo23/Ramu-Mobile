@@ -269,8 +269,7 @@ const Discover = () => {
           />
         </View>
   
-        {/* Stocks Section */}
-      <View style={styles.stocksSection}>
+        <View style={[styles.stocksSection, { backgroundColor: '#F5F5F5' }]}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Popular this week</Text>
           <TouchableOpacity onPress={handleSeeAll}>
@@ -301,7 +300,7 @@ const Discover = () => {
       </View>
   
       {/* Sectors Section */}
-      <View style={styles.stocksSection}>
+      <View style={[styles.stocksSection, { backgroundColor: '#FFF' }]}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sectors</Text>
           <TouchableOpacity onPress={handleSeeAll}>
@@ -332,16 +331,16 @@ const Discover = () => {
         )}
       </View>
 
-        {/* UK Stocks Section */}
-        <View style={styles.stocksSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>UK Stocks</Text>
-            <TouchableOpacity onPress={handleSeeAll}>
-              <Text style={styles.seeAll} onPress={() => navigateTo('UKStock')}>
-                See All
-              </Text>
-            </TouchableOpacity>
-          </View>
+         {/* UK Stocks Section */}
+          <View style={[styles.stocksSection, { backgroundColor: '#F5F5F5' }]}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>UK Stocks</Text>
+              <TouchableOpacity onPress={handleSeeAll}>
+                <Text style={styles.seeAll} onPress={() => navigateTo('UKStock')}>
+                  See All
+                </Text>
+              </TouchableOpacity>
+            </View>
   
           {/* Horizontal Scroll for UK Stocks List */}
           {loadingUkStocks ? (
@@ -363,16 +362,16 @@ const Discover = () => {
           )}
         </View>
   
-        {/* US Stocks Section */}
-        <View style={styles.stocksSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>US Stocks</Text>
-            <TouchableOpacity onPress={handleSeeAll}>
-              <Text style={styles.seeAll} onPress={() => navigateTo('USStock')}>
-                See All
-              </Text>
-            </TouchableOpacity>
-          </View>
+      {/* US Stocks Section */}
+      <View style={[styles.stocksSection, { backgroundColor: '#FFF' }]}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>US Stocks</Text>
+          <TouchableOpacity onPress={handleSeeAll}>
+            <Text style={styles.seeAll} onPress={() => navigateTo('USStock')}>
+              See All
+            </Text>
+          </TouchableOpacity>
+        </View>
   
           {/* Horizontal Scroll for US Stocks List */}
           {loadingUsStocks ? (
@@ -395,7 +394,7 @@ const Discover = () => {
         </View>
   
         {/* Blogs Section */}
-        <View style={styles.stocksSection}>
+        <View style={[styles.stocksSection, { backgroundColor: '#F5F5F5' }]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Blogs</Text>
             <TouchableOpacity onPress={handleSeeAll}>
@@ -572,20 +571,20 @@ const styles = StyleSheet.create({
   },
   
   stockImage: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 50,
     marginBottom: 8,
   },
   stockImage1: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 10,
     marginBottom: 8,
   },
   stockImage3: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 10,
     marginBottom: 8,
   },
@@ -596,7 +595,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   stockDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
   },
   newsList: {

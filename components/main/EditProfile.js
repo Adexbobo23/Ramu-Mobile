@@ -26,28 +26,32 @@ const EditProfile = ({ navigation }) => {
     profile_image: null,
   });
 
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(userInfo.profile_image);
 
   const fetchUserInfo = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const userId = await AsyncStorage.getItem('userId');
-
+  
       if (!userToken || !userId) {
         console.error('User Token or User ID not found in AsyncStorage');
         return;
       }
-
+  
       const apiUrl = `https://api-staging.ramufinance.com/api/v1/admin/user/${userId}`;
-
+  
       const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       });
-
+  
+      console.log('API Response:', response.data); // Log the response data
+  
       if (response.data && response.data.status) {
         setUserInfo(response.data.data[0]);
+        // Initialize profile image state with user profile image
+        setProfileImage(response.data.data[0].profile_image);
       } else {
         console.error('Failed to fetch user info - Response:', response.data);
       }
@@ -55,6 +59,7 @@ const EditProfile = ({ navigation }) => {
       console.error('Error fetching user info:', error);
     }
   };
+  
 
   useEffect(() => {
     // Fetch user info on component mount
@@ -68,8 +73,11 @@ const EditProfile = ({ navigation }) => {
         copyToCacheDirectory: false,
       });
 
+      console.log('Document picker result:', result);
+
       if (result.type === 'success') {
-        setProfileImage(result);
+        console.log('Selected image URI:', result.uri);
+        setProfileImage(result.uri); 
       } else if (result.type === 'cancel') {
         console.log('User cancelled document picker');
       }
@@ -82,6 +90,7 @@ const EditProfile = ({ navigation }) => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const userId = await AsyncStorage.getItem('userId');
+      console.log('User ID:', userId);
   
       if (!userToken || !userId) {
         console.error('User Token or User ID not found in AsyncStorage');
@@ -98,14 +107,19 @@ const EditProfile = ({ navigation }) => {
       data.append('address', userInfo.address);
   
       if (profileImage) {
+        console.log('Profile image URI:', profileImage);
         data.append('profile_image', {
           name: 'profile_image.jpg',
           type: 'image/jpeg',
-          uri: profileImage.uri,
+          uri: profileImage,
         });
+      } else {
+        console.warn('No profile image selected.');
       }
   
-      const response = await axios.put(apiUrl, data, {
+      console.log('Data being sent to backend:', data);
+  
+      const response = await axios.post(apiUrl, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${userToken}`,
@@ -115,12 +129,12 @@ const EditProfile = ({ navigation }) => {
       console.log('API Response:', response.data);
   
       if (response.data && response.data.status) {
-        const updatedProfileData = response.data.data[0];
+        const updatedProfileData = response.data.data;
   
         setUserInfo(updatedProfileData);
   
         if (updatedProfileData.profile_image) {
-          setProfileImage({ uri: updatedProfileData.profile_image });
+          setProfileImage(updatedProfileData.profile_image);
         }
   
         Alert.alert('Success', 'Profile edited successfully!');
@@ -132,7 +146,8 @@ const EditProfile = ({ navigation }) => {
           const validationErrors = response.data.errors;
           console.log('Validation Errors:', validationErrors);
   
-          let errorMessage = 'An error occurred while editing the profile. Please try again.';
+          let errorMessage =
+            'An error occurred while editing the profile. Please try again.';
   
           if (validationErrors) {
             for (const field in validationErrors) {
@@ -170,10 +185,10 @@ const EditProfile = ({ navigation }) => {
 
         <TouchableOpacity onPress={handleChooseImage}>
           {profileImage ? (
-            <Image source={{ uri: profileImage.uri }} style={styles.profileImage} />
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.profileImagePlaceholder}>
-              <Text>Choose Picture</Text>
+              <Text>{profileImage === null ? 'Choose Picture' : 'Picture Selected'}</Text>
             </View>
           )}
         </TouchableOpacity>

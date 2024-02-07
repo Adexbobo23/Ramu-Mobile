@@ -37,45 +37,33 @@ const Notification = () => {
     }
   };
 
+  const markAsRead = async () => {
+    try {
+      // Get userToken from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
 
-const markAsRead = async () => {
-  try {
-    // Get userToken from AsyncStorage
-    const userToken = await AsyncStorage.getItem('userToken');
+      if (userToken) {
+        const apiUrl = 'https://api-staging.ramufinance.com/api/v1/mark-as-read';
 
-    if (userToken) {
-      const apiUrl = 'https://api-staging.ramufinance.com/api/v1/mark-as-read';
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
 
-      // Log request details for debugging
-      console.log('Request URL:', apiUrl);
-      console.log('Request Headers:', { Authorization: `Bearer ${userToken}` });
-
-      // Make the Axios request using the correct HTTP method (e.g., GET)
-      const response = await axios.get(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-
-      // Log response details for debugging
-      console.log('Response:', response.data);
-
-      if (response.data.status) {
-        // Update the local state after marking as read
-        setNotifications([]);
+        if (response.data.status) {
+          setNotifications([]);
+        } else {
+          Alert.alert('Failed to mark notifications as read', response.data.message || 'Please try again.');
+        }
       } else {
-        Alert.alert('Failed to mark notifications as read', response.data.message || 'Please try again.');
+        Alert.alert('Failed to mark notifications as read', 'User token not found.');
       }
-    } else {
-      Alert.alert('Failed to mark notifications as read', 'User token not found.');
+    } catch (error) {
+      console.error('Error while marking notifications as read:', error);
+      Alert.alert('Failed to mark notifications as read', 'An error occurred. Please try again.');
     }
-  } catch (error) {
-    console.error('Error while marking notifications as read:', error);
-    Alert.alert('Failed to mark notifications as read', 'An error occurred. Please try again.');
-  }
-};
-
-  
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.notificationItem}>
@@ -94,9 +82,11 @@ const markAsRead = async () => {
         style={styles.notificationList}
       />
 
-      <TouchableOpacity style={styles.markAsReadButton} onPress={markAsRead}>
-        <Text style={styles.markAsReadButtonText}>Mark all as read</Text>
-      </TouchableOpacity>
+      {notifications.length > 0 && (
+        <TouchableOpacity style={styles.markAsReadButton} onPress={markAsRead}>
+          <Text style={styles.markAsReadButtonText}>Mark all as read</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -133,10 +123,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
     color: '#000',
     fontSize: 17,
-  },
-  clearButton: {
-    color: 'red',
-    fontWeight: 'bold',
   },
   markAsReadButton: {
     backgroundColor: '#51CC62',

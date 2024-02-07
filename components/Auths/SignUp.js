@@ -144,7 +144,7 @@ const SignupComponent = ({ navigation }) => {
         alert('Authentication failed. Please check your credentials and try again.');
       } else if (error.response.status === 422 && error.response.data.message && error.response.data.message.email) {
         // Specific error condition - email has already been taken
-        alert('Error, The email has already been taken.');
+        alert('The email has already been taken.');
       } else {
         // Other server response errors
         alert('Error, Invalid credentials. Please enter valid email or username.');

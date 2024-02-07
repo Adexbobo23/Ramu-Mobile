@@ -110,6 +110,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
 
       // Resolve account name before making the API call
       await resolveAccountName();
+      setLoading(true);
 
       const accountData = {
         bank_code: selectedBank.code,
@@ -129,7 +130,7 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
       );
 
       if (response.status === 201) {
-        Alert.alert('Success', 'Settlement account added successfully!');
+        Alert.alert('Success', 'Settlement account added successfully! you will receive a mail from us once your account is approved');
 
         // Redirect to Withdraw component
         navigation.navigate('Withdraw');
@@ -144,6 +145,8 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
     } catch (error) {
       console.error('Error adding account:', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -220,6 +223,14 @@ const AddSettlementAccountModal = ({ isVisible, onClose }) => {
       <TouchableOpacity style={styles.addButton} onPress={handleAddAccount}>
         <Text style={styles.buttonText}>Add Account</Text>
       </TouchableOpacity>
+
+      {loading && (
+      <Modal transparent={true} visible={loading}>
+        <View style={styles.modalLoader}>
+          <ActivityIndicator size="large" color="#51CC62" />
+        </View>
+      </Modal>
+    )}
     </View>
   );
 };
@@ -319,6 +330,12 @@ const styles = StyleSheet.create({
   modalCloseButtonText: {
     color: 'white',
     fontSize: 16,
+  },
+  modalLoader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 

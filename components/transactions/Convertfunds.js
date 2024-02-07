@@ -52,14 +52,25 @@ const ConvertFunds = () => {
 
   const handleConvert = async () => {
     try {
+      // Check if convertAmount is empty
+      if (!convertAmount) {
+        Alert.alert('Enter Amount', 'Please enter the amount to convert.');
+        return;
+      }
+      // Check if both convertFrom and convertTo have been selected
+      if (convertFrom === 'NGN' && convertTo === 'NGN' || convertFrom === 'USD' && convertTo === 'USD') {
+        Alert.alert('Please Select Currencies', 'Please select both "From" and "To" currencies before converting.');
+        return;
+      }
+  
       const userToken = await AsyncStorage.getItem('userToken');
-
+  
       const convertData = {
         amount: parseFloat(convertAmount),
         from_cur: convertFrom,
         to_cur: convertTo,
       };
-
+  
       const response = await axios.post(
         'https://api-staging.ramufinance.com/api/v1/convert-fund',
         convertData,
@@ -69,7 +80,7 @@ const ConvertFunds = () => {
           },
         }
       );
-
+  
       if (response.data && response.data.status) {
         Alert.alert(
           'Conversion Successful',
@@ -99,7 +110,9 @@ const ConvertFunds = () => {
       Alert.alert('Hey', 'Failed to convert funds. Insufficient Fund.');
     }
   };
-
+  
+  
+  
   const renderCurrencyModal = () => (
     <Modal
       animationType="slide"

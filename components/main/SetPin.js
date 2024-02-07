@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SetPin = ({ navigation }) => {
@@ -8,17 +8,17 @@ const SetPin = ({ navigation }) => {
   const enterPinRefs = useRef([]);
   const confirmPinRefs = useRef([]);
   const [userToken, setUserToken] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [isEnterPin, setIsEnterPin] = useState(true);
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
   useEffect(() => {
-    // Fetch user token from AsyncStorage
     const fetchUserToken = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
         if (token) {
           setUserToken(token);
         } else {
-          // Handle the case where the token is not available
           console.error('User token not found in AsyncStorage');
         }
       } catch (error) {
@@ -37,7 +37,6 @@ const SetPin = ({ navigation }) => {
     const newPins = [...(isEnterPin ? enterPin : confirmPin)];
     newPins[index] = value;
 
-    // If the current box is filled, move focus to the next box
     if (value.length === 1 && index < 3) {
       pinRefs.current[index + 1].focus();
     }
@@ -51,10 +50,8 @@ const SetPin = ({ navigation }) => {
 
   const handleSetPin = async () => {
     if (isEnterPin) {
-      // Switch to confirm PIN mode
       handleTogglePinType();
     } else {
-      // Confirm PIN
       const enteredPin = enterPin.join('');
       const confirmedPin = confirmPin.join('');
   
@@ -64,6 +61,9 @@ const SetPin = ({ navigation }) => {
       }
   
       try {
+        setIsLoading(true);
+        setShowModal(true); // Show modal when data submission starts
+        
         const response = await fetch('https://api-staging.ramufinance.com/api/v1/setup-pin', {
           method: 'POST',
           headers: {
@@ -79,22 +79,21 @@ const SetPin = ({ navigation }) => {
         const result = await response.json();
     
         if (response.status === 200) {
-          // Save the PIN to AsyncStorage or your preferred storage method
           await AsyncStorage.setItem('userPin', enteredPin);
           Alert.alert('PIN Set', 'Your PIN has been set successfully.');
-          // Navigate to the Dashboard or any other screen
           navigation.navigate('Login');
         } else if (response.status === 422) {
-          // Handle validation error
           Alert.alert('Validation Error', result.message.pin_confirmation[0]);
         } else {
-          // Handle other status codes or show detailed error messages
           console.error('API error:', result);
           Alert.alert('Error', `Error setting PIN: ${result.message || 'Unknown error'}`);
         }
       } catch (error) {
         console.error('Error setting PIN:', error);
         Alert.alert('Error', 'An error occurred while setting the PIN. Please try again.');
+      } finally {
+        setIsLoading(false);
+        setShowModal(false); // Hide modal when data submission completes
       }
     }
   };
@@ -108,7 +107,6 @@ const SetPin = ({ navigation }) => {
         <Text style={styles.title}>{isEnterPin ? 'Enter' : 'Confirm'} PIN</Text>
 
         <View style={styles.pinContainer}>
-          {/* PIN input */}
           {(isEnterPin ? enterPin : confirmPin).map((pin, index) => (
             <TextInput
               key={index}
@@ -124,19 +122,18 @@ const SetPin = ({ navigation }) => {
           ))}
         </View>
 
-        {/* Toggle PIN type button */}
-        {/* <TouchableOpacity style={styles.toggleButton} onPress={handleTogglePinType}>
-          <Text style={styles.toggleButtonText}>
-            {isEnterPin ? 'Switch to Confirm PIN' : 'Switch to Enter PIN'}
-          </Text>
-        </TouchableOpacity> */}
-
-        {/* Set PIN button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSetPin}>
           <Text style={styles.submitButtonText}>
             {isEnterPin ? 'Next' : 'Set PIN'}
           </Text>
         </TouchableOpacity>
+
+        {/* Modal for loader */}
+        <Modal visible={showModal} transparent={true} animationType="fade">
+          <View style={styles.modalContainer}>
+            <ActivityIndicator size="large" color="#51CC62" />
+          </View>
+        </Modal>
       </View>
     </ScrollView>
   );
@@ -183,14 +180,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-  toggleButton: {
-    marginTop: 20,
-    alignSelf: 'center',
-    marginBottom: 190,
-  },
-  toggleButtonText: {
-    color: '#51CC62',
-  },
   submitButton: {
     backgroundColor: '#51CC62',
     padding: 15,
@@ -210,6 +199,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 22,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 

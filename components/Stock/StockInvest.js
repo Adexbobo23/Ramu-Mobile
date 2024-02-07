@@ -38,11 +38,26 @@ const StockInvest = () => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    const filtered = featuredStocks.filter((stock) =>
-      stock.company_name.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredStocks(filtered);
+    if (query.trim() === '') {
+      setFilteredStocks(featuredStocks);
+    } else {
+      const filtered = featuredStocks.filter((stock) =>
+        stock.company_name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredStocks(filtered);
+    }
   };
+  
+
+  useEffect(() => {
+    fetchFeaturedStocks();
+  }, []);
+  
+  useEffect(() => {
+    setFilteredStocks(featuredStocks);
+  }, [featuredStocks]);
+  
+  
   
   const loadFeaturedStocks = async () => {
     setIsLoadingFeaturedStocks(true);
@@ -187,7 +202,7 @@ const StockInvest = () => {
       } else {
         // Handle order creation failure
         console.log('Failed to create order.');
-        Alert.alert('Order Creation Failed', 'Failed to create the investment order. Incorrect Pin');
+        Alert.alert('Order Creation Failed', 'Failed to create the investment order.');
       }
   
       // Clear the transaction pin after submission
@@ -559,13 +574,13 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   searchInput: {
-    height: 40,
+    height: 50,
     borderWidth: 1,
     borderColor: '#51CC62',
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 10,
-    width: '80%'
+    width: '100%'
   },
   input: {
     height: 50,
@@ -696,7 +711,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
-    alignItems: 'center',
+    alignItems: 'left',
     maxHeight: 400,  
     width: '100%',
   },
