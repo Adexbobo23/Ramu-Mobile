@@ -20,12 +20,14 @@ const Portfolio = () => {
   const [transactionPin, setTransactionPin] = useState('');
   const [actualBalance, setActualBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showTransactionPin, setShowTransactionPin] = useState(false); // State variable to track whether to show transaction pin field
 
   useEffect(() => {
     const fetchUserToken = async () => {
       try {
         const userToken = await AsyncStorage.getItem('userToken');
         if (userToken) {
+          fetchActualBalance(userToken); 
           fetchStockData(userToken);
         }
       } catch (error) {
@@ -35,23 +37,6 @@ const Portfolio = () => {
 
     fetchUserToken();
   }, []);
-
-  useEffect(() => {
-    const fetchUserToken = async () => {
-      try {
-        const userToken = await AsyncStorage.getItem('userToken');
-        if (userToken) {
-          fetchActualBalance(userToken); 
-          fetchStockData(userToken); 
-        }
-      } catch (error) {
-        console.error('Error fetching user token:', error.message);
-      }
-    };
-
-    fetchUserToken();
-  }, []);
-
 
   const fetchActualBalance = async (userToken) => {
     try {
@@ -76,12 +61,11 @@ const Portfolio = () => {
       setLoading(false);
     }
   };
-  
+
   // Modify the useEffect that calculates total balance to use actualBalance
   useEffect(() => {
     setTotalBalance(actualBalance);
   }, [actualBalance]);
-
 
   const fetchStockData = async (userToken) => {
     try {
@@ -105,7 +89,6 @@ const Portfolio = () => {
     }
   };
 
-
   useEffect(() => {
     const totalAmount = stockData.reduce((acc, stock) => {
       const tradePrice = parseFloat(stock.trade_price);
@@ -123,18 +106,15 @@ const Portfolio = () => {
     setTotalBalance(totalAmount);
   }, [stockData]);
 
-  
-
-// Filter stock data based on search query
-useEffect(() => {
-  const filteredStocks = stockData.filter(
-    (stock) =>
-      (stock.company_name && stock.company_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (stock.ticker_id && stock.ticker_id.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-  setStockData(filteredStocks);
-}, [searchQuery]);
-
+  // Filter stock data based on search query
+  useEffect(() => {
+    const filteredStocks = stockData.filter(
+      (stock) =>
+        (stock.company_name && stock.company_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (stock.ticker_id && stock.ticker_id.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    setStockData(filteredStocks);
+  }, [searchQuery]);
 
   const navigateTo = (screen) => {
     navigation.navigate(screen);
@@ -150,6 +130,9 @@ useEffect(() => {
     modalizeRef.current?.close();
   };
 
+  const handleSellButtonClick = () => {
+    setShowTransactionPin(true); // Set state to true to show transaction pin field
+  };
 
   const handleSell = async () => {
     try {
@@ -176,7 +159,6 @@ useEffect(() => {
         transaction_pin: transactionPin,
       };
       
-
       const response = await axios.post(apiUrl, payload, { headers });
 
       console.log('API Response:', response.data);
@@ -188,7 +170,6 @@ useEffect(() => {
       console.error('API Error:', error.message);
     }
   };
-
 
   return (
     <View style={styles.container}>
@@ -234,14 +215,9 @@ useEffect(() => {
               <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
               <View style={styles.stockDetails}>
                 <Text style={styles.stockTitle}>{`${stock.key}`}</Text>
-                {/* <Text style={styles.stockDescription}>{`Ticker: ${stock.ticker_id}`}</Text> */}
-                {/* Render additional important data here */}
                 <Text style={styles.additionalData}>{`Quantity: ${stock.quantity}`}</Text>
                 <Text style={styles.additionalData}>{`Initial Trade Price: ${stock.initial_trade_price}`}</Text>
-                {/* <Text style={styles.additionalData}>{`Exchange Code: ${stock.exchange_code}`}</Text> */}
-                {/* Add more data fields as needed */}
                 <View style={styles.stockRow}>
-                  {/* Replace the following image with your logic for displaying the chart image */}
                   <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
                   <Text style={styles.stockPrice}>Market Price {`$${(parseFloat(stock.trade_price) || 0).toFixed(2)}`}</Text>
                 </View>
@@ -259,7 +235,7 @@ useEffect(() => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedStock?.key}</Text>
             <Text style={styles.modalDescription}>{selectedStock?.ticker_id}</Text>
-            <Text style={styles.additionalData}>{`Initial Trade Price: ${selectedStock.initial_trade_price}`}</Text>
+            <Text style={styles.additionalData}>{`Initial Trade Price: ${selectedStock?.initial_trade_price}`}</Text>
             <Text style={styles.modalPrice}>{`$${(selectedStock?.trade_price || 0).toFixed(2)}`}</Text>
 
             {/* Sell Form */}
@@ -272,24 +248,38 @@ useEffect(() => {
                 onChangeText={(text) => setSellQuantity(text)}
               />
             </View>
-            {/* Transaction Pin field */}
-            <View style={styles.formField}>
-              <Text style={styles.label}>Transaction Pin:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter transaction pin"
-                value={transactionPin}
-                onChangeText={(text) => setTransactionPin(text)}
-                keyboardType="numeric"
-                secureTextEntry={true}
-              />
-            </View>
+
+            {/* Conditionally render the transaction pin field based on whether the sell button has been clicked */}
+            {showTransactionPin && (
+              <View style={styles.formField}>
+                <Text style={styles.label}>Transaction Pin:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter transaction pin"
+                  value={transactionPin}
+                  onChangeText={(text) => setTransactionPin(text)}
+                  keyboardType="numeric"
+                  secureTextEntry={true}
+                  maxLength={4}
+                />
+              </View>
+            )}
 
             {/* Add more form fields as needed (e.g., stock price, total amount) */}
 
-            <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
-              <Text style={styles.sellButtonText}>Sell</Text>
-            </TouchableOpacity>
+            {/* Show the sell button only if the transaction pin field is hidden */}
+            {!showTransactionPin && (
+              <TouchableOpacity style={styles.sellButton} onPress={handleSellButtonClick}>
+                <Text style={styles.sellButtonText}>Proceed to Sell</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Conditionally render the sell button only when the transaction pin field is visible */}
+            {showTransactionPin && (
+              <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                <Text style={styles.sellButtonText}>Sell</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </Modalize>
@@ -412,10 +402,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
-  stockDescription: {
-    color: '#555',
-    marginBottom: 8,
-  },
   stockRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -466,7 +452,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
-    height: 60
+    height: 60,
+    marginBottom: 10,
   },
   sellButtonText: {
     color: '#FFFFFF',

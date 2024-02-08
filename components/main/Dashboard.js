@@ -11,6 +11,7 @@ import StockChart from './Charts/StockChart';
 import StockDetailsChart from './Charts/StockDetailsChart';
 
 
+
 const Dashboard = () => {
   const navigation = useNavigation();
   const [balanceVisible, setBalanceVisible] = useState(true);

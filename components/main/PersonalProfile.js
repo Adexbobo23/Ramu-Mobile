@@ -124,11 +124,11 @@ const PersonalProfile = () => {
             <View style={styles.underline} />
           </View>
 
-          <View style={styles.infoItem}>
+          {/* <View style={styles.infoItem}>
             <Text style={styles.label}>Email Address</Text>
             <Text style={styles.infoText}>{userData.emailAddress}</Text>
             <View style={styles.underline} />
-          </View>
+          </View> */}
 
           <View style={styles.infoItem}>
             <Text style={styles.label}>Phone Number</Text>
@@ -148,11 +148,11 @@ const PersonalProfile = () => {
             <View style={styles.underline} />
           </View>
 
-          <View style={styles.infoItem}>
+          {/* <View style={styles.infoItem}>
             <Text style={styles.label}>Email Verified</Text>
             <Text style={styles.infoText}>{userData.isEmailVerified ? 'Yes' : 'No'}</Text>
             <View style={styles.underline} />
-          </View>
+          </View> */}
         </View>
       </View>
     </ScrollView>

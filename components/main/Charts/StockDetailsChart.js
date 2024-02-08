@@ -13,69 +13,53 @@ import {
   VictoryVoronoiContainer,
   VictoryTooltip,
 } from 'victory-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StockDetailsChart = () => {
-  const [stockDetailsData, setStockDetailsData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch user token from AsyncStorage
-        const userToken = await AsyncStorage.getItem('userToken');
+    // Simulate loading delay
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
 
-        // If user token is not found, log an error and stop loading
-        if (!userToken) {
-          console.error('User token not found.');
-          setLoading(false);
-          return;
-        }
-
-        // Define the API URL
-        const apiUrl =
-          'https://api-staging.ramufinance.com/api/v1/get-stock-graph?exchange_code=NSDQ&key=NSDQ~GOOG&range=7';
-
-        // Make the API request with the user token
-        const response = await axios.get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-
-        // Check if the API request was successful
-        if (response.data.status) {
-          // Process the stock data from the API response
-          const stockData = response.data.data;
-          const formattedData = formatStockData(stockData);
-          setStockDetailsData(formattedData);
-        } else {
-          // Log an error if the API request was not successful
-          console.error(
-            'Error fetching stock graph data:',
-            response.data.message
-          );
-        }
-      } catch (error) {
-        // Log an error if there is any issue with the API request
-        console.error('Error fetching stock graph data:', error.message);
-      } finally {
-        // Set loading to false regardless of success or failure
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    return () => clearTimeout(timeout);
   }, []);
 
-  // Function to format stock data for VictoryChart
-  const formatStockData = (stockData) => {
-    return stockData.map((dataPoint) => ({
-      x: new Date(dataPoint.TRADE_TIME).toLocaleTimeString(),
-      y: dataPoint.CLOSE,
-    }));
-  };
+  // Demo stock data
+  const stockDetailsData = [
+    { x: '9:00 AM', y: 100 },
+    { x: '9:30 AM', y: 105 },
+    { x: '10:00 AM', y: 110 },
+    { x: '10:30 AM', y: 115 },
+    { x: '11:00 AM', y: 120 },
+    { x: '11:30 AM', y: 125 },
+    { x: '12:00 PM', y: 130 },
+    { x: '12:30 PM', y: 135 },
+    { x: '1:00 PM', y: 125 },
+    { x: '1:30 PM', y: 120 },
+    { x: '2:00 PM', y: 115 },
+    { x: '2:30 PM', y: 110 },
+    { x: '3:00 PM', y: 105 },
+    { x: '3:30 PM', y: 100 },
+    { x: '4:00 PM', y: 110 },
+    { x: '4:30 PM', y: 105 },
+    { x: '5:00 PM', y: 100 },
+    { x: '5:30 PM', y: 95 },
+    { x: '6:00 PM', y: 90 },
+    { x: '6:30 PM', y: 85 },
+    { x: '7:00 PM', y: 95 },
+    { x: '7:30 PM', y: 90 },
+    { x: '8:00 PM', y: 85 },
+    { x: '8:30 PM', y: 90 },
+    { x: '9:00 PM', y: 95 },
+    { x: '9:30 PM', y: 100 },
+    { x: '10:00 PM', y: 105 },
+    { x: '10:30 PM', y: 110 },
+    { x: '11:00 PM', y: 115 },
+    { x: '11:30 PM', y: 120 },
+    { x: '12:00 AM', y: 125 },
+  ];
 
   // Function to render the VictoryChart component
   const renderChart = () => {
@@ -94,7 +78,7 @@ const StockDetailsChart = () => {
             labelComponent={<VictoryTooltip />}
           />
         }
-        width={stockDetailsData.length * 70}
+        width={stockDetailsData.length * 50} 
       >
         <VictoryAxis />
         <VictoryAxis dependentAxis />

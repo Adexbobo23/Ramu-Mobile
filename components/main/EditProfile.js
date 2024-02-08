@@ -141,39 +141,11 @@ const EditProfile = ({ navigation }) => {
         navigation.navigate('Personal');
       } else {
         console.error('API Error:', response.data);
-  
-        if (response.status === 422) {
-          const validationErrors = response.data.errors;
-          console.log('Validation Errors:', validationErrors);
-  
-          let errorMessage =
-            'An error occurred while editing the profile. Please try again.';
-  
-          if (validationErrors) {
-            for (const field in validationErrors) {
-              if (validationErrors.hasOwnProperty(field)) {
-                errorMessage += `\n${field}: ${validationErrors[field].join(', ')}`;
-              }
-            }
-          }
-  
-          Alert.alert('Validation Error', errorMessage);
-          console.log('Validation Response:', response);
-        } else {
-          Alert.alert(
-            'Error',
-            'An error occurred while editing the profile. Please try again.'
-          );
-        }
+        Alert.alert('Error', 'An error occurred while editing the profile. Please try again.');
       }
     } catch (error) {
       console.error('Error:', error);
-      console.error('Full Error Object:', error);
-  
-      Alert.alert(
-        'Error',
-        'An unexpected error occurred. Please try again later.'
-      );
+      Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
     }
   };
   

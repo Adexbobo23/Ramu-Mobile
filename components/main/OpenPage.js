@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import App from '../Router/Push';
 
 const FirstOpenPage = () => {
   const navigation = useNavigation();
@@ -20,6 +21,9 @@ const FirstOpenPage = () => {
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
+        {/* <View>
+          <App />
+        </View> */}
       </View>
     </View>
   );
