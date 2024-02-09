@@ -32,7 +32,7 @@ const PaymentConfirmation = () => {
             )}
 
             <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
-                <Text style={styles.backButtonText}>Back to Home</Text>
+                <Text style={styles.backButtonText}>Home</Text>
             </TouchableOpacity>
         </View>
     );
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         textAlign: 'center',
         fontWeight: 'normal',
-        fontSize: 18,
+        fontSize: 15,
     },
 });
 

@@ -217,6 +217,10 @@ const Wallet = () => {
     }
   };
 
+  function formatNumberWithCommas(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Wallet</Text>
@@ -240,13 +244,13 @@ const Wallet = () => {
             ) : (
               <Text style={styles.balanceText}>
                 {balanceVisible ? (
-                  selectedAccount === 'naira' ? (
-                    `₦${walletDetails?.naira?.balance}`
-                  ) : (
-                    `$${walletDetails?.dollar?.balance}`
-                  )
+                    selectedAccount === 'naira' ? (
+                        `₦${formatNumberWithCommas(walletDetails?.naira?.balance)}`
+                    ) : (
+                        `$${formatNumberWithCommas(walletDetails?.dollar?.balance)}`
+                    )
                 ) : (
-                  '*******'
+                    '*******'
                 )}
               </Text>
             )}

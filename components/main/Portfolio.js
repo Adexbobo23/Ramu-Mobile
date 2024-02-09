@@ -20,7 +20,7 @@ const Portfolio = () => {
   const [transactionPin, setTransactionPin] = useState('');
   const [actualBalance, setActualBalance] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showTransactionPin, setShowTransactionPin] = useState(false); // State variable to track whether to show transaction pin field
+  const [showTransactionPin, setShowTransactionPin] = useState(false); 
 
   useEffect(() => {
     const fetchUserToken = async () => {
@@ -49,9 +49,8 @@ const Portfolio = () => {
       });
   
       if (response.data.status) {
-        const balances = response.data.data;
-        const totalBalance = balances.reduce((acc, entry) => acc + parseFloat(entry.balance), 0);
-        setActualBalance(totalBalance);
+        const balance = response.data.data.balance;
+        setActualBalance(balance);
       } else {
         console.error('Error fetching actual balance:', response.data.message);
       }
@@ -62,7 +61,6 @@ const Portfolio = () => {
     }
   };
 
-  // Modify the useEffect that calculates total balance to use actualBalance
   useEffect(() => {
     setTotalBalance(actualBalance);
   }, [actualBalance]);
@@ -131,7 +129,7 @@ const Portfolio = () => {
   };
 
   const handleSellButtonClick = () => {
-    setShowTransactionPin(true); // Set state to true to show transaction pin field
+    setShowTransactionPin(true); 
   };
 
   const handleSell = async () => {
@@ -168,6 +166,7 @@ const Portfolio = () => {
       closeSellModal();
     } catch (error) {
       console.error('API Error:', error.message);
+      navigation.navigate('PaymentFailed');
     }
   };
 
@@ -187,15 +186,14 @@ const Portfolio = () => {
         />
       </View>
 
-       {/* Account Balance */}
-       <View style={styles.accountBalanceContainer}>
-          {loading ? (
-            <ActivityIndicator size="large" color="#51CC62" />
-          ) : (
-            <Text style={styles.totalBalanceText}>${totalBalance.toFixed(2)}</Text>
-          )}
-        </View>
-
+      {/* Account Balance */}
+      <View style={styles.accountBalanceContainer}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#51CC62" />
+        ) : (
+          <Text style={styles.totalBalanceText}>${totalBalance.toFixed(2)}</Text>
+        )}
+      </View>
 
       {/* Title for Total Balance */}
       <Text style={styles.totalBalanceTitle}>Total Balance</Text>
@@ -229,12 +227,13 @@ const Portfolio = () => {
 
       {/* Sell Modal using Modalize */}
       <Modalize ref={modalizeRef} adjustToContentHeight>
-      <Text style={styles.PortfolioTitle}>Portfolio Stock Details</Text>
+        <Text style={styles.PortfolioTitle}>Portfolio Stock Details</Text>
         <PortfolioChart />
         {selectedStock && (
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedStock?.key}</Text>
             <Text style={styles.modalDescription}>{selectedStock?.ticker_id}</Text>
+            <Text style={styles.additionalData}>{`Quantity: ${selectedStock?.quantity}`}</Text>
             <Text style={styles.additionalData}>{`Initial Trade Price: ${selectedStock?.initial_trade_price}`}</Text>
             <Text style={styles.modalPrice}>{`$${(selectedStock?.trade_price || 0).toFixed(2)}`}</Text>
 
@@ -270,7 +269,7 @@ const Portfolio = () => {
             {/* Show the sell button only if the transaction pin field is hidden */}
             {!showTransactionPin && (
               <TouchableOpacity style={styles.sellButton} onPress={handleSellButtonClick}>
-                <Text style={styles.sellButtonText}>Proceed to Sell</Text>
+                <Text style={styles.sellButtonText}>Proceed to sell</Text>
               </TouchableOpacity>
             )}
 
@@ -426,6 +425,10 @@ const styles = StyleSheet.create({
   },
   modalDescription: {
     marginBottom: 16,
+  },
+  additionalData: {
+    fontSize: 15,
+    marginBottom: 10,
   },
   modalPrice: {
     fontSize: 16,

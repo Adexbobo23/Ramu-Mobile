@@ -183,6 +183,8 @@ const StockInvest = () => {
   const handleStockSelect = (stockId, stockMarketId) => {
     setSelectedStock(stockId);
     setSelectedStockMarketId(stockMarketId);
+    console.log(stockId);
+    console.log(stockMarketId)
     setShowStockModal(false);
 
     calculateQuantityAndStockPrice(amount);
@@ -332,22 +334,22 @@ const StockInvest = () => {
   const createOrder = async (calculatedStockPrice) => {
     try {
       const userToken = await fetchUserToken();
-
+  
       if (!userToken) {
         console.error('Failed to fetch user token. Unable to proceed with order.');
         return false;
       }
-
+  
       const orderPayload = {
         trade_price: calculatedStockPrice.toFixed(4),
         quantity: quantity,
         symbol: selectedStock,
         exchange: 'NSDQ',
         order_side: '1',
-        stock_market_id: '1',
+        stock_market_id: selectedStockMarketId,
         transaction_pin: transactionPin,
       };
-
+  
       const response = await fetch('https://api-staging.ramufinance.com/api/v1/create-order', {
         method: 'POST',
         headers: {
@@ -357,26 +359,39 @@ const StockInvest = () => {
         body: JSON.stringify(orderPayload),
       });
 
+      console.log(orderPayload)
+  
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Failed to create order. Server error:', errorData.error);
         console.error('Response data:', errorData);
-
+        navigation.navigate('PaymentFailed');
+  
         if (response.status === 401) {
           console.error('Unauthorized access. Please check your credentials.');
+          navigation.navigate('PaymentFailed');
         } else if (response.status === 403) {
           console.error('Forbidden. You may not have the necessary permissions.');
+          navigation.navigate('PaymentFailed');
+        } else if (response.status === 422) {
+          console.error('Order validation failed. Please check the order details.');
+          navigation.navigate('PaymentFailed');
+        } else {
+          console.error('Unknown server error occurred.');
+          navigation.navigate('PaymentFailed');
         }
-
+  
         return false;
       }
-
+  
       return true;
     } catch (error) {
       console.error('Error creating order:', error.message);
+      navigation.navigate('PaymentFailed');
       return false;
     }
   };
+  
 
 
   const navigateToMore = () => {
@@ -440,13 +455,14 @@ const StockInvest = () => {
                   {filteredStocks.map((stock, index) => (
                     <TouchableOpacity
                       key={index}
-                      onPress={() => handleStockSelect(stock.ticker_id)}
+                      onPress={() => handleStockSelect(stock.ticker_id, stock.id)}
                       style={styles.modalItem}
                     >
                       <Text>{stock.company_name} ({stock.ticker_id})</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
+
               )}
             </View>
             </View>
@@ -499,8 +515,8 @@ const StockInvest = () => {
         visible={transactionPinModalVisible}
         onRequestClose={() => setTransactionPinModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+        <View style={styles.modalContainer1}>
+          <View style={styles.modalContent1}>
             <View style={styles.formField}>
               <Text style={styles.label}>Transaction Pin</Text>
               <View style={styles.transactionPinContainer}>
@@ -715,7 +731,20 @@ const styles = StyleSheet.create({
     maxHeight: 400,  
     width: '100%',
   },
-  
+  modalContainer1: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent1: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    alignItems: 'center',
+    maxHeight: 400,  
+    width: '100%',
+  },
   modalItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,

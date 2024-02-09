@@ -220,6 +220,9 @@ const Dashboard = () => {
       // Assuming NGN is for Naira and USD is for Dollar
       const nairaDetails = response.data.data.find((wallet) => wallet.currency_code === 'NGN');
       const dollarDetails = response.data.data.find((wallet) => wallet.currency_code === 'USD');
+      
+      // console.log('Naira Balance:', nairaDetails?.balance);
+      // console.log('Dollar Balance:', dollarDetails?.balance);
 
       setWalletDetails({
         naira: nairaDetails,
@@ -349,6 +352,10 @@ const navigateTo = (screen) => {
   navigation.navigate(screen);
 };
 
+function formatNumberWithCommas(number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 const stockLogos = [
   require("../Assests/stocks/Apple.png"),
   require("../Assests/stocks/Alphabet.png"),
@@ -373,15 +380,15 @@ const stockLogos = [
       </TouchableOpacity>
     </View>
       <View style={styles.topBar}>
-        <View style={styles.hideen}>
-          <Text style={styles.acoountbalance}>Account Balance</Text>
-          <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
-              {balanceVisible ? (
-                <Ionicons name="eye-off" size={24} color="white" />
-              ) : (
-                <Ionicons name="eye" size={24} color="white" />
-              )}
-            </TouchableOpacity>
+          <View style={styles.hideen}>
+            <Text style={styles.acoountbalance}>Account Balance</Text>
+            <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+                {balanceVisible ? (
+                  <Ionicons name="eye-off" size={24} color="white" />
+                ) : (
+                  <Ionicons name="eye" size={24} color="white" />
+                )}
+              </TouchableOpacity>
           </View>
           <View style={styles.balanceContainer}>
             {renderSwitchAccountButton()}
@@ -391,13 +398,13 @@ const stockLogos = [
               ) : (
                 <Text style={styles.balanceText}>
                   {balanceVisible ? (
-                    selectedAccount === 'naira' ? (
-                      `₦${walletDetails?.naira?.balance}`
-                    ) : (
-                      `$${walletDetails?.dollar?.balance}`
-                    )
+                      selectedAccount === 'naira' ? (
+                          `₦${formatNumberWithCommas(walletDetails?.naira?.balance)}`
+                      ) : (
+                          `$${formatNumberWithCommas(walletDetails?.dollar?.balance)}`
+                      )
                   ) : (
-                    '*******'
+                      '*******'
                   )}
                 </Text>
               )}
@@ -416,7 +423,7 @@ const stockLogos = [
           </View>
 
         </View>
-        </View>
+      </View>
 
         <View style={styles.stockcontainer}>
           {/* Stocks Section */}

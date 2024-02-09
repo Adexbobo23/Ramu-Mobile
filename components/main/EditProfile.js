@@ -72,19 +72,24 @@ const EditProfile = ({ navigation }) => {
         type: 'image/*',
         copyToCacheDirectory: false,
       });
-
+  
       console.log('Document picker result:', result);
-
-      if (result.type === 'success') {
-        console.log('Selected image URI:', result.uri);
-        setProfileImage(result.uri); 
+  
+      if (result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        console.log('Selected image URI:', selectedImage.uri);
+        setProfileImage(selectedImage.uri); 
       } else if (result.type === 'cancel') {
         console.log('User cancelled document picker');
+      } else {
+        console.log('No image selected or invalid result:', result);
       }
     } catch (error) {
       console.error('Error picking document:', error);
     }
   };
+  
+  
 
   const handleSaveChanges = async () => {
     try {
@@ -105,6 +110,8 @@ const EditProfile = ({ navigation }) => {
       data.append('phone_number', userInfo.phone_number);
       data.append('gender', userInfo.gender);
       data.append('address', userInfo.address);
+  
+      console.log('Profile image URI:', profileImage); // Log profileImage URI
   
       if (profileImage) {
         console.log('Profile image URI:', profileImage);
@@ -149,7 +156,8 @@ const EditProfile = ({ navigation }) => {
     }
   };
   
-
+  
+  
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>

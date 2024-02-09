@@ -24,7 +24,7 @@ const PortfolioChart = () => {
           return;
         }
 
-        const apiUrl = 'https://api-staging.ramufinance.com/api/v1/get-portfolio-graph?symbol=GOOG';
+        const apiUrl = 'https://api-staging.ramufinance.com/api/v1/get-portfolio-graph';
 
         const response = await axios.get(apiUrl, {
           headers: {

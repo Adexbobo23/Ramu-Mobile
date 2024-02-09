@@ -190,6 +190,9 @@ const Withdraw = () => {
     navigation.navigate('AddSettle');
   };
 
+  function formatNumberWithCommas(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -208,13 +211,13 @@ const Withdraw = () => {
           </View>
           <View style={styles.balanceContainer}>
             <TouchableOpacity onPress={toggleBalanceVisibility}>
-              {isLoading ? (
+            {isLoading ? (
                 <ActivityIndicator size="small" color="white" />
-              ) : (
+            ) : (
                 <Text style={styles.balanceText}>
-                  {balanceVisible ? `₦${walletDetails?.naira?.balance}` : '*******'}
+                    {balanceVisible ? `₦${formatNumberWithCommas(walletDetails?.naira?.balance)}` : '*******'}
                 </Text>
-              )}
+            )}
             </TouchableOpacity>
           </View>
         </View>
