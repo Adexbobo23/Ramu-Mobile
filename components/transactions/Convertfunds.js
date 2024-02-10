@@ -54,12 +54,12 @@ const ConvertFunds = () => {
     try {
       // Check if convertAmount is empty
       if (!convertAmount) {
-        Alert.alert('Enter Amount', 'Please enter the amount to convert.');
+        Alert.alert('Enter Amount', 'Please enter the amount to convert.', [{ text: 'Close', onPress: () => navigation.navigate('Home') }]);
         return;
       }
       // Check if both convertFrom and convertTo have been selected
       if (convertFrom === 'NGN' && convertTo === 'NGN' || convertFrom === 'USD' && convertTo === 'USD') {
-        Alert.alert('Please Select Currencies', 'Please select both "From" and "To" currencies before converting.');
+        Alert.alert('Please Select Currencies', 'Please select both "From" and "To" currencies before converting.', [{ text: 'Close', onPress: () => navigation.navigate('Home') }]);
         return;
       }
   
@@ -84,7 +84,7 @@ const ConvertFunds = () => {
       if (response.data && response.data.status) {
         Alert.alert(
           'Conversion Successful',
-          'What transaction do you wish to perform?',
+          'What action do you wish to perform?',
           [
             {
               text: 'Invest',
@@ -94,24 +94,28 @@ const ConvertFunds = () => {
               text: 'Withdraw',
               onPress: () => navigation.navigate('Withdraw'),
             },
+            {
+              text: 'Home',
+              onPress: () => navigation.navigate('Dashboard')
+            }
           ],
-          { cancelable: false }
+          { cancelable: true }
         );
       } else {
         console.error('Conversion failed - Response:', response);
         if (response.data && response.data.message) {
-          Alert.alert('Error', `Conversion failed. Reason: ${response.data.message}`);
+          Alert.alert('Error', `Conversion failed. Reason: ${response.data.message}`, [{ text: 'Close', onPress: () => navigation.navigate('Home') }]);
         } else {
-          Alert.alert('Error', 'Conversion failed. Please try again later.');
+          Alert.alert('Error', 'Conversion failed. Please try again later.', [{ text: 'Close', onPress: () => navigation.navigate('Home') }]);
         }
       }
     } catch (error) {
       console.error('Error converting funds:', error);
-      Alert.alert('Hey', 'Failed to convert funds. Insufficient Fund.');
+      Alert.alert('Hey', 'Failed to convert funds. Insufficient Fund.', [{ text: 'Close', onPress: () => navigation.navigate('Home') }]);
     }
   };
   
-  
+
   
   const renderCurrencyModal = () => (
     <Modal

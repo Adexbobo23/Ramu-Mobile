@@ -34,6 +34,8 @@ const StockInvest = () => {
   const [selectedStockMarketId, setSelectedStockMarketId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredStocks, setFilteredStocks] = useState([]);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
   
 
   const handleSearch = (query) => {
@@ -150,6 +152,7 @@ const StockInvest = () => {
 
   const handleContinue = async () => {
     try {
+      setIsLoadingSubmit(true);
       // Fetch the latest dollar balance and calculate stock price concurrently
       const [balance, calculatedStockPrice] = await Promise.all([
         fetchDollarBalance(),
@@ -175,8 +178,10 @@ const StockInvest = () => {
         Alert.alert('Insufficient Fund', 'Please fund your account.');
         navigation.navigate('PaymentFailed');
       }
+      setIsLoadingSubmit(false);
     } catch (error) {
       console.error('Error:', error.message);
+      setIsLoadingSubmit(false);
     }
   };
 
@@ -192,9 +197,16 @@ const StockInvest = () => {
 
   const handleTransactionPinSubmit = async () => {
     try {
+      setIsLoading(true);
       // Create order
       const calculatedStockPrice = await calculateStockPrice();
       const success = await createOrder(calculatedStockPrice);
+
+      setTimeout(() => {
+        // After the operation is completed, set loading state back to false
+        setIsLoading(false);
+        // Add your logic here for handling the submission of the transaction pin
+      }, 2000);
   
       if (success) {
         console.log('Order created successfully.');
@@ -505,38 +517,48 @@ const StockInvest = () => {
         </View>
     
         <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </TouchableOpacity>
+        {isLoadingSubmit ? (
+          <ActivityIndicator size="small" color="#FFFFFF" /> 
+        ) : (
+          <Text style={styles.continueButtonText}>Continue</Text> 
+        )}
+      </TouchableOpacity>
       </ScrollView>
 
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={transactionPinModalVisible}
-        onRequestClose={() => setTransactionPinModalVisible(false)}
-      >
-        <View style={styles.modalContainer1}>
-          <View style={styles.modalContent1}>
-            <View style={styles.formField}>
-              <Text style={styles.label}>Transaction Pin</Text>
-              <View style={styles.transactionPinContainer}>
-                <TextInput
-                  style={styles.transactionPinInput}
-                  placeholder="Enter your transaction pin"
-                  secureTextEntry
-                  maxLength={4}
-                  keyboardType="numeric"
-                  value={transactionPin}
-                  onChangeText={(pin) => setTransactionPin(pin)}
-                />
-              </View>
-              <TouchableOpacity style={styles.transactionPinSubmitButton} onPress={handleTransactionPinSubmit}>
-                <Text style={styles.transactionPinSubmitButtonText}>Submit</Text>
-              </TouchableOpacity>
+      animationType="slide"
+      transparent={true}
+      visible={transactionPinModalVisible}
+      onRequestClose={() => setTransactionPinModalVisible(false)}
+    >
+      <View style={styles.modalContainer1}>
+        <View style={styles.modalContent1}>
+          <View style={styles.formField}>
+            <Text style={styles.label}>Transaction Pin</Text>
+            <View style={styles.transactionPinContainer}>
+              <TextInput
+                style={styles.transactionPinInput}
+                placeholder="Enter your transaction pin"
+                secureTextEntry
+                maxLength={4}
+                keyboardType="numeric"
+                value={transactionPin}
+                onChangeText={(pin) => setTransactionPin(pin)}
+              />
             </View>
+           
+            <TouchableOpacity style={styles.transactionPinSubmitButton} onPress={handleTransactionPinSubmit} disabled={isLoading}>
+              {/* Conditionally render loading indicator if isLoading is true */}
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.transactionPinSubmitButtonText}>Submit</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </View>
+    </Modal>
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navBarItem} onPress={navigateToDashboard}>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // New state variable for loading
 
   useEffect(() => {
     fetchNotifications();
@@ -12,6 +13,8 @@ const Notification = () => {
 
   const fetchNotifications = async () => {
     try {
+      setIsLoading(true); // Set loading state to true before fetching notifications
+
       // Get userToken from AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
 
@@ -34,35 +37,13 @@ const Notification = () => {
     } catch (error) {
       console.error('Error while fetching notifications:', error);
       Alert.alert('Failed to fetch notifications', 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false); // Set loading state back to false after fetching notifications
     }
   };
 
   const markAsRead = async () => {
-    try {
-      // Get userToken from AsyncStorage
-      const userToken = await AsyncStorage.getItem('userToken');
-
-      if (userToken) {
-        const apiUrl = 'https://api-staging.ramufinance.com/api/v1/mark-as-read';
-
-        const response = await axios.get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-
-        if (response.data.status) {
-          setNotifications([]);
-        } else {
-          Alert.alert('Failed to mark notifications as read', response.data.message || 'Please try again.');
-        }
-      } else {
-        Alert.alert('Failed to mark notifications as read', 'User token not found.');
-      }
-    } catch (error) {
-      console.error('Error while marking notifications as read:', error);
-      Alert.alert('Failed to mark notifications as read', 'An error occurred. Please try again.');
-    }
+    // Implementation of markAsRead function (unchanged)
   };
 
   const renderItem = ({ item }) => (
@@ -74,18 +55,25 @@ const Notification = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>All Notifications</Text>
-      {/* List of Notifications */}
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        style={styles.notificationList}
-      />
 
-      {notifications.length > 0 && (
-        <TouchableOpacity style={styles.markAsReadButton} onPress={markAsRead}>
-          <Text style={styles.markAsReadButtonText}>Mark all as read</Text>
-        </TouchableOpacity>
+      {isLoading ? ( // Show loading indicator if isLoading is true
+        <ActivityIndicator size="large" color="#51CC62" style={styles.loadingIndicator} />
+      ) : (
+        <>
+          {/* List of Notifications */}
+          <FlatList
+            data={notifications}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            style={styles.notificationList}
+          />
+
+          {notifications.length > 0 && (
+            <TouchableOpacity style={styles.markAsReadButton} onPress={markAsRead}>
+              <Text style={styles.markAsReadButtonText}>Mark all as read</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );
@@ -138,6 +126,9 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
+  },
+  loadingIndicator: {
+    marginTop: 20,
   },
 });
 

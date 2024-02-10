@@ -353,8 +353,12 @@ const navigateTo = (screen) => {
 };
 
 function formatNumberWithCommas(number) {
+  if (typeof number === 'undefined') {
+    return ''; 
+  }
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
 
 const stockLogos = [
   require("../Assests/stocks/Apple.png"),

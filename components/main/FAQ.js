@@ -56,7 +56,6 @@ const FAQ = () => {
             question: 'Is your question missing?',
             answer: 'Email or chat with us and our team will be ready to answer you.',
         },
-        // ... Repeat for other questions and answers
       ];
       
 
@@ -85,7 +84,7 @@ const FAQ = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Fast Answered Questions</Text>
+      <Text style={styles.title}>FAQ</Text>
 
       <FlatList
         data={faqData}
@@ -108,12 +107,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'left',
+    textAlign: 'center',
     color: '#51CC62',
-    marginTop: 30,
+    marginTop: 30,  
   },
   faqItem: {
     marginBottom: 20,

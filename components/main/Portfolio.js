@@ -212,12 +212,11 @@ const Portfolio = () => {
             <TouchableOpacity key={stock.ticker_id} style={styles.stockItem} onPress={() => openSellModal(stock)}>
               <Image source={require('../Assests/trade.jpg')} style={styles.stockImage} />
               <View style={styles.stockDetails}>
-                <Text style={styles.stockTitle}>{`${stock.key}`}</Text>
+                <Text style={styles.stockTitle}>{`${stock.ticker_id}`}</Text>
                 <Text style={styles.additionalData}>{`Quantity: ${stock.quantity}`}</Text>
-                <Text style={styles.additionalData}>{`Initial Trade Price: ${stock.initial_trade_price}`}</Text>
+                <Text style={styles.additionalData}>{`Initial Trade Price: ${parseFloat(stock.initial_trade_price).toFixed(2)}`}</Text>
                 <View style={styles.stockRow}>
-                  <Image source={require('../Assests/chart.png')} style={styles.chartImage} />
-                  <Text style={styles.stockPrice}>Market Price {`$${(parseFloat(stock.trade_price) || 0).toFixed(2)}`}</Text>
+                  <Text style={styles.stockPrice}>Current Price {`$${(parseFloat(stock.trade_price) || 0).toFixed(2)}`}</Text>
                 </View>
               </View>
             </TouchableOpacity>

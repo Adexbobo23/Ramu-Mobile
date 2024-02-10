@@ -218,8 +218,11 @@ const Wallet = () => {
   };
 
   function formatNumberWithCommas(number) {
+    if (typeof number === 'undefined') {
+      return ''; 
+    }
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+  }
 
   return (
     <View style={styles.container}>

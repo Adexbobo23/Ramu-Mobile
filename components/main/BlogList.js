@@ -67,6 +67,12 @@ const BlogList = () => {
     fetchBlogs();
   };
 
+  // Function to strip HTML tags from text
+  const stripHtmlTags = (html) => {
+    const regex = /(<([^>]+)>)/gi;
+    return html.replace(regex, '');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -109,7 +115,7 @@ const BlogList = () => {
             <View style={styles.textContainer}>
               <Text style={styles.blogTitle}>{blog.title}</Text>
               <Text style={styles.blogBody} numberOfLines={3}>
-                {blog.body.slice(0, 100)}...
+                {stripHtmlTags(blog.body).slice(0, 100)}...
               </Text>
               <Text style={styles.blogAuthor}>{`Author: ${blog.writer_info.user_name}`}</Text>
             </View>
@@ -138,7 +144,7 @@ const BlogList = () => {
                 style={styles.blogImage}
               />
               <Text style={styles.modalAuthor}>{`Author: ${selectedBlog.writer_info.user_name}`}</Text>
-              <Text style={styles.modalBody}>{selectedBlog.body}</Text>
+              <Text style={styles.modalBody}>{stripHtmlTags(selectedBlog.body)}</Text>
             </>
           )}
         </View>
